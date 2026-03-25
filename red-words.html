@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Red Words!">
+  <title>Red Words!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #ffe066 0%, #ff9a76 50%, #ffcf48 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    h1 {
+      font-family: 'Fredoka One', cursive;
+      color: #cc0000;
+      font-size: 2.8rem;
+      text-shadow: 3px 4px 0 rgba(0,0,0,0.12);
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+    }
+
+    .progress {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #7c4700;
+      margin-bottom: 6px;
+    }
+
+    .status-badge {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 3px 14px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      min-height: 28px;
+    }
+
+    .status-known { background: #d4edda; color: #276749; }
+    .status-almost { background: #fff3cd; color: #856404; }
+    .status-oops { background: #f8d7da; color: #a94442; }
+    .status-new { background: #e2e8f0; color: #555; }
+
+    .card-container {
+      perspective: 800px;
+      width: 90vw;
+      max-width: 500px;
+      height: 280px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      background: white;
+      border-radius: 28px;
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.15),
+        0 2px 0 4px #f0e0c0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      border: 4px dashed #ffe0e0;
+      border-radius: 18px;
+      pointer-events: none;
+    }
+
+    .card:active {
+      transform: scale(0.97);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+
+    .card .word {
+      font-family: 'Fredoka One', cursive;
+      font-size: 6rem;
+      color: #cc0000;
+      text-shadow: 3px 4px 0 rgba(200,0,0,0.15);
+      transition: opacity 0.2s ease;
+    }
+
+    .card.animating .word {
+      opacity: 0;
+    }
+
+    .stars {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      font-size: 1.6rem;
+      opacity: 0.25;
+    }
+
+    /* Rating buttons */
+    .rating {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .rate-btn {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      border: none;
+      border-radius: 18px;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+      color: white;
+    }
+
+    .rate-btn:active {
+      transform: scale(0.92);
+    }
+
+    .rate-btn.oops { background: #ff6b6b; }
+    .rate-btn.almost { background: #ffa94d; }
+    .rate-btn.known { background: #51cf66; }
+
+    .controls {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      border: none;
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn:active {
+      transform: scale(0.92);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .btn-prev { background: #ff7eb3; color: white; }
+    .btn-next { background: #7ed957; color: white; }
+    .btn-shuffle { background: #5bc0eb; color: white; font-size: 1.5rem; }
+
+    /* Score summary */
+    .score-bar {
+      display: flex;
+      gap: 16px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    .score-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .score-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .reset-link {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #7c4700;
+      background: none;
+      border: none;
+      text-decoration: underline;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
+    .confetti {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      animation: confetti-fall 1.5s ease-out forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    @media (max-width: 500px) {
+      h1 { font-size: 2.2rem; }
+      .card-container { height: 220px; }
+      .card .word { font-size: 4.5rem; }
+      .btn { width: 60px; height: 60px; font-size: 1.5rem; }
+      .rate-btn { font-size: 0.9rem; padding: 8px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Red Words!</h1>
+  <div class="progress" id="progress"></div>
+  <div class="status-badge status-new" id="statusBadge"></div>
+  <div class="card-container">
+    <div class="card" id="card">
+      <div class="stars" id="stars"></div>
+      <div class="word" id="word"></div>
+    </div>
+  </div>
+
+  <div class="rating">
+    <button class="rate-btn oops" onclick="rate('oops')">Oops!</button>
+    <button class="rate-btn almost" onclick="rate('almost')">Almost</button>
+    <button class="rate-btn known" onclick="rate('known')">Got it!</button>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-prev" onclick="prevWord()">&#9664;</button>
+    <button class="btn btn-shuffle" onclick="shuffleAndRebuild()">&#x1f500;</button>
+    <button class="btn btn-next" onclick="nextWord()">&#9654;</button>
+  </div>
+
+  <div class="score-bar" id="scoreBar"></div>
+  <button class="reset-link" onclick="resetProgress()">reset progress</button>
+
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+    // ===== WORD LIST — add more words here! =====
+    const WORDS = [
+      'when',
+      'the',
+      'who',
+    ];
+
+    // Frequency weights: oops words appear ~4x, almost ~2x, known ~1x, new ~2x
+    const WEIGHT = { oops: 4, almost: 2, known: 1, new: 2 };
+
+    let ratings = {};  // word -> 'known' | 'almost' | 'oops'
+    let deck = [];
+    let currentIndex = 0;
+
+    // --- localStorage persistence ---
+    function saveRatings() {
+      localStorage.setItem('redwords-ratings', JSON.stringify(ratings));
+    }
+
+    function loadRatings() {
+      try {
+        const saved = localStorage.getItem('redwords-ratings');
+        if (saved) ratings = JSON.parse(saved);
+      } catch(e) { /* ignore */ }
+    }
+
+    // --- Build a weighted deck ---
+    function buildDeck() {
+      deck = [];
+      WORDS.forEach(w => {
+        const status = ratings[w] || 'new';
+        const count = WEIGHT[status];
+        for (let i = 0; i < count; i++) deck.push(w);
+      });
+      // shuffle
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      // dedupe consecutive same words
+      for (let i = 1; i < deck.length; i++) {
+        if (deck[i] === deck[i - 1]) {
+          // find a different word to swap with
+          for (let k = i + 1; k < deck.length; k++) {
+            if (deck[k] !== deck[i - 1]) {
+              [deck[i], deck[k]] = [deck[k], deck[i]];
+              break;
+            }
+          }
+        }
+      }
+      currentIndex = 0;
+    }
+
+    function getStatus(word) {
+      return ratings[word] || 'new';
+    }
+
+    function showWord() {
+      const card = document.getElementById('card');
+      const wordEl = document.getElementById('word');
+      const progress = document.getElementById('progress');
+      const badge = document.getElementById('statusBadge');
+
+      const word = deck[currentIndex];
+      const status = getStatus(word);
+
+      card.classList.add('animating');
+      setTimeout(() => {
+        wordEl.textContent = word;
+        progress.textContent = `${currentIndex + 1} / ${deck.length}`;
+
+        badge.className = 'status-badge status-' + status;
+        const labels = { known: 'Got it!', almost: 'Almost', oops: 'Oops!', new: 'New word' };
+        badge.textContent = labels[status];
+
+        card.classList.remove('animating');
+      }, 150);
+
+      updateScoreBar();
+    }
+
+    function rate(level) {
+      const word = deck[currentIndex];
+      ratings[word] = level;
+      saveRatings();
+
+      // show updated badge immediately
+      const badge = document.getElementById('statusBadge');
+      badge.className = 'status-badge status-' + level;
+      const labels = { known: 'Got it!', almost: 'Almost', oops: 'Oops!' };
+      badge.textContent = labels[level];
+
+      updateScoreBar();
+
+      // auto-advance after brief pause
+      setTimeout(() => nextWord(), 350);
+    }
+
+    function nextWord() {
+      currentIndex++;
+      if (currentIndex >= deck.length) {
+        currentIndex = 0;
+        buildDeck(); // rebuild with updated weights
+        celebrate();
+      }
+      showWord();
+    }
+
+    function prevWord() {
+      currentIndex--;
+      if (currentIndex < 0) currentIndex = deck.length - 1;
+      showWord();
+    }
+
+    function shuffleAndRebuild() {
+      buildDeck();
+      showWord();
+    }
+
+    function resetProgress() {
+      ratings = {};
+      localStorage.removeItem('redwords-ratings');
+      buildDeck();
+      showWord();
+    }
+
+    function updateScoreBar() {
+      const counts = { known: 0, almost: 0, oops: 0, new: 0 };
+      WORDS.forEach(w => {
+        const s = ratings[w] || 'new';
+        counts[s]++;
+      });
+      const bar = document.getElementById('scoreBar');
+      bar.innerHTML =
+        `<span class="score-item"><span class="score-dot" style="background:#51cf66"></span> ${counts.known}</span>` +
+        `<span class="score-item"><span class="score-dot" style="background:#ffa94d"></span> ${counts.almost}</span>` +
+        `<span class="score-item"><span class="score-dot" style="background:#ff6b6b"></span> ${counts.oops}</span>` +
+        `<span class="score-item"><span class="score-dot" style="background:#ccc"></span> ${counts.new}</span>`;
+    }
+
+    function celebrate() {
+      const container = document.getElementById('confetti');
+      const colors = ['#ff7eb3', '#7ed957', '#5bc0eb', '#ffe066', '#ff6b6b', '#c084fc'];
+      for (let i = 0; i < 40; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = Math.random() * 0.5 + 's';
+        piece.style.animationDuration = (1 + Math.random()) + 's';
+        container.appendChild(piece);
+      }
+      setTimeout(() => { container.innerHTML = ''; }, 2500);
+    }
+
+    function placeStars() {
+      const starsEl = document.getElementById('stars');
+      const positions = [
+        { top: '8%', left: '8%' },
+        { top: '8%', right: '8%' },
+        { bottom: '8%', left: '8%' },
+        { bottom: '8%', right: '8%' },
+      ];
+      positions.forEach(pos => {
+        const s = document.createElement('span');
+        s.className = 'star';
+        s.textContent = '\u2B50';
+        Object.assign(s.style, pos);
+        starsEl.appendChild(s);
+      });
+    }
+
+    // Swipe support
+    let touchStartX = 0;
+    document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', e => {
+      const diff = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(diff) > 50) {
+        diff < 0 ? nextWord() : prevWord();
+      }
+    });
+
+    // Keyboard support
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' || e.key === ' ') nextWord();
+      if (e.key === 'ArrowLeft') prevWord();
+      if (e.key === '1') rate('oops');
+      if (e.key === '2') rate('almost');
+      if (e.key === '3') rate('known');
+    });
+
+    // Init
+    loadRatings();
+    buildDeck();
+    placeStars();
+    showWord();
+  </script>
+</body>
+</html>
