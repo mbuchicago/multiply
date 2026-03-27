@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Place Value!">
+  <title>Place Value!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ones-color: #f97316;
+      --ones-shadow: #c2410c;
+      --tens-color: #3b82f6;
+      --tens-shadow: #1d4ed8;
+      --bg-grad: linear-gradient(135deg, #4ade80 0%, #22d3ee 100%);
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg-grad);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 12px 24px;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-y;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-family: 'Fredoka One', cursive;
+      color: white;
+      font-size: 2.6rem;
+      text-shadow: 3px 4px 0 rgba(0,0,0,0.18);
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    /* ── Mode Tabs ─────────────────────────────────────────── */
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 24px;
+      padding: 5px;
+    }
+
+    .mode-tab {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 18px;
+      cursor: pointer;
+      color: white;
+      background: transparent;
+      transition: background 0.2s, color 0.2s, transform 0.1s;
+      touch-action: manipulation;
+    }
+
+    .mode-tab.active {
+      background: white;
+      color: #059669;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    }
+
+    .mode-tab:active { transform: scale(0.94); }
+
+    /* ── Main panels ───────────────────────────────────────── */
+    .panel {
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      width: 100%;
+      max-width: 520px;
+    }
+
+    /* ── Number display ────────────────────────────────────── */
+    .number-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 18px 24px 14px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+
+    .big-number {
+      font-family: 'Fredoka One', cursive;
+      font-size: 5rem;
+      line-height: 1;
+      color: #1e293b;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .place-chart {
+      display: flex;
+      gap: 6px;
+    }
+
+    .place-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: 14px;
+      padding: 8px 14px;
+      min-width: 60px;
+    }
+
+    .place-cell.tens {
+      background: #dbeafe;
+      border: 3px solid var(--tens-color);
+    }
+
+    .place-cell.ones {
+      background: #ffedd5;
+      border: 3px solid var(--ones-color);
+    }
+
+    .place-digit {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.2rem;
+      line-height: 1;
+    }
+
+    .place-cell.tens .place-digit { color: var(--tens-color); }
+    .place-cell.ones .place-digit { color: var(--ones-color); }
+
+    .place-label {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 2px;
+    }
+
+    .place-cell.tens .place-label { color: var(--tens-color); }
+    .place-cell.ones .place-label { color: var(--ones-color); }
+
+    /* ── Workspace ─────────────────────────────────────────── */
+    .workspace {
+      display: flex;
+      min-height: 240px;
+      padding: 14px 16px;
+      gap: 10px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+
+    .zone {
+      flex: 1;
+      border-radius: 18px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      min-height: 200px;
+    }
+
+    .zone.tens-zone {
+      background: #eff6ff;
+      border: 2px dashed #93c5fd;
+    }
+
+    .zone.ones-zone {
+      background: #fff7ed;
+      border: 2px dashed #fdba74;
+    }
+
+    .zone-label {
+      font-family: 'Fredoka One', cursive;
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+    }
+
+    .zone.tens-zone .zone-label { color: var(--tens-color); }
+    .zone.ones-zone .zone-label { color: var(--ones-color); }
+
+    .blocks-area {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tens-row {
+      display: flex;
+      gap: 6px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* Ten-rod: tall vertical block */
+    .ten-rod {
+      width: 40px;
+      height: 200px;
+      background: var(--tens-color);
+      border-radius: 8px;
+      box-shadow: 2px 2px 0 var(--tens-shadow);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    /* Score lines on the rod showing 10 units */
+    .ten-rod::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 18px,
+        rgba(255,255,255,0.35) 18px,
+        rgba(255,255,255,0.35) 20px
+      );
+      border-radius: 8px;
+    }
+
+    .ones-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+      max-width: 160px;
+    }
+
+    /* One cube */
+    .one-cube {
+      width: 46px;
+      height: 46px;
+      background: var(--ones-color);
+      border-radius: 8px;
+      box-shadow: 0 3px 0 var(--ones-shadow);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    /* Subtle shine on cube */
+    .one-cube::after {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 6px;
+      width: 14px;
+      height: 8px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 4px;
+    }
+
+    /* ── Block animations ──────────────────────────────────── */
+    @keyframes blockPopIn {
+      0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+      70%  { transform: scale(1.15) rotate(3deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    @keyframes blockPopOut {
+      0%   { transform: scale(1); opacity: 1; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
+    @keyframes rodPopIn {
+      0%   { transform: scaleY(0); opacity: 0; transform-origin: bottom; }
+      70%  { transform: scaleY(1.08); opacity: 1; transform-origin: bottom; }
+      100% { transform: scaleY(1); opacity: 1; transform-origin: bottom; }
+    }
+
+    .pop-in  { animation: blockPopIn 0.32s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .pop-out { animation: blockPopOut 0.18s ease-in both; }
+    .rod-pop { animation: rodPopIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+    @keyframes cubeBundling {
+      0%   { transform: scale(1); filter: brightness(1); }
+      40%  { transform: scale(1.2); filter: brightness(1.4); }
+      100% { transform: scale(0) translateX(-80px); opacity: 0; }
+    }
+
+    .bundling-cube {
+      animation: cubeBundling 0.45s ease-in both !important;
+    }
+
+    /* Starburst particle */
+    @keyframes starburstFly {
+      0%   { transform: translate(0,0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
+    .starburst {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: starburstFly 0.5s ease-out both;
+    }
+
+    /* ── Controls ──────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      gap: 8px;
+      padding: 14px 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: 'Fredoka One', cursive;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+      touch-action: manipulation;
+    }
+
+    .btn:active  { transform: translateY(3px) !important; box-shadow: none !important; }
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+      transform: none !important;
+    }
+
+    .btn-add-ones {
+      width: 72px;
+      height: 72px;
+      font-size: 1.4rem;
+      background: var(--ones-color);
+      color: white;
+      box-shadow: 0 5px 0 var(--ones-shadow);
+      border-radius: 20px;
+    }
+
+    .btn-add-ones.primary {
+      width: 80px;
+      height: 80px;
+      font-size: 1.5rem;
+    }
+
+    .btn-add-ten {
+      width: 72px;
+      height: 72px;
+      font-size: 1.1rem;
+      background: var(--tens-color);
+      color: white;
+      box-shadow: 0 4px 0 var(--tens-shadow);
+      border-radius: 20px;
+    }
+
+    .btn-remove {
+      width: 66px;
+      height: 66px;
+      font-size: 1.3rem;
+      background: #94a3b8;
+      color: white;
+      box-shadow: 0 4px 0 #475569;
+      border-radius: 20px;
+    }
+
+    .btn-clear {
+      font-size: 1rem;
+      padding: 14px 18px;
+      background: #f43f5e;
+      color: white;
+      box-shadow: 0 4px 0 #be123c;
+    }
+
+    /* ── Challenge UI ──────────────────────────────────────── */
+    .challenge-area {
+      padding: 0 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .target-display {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2rem;
+      color: #7c3aed;
+      background: #ede9fe;
+      border-radius: 18px;
+      padding: 10px 28px;
+      box-shadow: 0 3px 0 #a78bfa;
+      text-align: center;
+    }
+
+    .feedback-msg {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      min-height: 36px;
+      text-align: center;
+    }
+    .feedback-msg.correct { color: #16a34a; }
+    .feedback-msg.wrong   { color: #dc2626; }
+
+    .btn-next-challenge {
+      font-size: 1.2rem;
+      padding: 14px 32px;
+      background: #22c55e;
+      color: white;
+      box-shadow: 0 4px 0 #15803d;
+    }
+
+    /* ── Number pad (identify mode) ────────────────────────── */
+    .numpad-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px 16px;
+    }
+
+    .answer-slots {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .answer-slot {
+      width: 68px;
+      height: 68px;
+      border-radius: 16px;
+      border: 4px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.4rem;
+      background: white;
+      transition: border-color 0.2s;
+    }
+
+    .answer-slot.tens { border-color: var(--tens-color); color: var(--tens-color); }
+    .answer-slot.ones { border-color: var(--ones-color); color: var(--ones-color); }
+    .answer-slot.active-slot { box-shadow: 0 0 0 3px rgba(124,58,237,0.4); }
+
+    .slot-label {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.7rem;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .slot-label.tens { color: var(--tens-color); }
+    .slot-label.ones { color: var(--ones-color); }
+
+    .slot-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      max-width: 320px;
+    }
+
+    .numpad-btn {
+      width: 62px;
+      height: 62px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      background: #f1f5f9;
+      color: #334155;
+      box-shadow: 0 3px 0 #cbd5e1;
+      touch-action: manipulation;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .numpad-btn:active { transform: translateY(2px); box-shadow: none; }
+
+    .numpad-btn.backspace {
+      background: #fca5a5;
+      color: white;
+      box-shadow: 0 3px 0 #f87171;
+    }
+
+    .numpad-btn.check-btn {
+      background: #22c55e;
+      color: white;
+      box-shadow: 0 3px 0 #15803d;
+      font-size: 1rem;
+    }
+
+    /* ── Level / Score bar ─────────────────────────────────── */
+    .level-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 20px;
+      border-top: 2px solid #f1f5f9;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .level-pill {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      background: #ede9fe;
+      color: #7c3aed;
+      border-radius: 20px;
+      padding: 5px 16px;
+    }
+
+    .score-pill {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #6b7280;
+    }
+
+    /* ── Toast ─────────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #1e293b;
+      color: white;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      padding: 12px 28px;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      pointer-events: none;
+      z-index: 500;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Bundle callout ────────────────────────────────────── */
+    .bundle-callout {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      font-family: 'Fredoka One', cursive;
+      font-size: 2rem;
+      color: white;
+      background: linear-gradient(135deg, var(--ones-color), var(--tens-color));
+      padding: 16px 32px;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 9500;
+      pointer-events: none;
+      animation: calloutPop 1.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes calloutPop {
+      0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      15%  { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+      25%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      75%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+    }
+
+    /* ── Confetti ──────────────────────────────────────────── */
+    .confetti {
+      position: fixed;
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(105vh) rotate(900deg); opacity: 0; }
+    }
+
+    /* ── Landscape layout ──────────────────────────────────── */
+    @media (min-width: 900px) and (orientation: landscape) {
+      body { flex-direction: row; align-items: flex-start; gap: 20px; padding: 20px; flex-wrap: wrap; justify-content: center; }
+      h1 { width: 100%; text-align: center; margin-bottom: 0; }
+      .mode-tabs { order: -1; }
+      .panel { max-width: none; width: 480px; }
+    }
+
+    @media (max-width: 420px) {
+      h1 { font-size: 2rem; }
+      .big-number { font-size: 3.8rem; }
+      .btn-add-ones { width: 60px; height: 60px; font-size: 1.1rem; }
+      .btn-add-ones.primary { width: 66px; height: 66px; font-size: 1.3rem; }
+      .btn-add-ten { width: 60px; height: 60px; font-size: 1rem; }
+      .ten-rod { width: 34px; height: 170px; }
+      .one-cube { width: 40px; height: 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Place Value!</h1>
+
+<div class="mode-tabs">
+  <button class="mode-tab" id="tab-free"     onclick="setMode('free')">Free Build</button>
+  <button class="mode-tab" id="tab-build"    onclick="setMode('build')">Build It</button>
+  <button class="mode-tab" id="tab-identify" onclick="setMode('identify')">What Number?</button>
+</div>
+
+<div class="panel" id="main-panel">
+
+  <!-- Number display -->
+  <div class="number-display">
+    <div class="big-number" id="big-number">0</div>
+    <div class="place-chart">
+      <div class="place-cell tens">
+        <div class="place-digit" id="chart-tens">0</div>
+        <div class="place-label">tens</div>
+      </div>
+      <div class="place-cell ones">
+        <div class="place-digit" id="chart-ones">0</div>
+        <div class="place-label">ones</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workspace -->
+  <div class="workspace">
+    <div class="zone tens-zone">
+      <div class="zone-label">TENS</div>
+      <div class="blocks-area">
+        <div class="tens-row" id="tens-row"></div>
+      </div>
+    </div>
+    <div class="zone ones-zone">
+      <div class="zone-label">ONES</div>
+      <div class="blocks-area">
+        <div class="ones-grid" id="ones-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-add-ten"   id="btn-add-ten"  onclick="addTen()"      title="Add 10">+10</button>
+    <button class="btn btn-add-ones"  id="btn-add-five" onclick="addOnes(5)"    title="Add 5">+5</button>
+    <button class="btn btn-add-ones"  id="btn-add-three" onclick="addOnes(3)"   title="Add 3">+3</button>
+    <button class="btn btn-add-ones primary" id="btn-add-one" onclick="addOnes(1)" title="Add 1">+1</button>
+    <button class="btn btn-remove"    id="btn-remove"   onclick="removeOne()"   title="Remove 1">−1</button>
+    <button class="btn btn-clear"     id="btn-clear"    onclick="clearAll()"    title="Clear">Clear</button>
+  </div>
+
+  <!-- Challenge: Build It -->
+  <div class="challenge-area" id="build-challenge" style="display:none">
+    <div class="target-display" id="build-target">Build: 34</div>
+    <div class="feedback-msg" id="build-feedback"></div>
+    <button class="btn btn-next-challenge" id="btn-next-build" onclick="nextBuildChallenge()" style="display:none">Next →</button>
+  </div>
+
+  <!-- Challenge: Identify -->
+  <div class="numpad-wrap" id="identify-challenge" style="display:none">
+    <div class="target-display" style="font-size:1.4rem">What number is this?</div>
+    <div class="answer-slots">
+      <div class="slot-col">
+        <div class="answer-slot tens" id="slot-tens">_</div>
+        <div class="slot-label tens">tens</div>
+      </div>
+      <div class="slot-col">
+        <div class="answer-slot ones" id="slot-ones">_</div>
+        <div class="slot-label ones">ones</div>
+      </div>
+    </div>
+    <div class="numpad" id="numpad"></div>
+    <div class="feedback-msg" id="identify-feedback"></div>
+  </div>
+
+  <!-- Level bar -->
+  <div class="level-bar" id="level-bar" style="display:none">
+    <div class="level-pill" id="level-pill">Level 1</div>
+    <div class="score-pill" id="score-pill">0 correct</div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Audio ──────────────────────────────────────────────────────────────────
+  let audioCtx = null;
+
+  function getAudio() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) { return null; }
+    }
+    return audioCtx;
+  }
+
+  function playTone(freq, duration, type = 'sine', volume = 0.18, startDelay = 0) {
+    const ctx = getAudio();
+    if (!ctx) return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + startDelay);
+      gain.gain.setValueAtTime(volume, ctx.currentTime + startDelay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startDelay + duration);
+      osc.start(ctx.currentTime + startDelay);
+      osc.stop(ctx.currentTime + startDelay + duration + 0.01);
+    } catch (e) { /* graceful degradation */ }
+  }
+
+  function playAddOne()    { playTone(800, 0.08); }
+  function playAddTen()    { playTone(400, 0.12); }
+  function playRemove()    { playTone(600, 0.03, 'sine', 0.1); }
+
+  function playBundleStart() {
+    [400, 500, 600].forEach((f, i) => playTone(f, 0.1, 'sine', 0.18, i * 0.1));
+  }
+
+  function playBundleComplete() {
+    [523, 659, 784].forEach(f => playTone(f, 0.3, 'sine', 0.14));
+  }
+
+  function playCorrect() {
+    // C5-D5-E5-G5-C6
+    [523, 587, 659, 784, 1047].forEach((f, i) => playTone(f, 0.08, 'sine', 0.18, i * 0.09));
+  }
+
+  function playWrong() {
+    const ctx = getAudio();
+    if (!ctx) return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(200, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.18, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.23);
+    } catch (e) { /* graceful degradation */ }
+  }
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  const state = {
+    ones: 0,
+    tens: 0,
+    mode: 'free',
+    target: null,
+    level: 1,
+    correctCount: 0,
+    isBundling: false,
+    // identify mode: answer being typed
+    answerTens: null,
+    answerOnes: null,
+    lastTarget: null,
+  };
+
+  // Progress persisted separately for build and identify modes
+  const progress = {
+    buildLevel: 1,
+    identifyLevel: 1,
+    buildCorrect: 0,
+    identifyCorrect: 0,
+  };
+
+  function loadProgress() {
+    try {
+      const saved = localStorage.getItem('placevalue-progress');
+      if (saved) Object.assign(progress, JSON.parse(saved));
+    } catch (e) { /* ignore */ }
+  }
+
+  function saveProgress() {
+    try {
+      localStorage.setItem('placevalue-progress', JSON.stringify(progress));
+    } catch (e) { /* ignore */ }
+  }
+
+  // ── Value helpers ──────────────────────────────────────────────────────────
+  function getValue() { return state.tens * 10 + state.ones; }
+
+  function getLevelRange(level) {
+    if (level === 1) return [1, 20];
+    if (level === 2) return [1, 50];
+    return [1, 99];
+  }
+
+  function randomTarget(level, avoidValue) {
+    const [min, max] = getLevelRange(level);
+    // Prefer numbers where both tens and ones > 0 to reinforce place value
+    const candidates = [];
+    for (let n = min; n <= max; n++) {
+      if (n === avoidValue) continue;
+      const t = Math.floor(n / 10);
+      const o = n % 10;
+      if (t > 0 && o > 0) candidates.push(n);
+    }
+    // Fall back to full range if no candidates
+    const pool = candidates.length > 0 ? candidates : [];
+    if (pool.length === 0) {
+      for (let n = min; n <= max; n++) {
+        if (n !== avoidValue) pool.push(n);
+      }
+    }
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  // ── Mode switching ─────────────────────────────────────────────────────────
+  function setMode(mode) {
+    state.mode = mode;
+    clearAll(true);
+
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + mode).classList.add('active');
+
+    const buildEl      = document.getElementById('build-challenge');
+    const identifyEl   = document.getElementById('identify-challenge');
+    const levelBarEl   = document.getElementById('level-bar');
+    const addTenBtn    = document.getElementById('btn-add-ten');
+
+    buildEl.style.display    = 'none';
+    identifyEl.style.display = 'none';
+    levelBarEl.style.display = 'none';
+
+    if (mode === 'build') {
+      buildEl.style.display  = 'flex';
+      levelBarEl.style.display = 'flex';
+      addTenBtn.style.display = 'none'; // build up naturally
+      document.getElementById('btn-add-one').style.display = '';
+      document.getElementById('btn-add-three').style.display = '';
+      document.getElementById('btn-add-five').style.display = '';
+      document.getElementById('btn-remove').style.display = '';
+      document.getElementById('btn-clear').style.display = '';
+      document.querySelector('.number-display').style.display = '';
+      state.level = progress.buildLevel;
+      state.correctCount = progress.buildCorrect;
+      nextBuildChallenge();
+      updateLevelBar();
+    } else if (mode === 'identify') {
+      identifyEl.style.display = 'flex';
+      levelBarEl.style.display = 'flex';
+      addTenBtn.style.display = 'none';
+      document.getElementById('btn-remove').style.display = 'none';
+      document.getElementById('btn-add-one').style.display = 'none';
+      document.getElementById('btn-add-three').style.display = 'none';
+      document.getElementById('btn-add-five').style.display = 'none';
+      document.getElementById('btn-clear').style.display = 'none';
+      // Hide the number display — that's the answer!
+      document.querySelector('.number-display').style.display = 'none';
+      state.level = progress.identifyLevel;
+      state.correctCount = progress.identifyCorrect;
+      nextIdentifyChallenge();
+      updateLevelBar();
+    } else {
+      // free mode — all controls visible
+      addTenBtn.style.display = '';
+      document.getElementById('btn-remove').style.display = '';
+      document.getElementById('btn-add-one').style.display = '';
+      document.getElementById('btn-add-three').style.display = '';
+      document.getElementById('btn-add-five').style.display = '';
+      document.getElementById('btn-clear').style.display = '';
+      document.querySelector('.number-display').style.display = '';
+    }
+  }
+
+  // ── Rendering (diff-based) ─────────────────────────────────────────────────
+  let renderedTens = 0;
+  let renderedOnes = 0;
+
+  function renderBlocks(animate = true) {
+    const tensRow  = document.getElementById('tens-row');
+    const onesGrid = document.getElementById('ones-grid');
+
+    // Tens rods
+    const deltaTens = state.tens - renderedTens;
+    if (deltaTens > 0) {
+      for (let i = 0; i < deltaTens; i++) {
+        const rod = document.createElement('div');
+        rod.className = 'ten-rod' + (animate ? ' rod-pop' : '');
+        tensRow.appendChild(rod);
+      }
+    } else if (deltaTens < 0) {
+      for (let i = 0; i < -deltaTens; i++) {
+        const last = tensRow.lastElementChild;
+        if (!last) break;
+        if (animate) {
+          last.classList.add('pop-out');
+          const el = last;
+          setTimeout(() => el.remove(), 180);
+        } else {
+          last.remove();
+        }
+      }
+    }
+    renderedTens = state.tens;
+
+    // Ones cubes
+    const deltaOnes = state.ones - renderedOnes;
+    if (deltaOnes > 0) {
+      for (let i = 0; i < deltaOnes; i++) {
+        const cube = document.createElement('div');
+        cube.className = 'one-cube' + (animate ? ' pop-in' : '');
+        onesGrid.appendChild(cube);
+      }
+    } else if (deltaOnes < 0) {
+      for (let i = 0; i < -deltaOnes; i++) {
+        const last = onesGrid.lastElementChild;
+        if (!last) break;
+        if (animate) {
+          last.classList.add('pop-out');
+          const el = last;
+          setTimeout(() => el.remove(), 180);
+        } else {
+          last.remove();
+        }
+      }
+    }
+    renderedOnes = state.ones;
+
+    updateDisplay();
+  }
+
+  function renderFromScratch() {
+    const tensRow  = document.getElementById('tens-row');
+    const onesGrid = document.getElementById('ones-grid');
+    tensRow.innerHTML  = '';
+    onesGrid.innerHTML = '';
+    renderedTens = 0;
+    renderedOnes = 0;
+
+    for (let i = 0; i < state.tens; i++) {
+      const rod = document.createElement('div');
+      rod.className = 'ten-rod';
+      tensRow.appendChild(rod);
+    }
+    renderedTens = state.tens;
+
+    for (let i = 0; i < state.ones; i++) {
+      const cube = document.createElement('div');
+      cube.className = 'one-cube';
+      onesGrid.appendChild(cube);
+    }
+    renderedOnes = state.ones;
+
+    updateDisplay();
+  }
+
+  function updateDisplay() {
+    const val = getValue();
+    document.getElementById('big-number').textContent = val;
+    document.getElementById('chart-tens').textContent = state.tens;
+    document.getElementById('chart-ones').textContent = state.ones;
+  }
+
+  // ── Bundling animation ─────────────────────────────────────────────────────
+  function triggerBundle() {
+    state.isBundling = true;
+    setAddDisabled(true);
+
+    const cubes = Array.from(document.getElementById('ones-grid').children);
+    playBundleStart();
+
+    // Stagger the cube bundling animations
+    cubes.forEach((cube, i) => {
+      setTimeout(() => {
+        cube.classList.remove('pop-in');
+        cube.classList.add('bundling-cube');
+      }, i * 30);
+    });
+
+    // Spawn starburst particles near the ones zone
+    const onesZone = document.querySelector('.ones-zone');
+    const rect = onesZone.getBoundingClientRect();
+    spawnStarburst(rect.left + rect.width * 0.5, rect.top + rect.height * 0.5);
+
+    const lastDelay = 30 * (cubes.length - 1) + 450;
+
+    setTimeout(() => {
+      // Remove all cubes from DOM
+      const onesGrid = document.getElementById('ones-grid');
+      onesGrid.innerHTML = '';
+      renderedOnes = 0;
+
+      // Increment tens, reset ones
+      state.tens++;
+      state.ones = 0;
+
+      // Add the new ten-rod with animation
+      const tensRow = document.getElementById('tens-row');
+      const rod = document.createElement('div');
+      rod.className = 'ten-rod rod-pop';
+      tensRow.appendChild(rod);
+      renderedTens = state.tens;
+
+      playBundleComplete();
+      showBundleCallout();
+      updateDisplay();
+
+      setTimeout(() => {
+        state.isBundling = false;
+        setAddDisabled(false);
+        // In build mode, check if target was just hit
+        if (state.mode === 'build') checkBuildTarget();
+      }, 200);
+    }, lastDelay);
+  }
+
+  function showBundleCallout() {
+    const el = document.createElement('div');
+    el.className = 'bundle-callout';
+    el.textContent = '10 ones = 1 ten!';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1600);
+  }
+
+  function spawnStarburst(cx, cy) {
+    const colors = ['#f97316','#3b82f6','#eab308','#22c55e','#ec4899','#8b5cf6'];
+    for (let i = 0; i < 10; i++) {
+      const p = document.createElement('div');
+      p.className = 'starburst';
+      const angle = (i / 10) * 360 * (Math.PI / 180);
+      const dist = 40 + Math.random() * 40;
+      p.style.cssText = `
+        left: ${cx}px;
+        top: ${cy}px;
+        background: ${colors[i % colors.length]};
+        --tx: ${Math.cos(angle) * dist}px;
+        --ty: ${Math.sin(angle) * dist}px;
+        position: fixed;
+        z-index: 9000;
+        pointer-events: none;
+      `;
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 520);
+    }
+  }
+
+  // ── Controls ───────────────────────────────────────────────────────────────
+  function setAddDisabled(disabled) {
+    const btns = ['btn-add-one', 'btn-add-three', 'btn-add-five'];
+    const tenBtn = document.getElementById('btn-add-ten');
+    if (disabled) {
+      btns.forEach(id => { const b = document.getElementById(id); if (b) b.disabled = true; });
+      if (tenBtn) tenBtn.disabled = true;
+    } else {
+      const val = getValue();
+      btns.forEach(id => { const b = document.getElementById(id); if (b) b.disabled = (val >= 99); });
+      if (tenBtn) tenBtn.disabled = (state.tens >= 9);
+    }
+  }
+
+  function addOnes(n) {
+    if (state.isBundling) return;
+    const space = 99 - getValue();
+    if (space <= 0) { showToast('Full!'); return; }
+    getAudio();
+    const toAdd = Math.min(n, space);
+
+    // Add cubes one at a time with staggered animation, then bundle if we hit 10
+    let added = 0;
+    function addNext() {
+      if (added >= toAdd) return;
+      state.ones++;
+      renderBlocks();
+      playAddOne();
+      added++;
+      if (state.ones === 10) {
+        triggerBundle();
+        // After bundle completes, continue adding remaining cubes
+        if (added < toAdd) {
+          const remaining = toAdd - added;
+          const waitForBundle = 30 * 9 + 450 + 250; // match triggerBundle timing
+          setTimeout(() => addOnes(remaining), waitForBundle);
+        }
+        return;
+      }
+      if (added < toAdd) {
+        setTimeout(addNext, 80);
+      } else if (state.mode === 'build') {
+        checkBuildTarget();
+      }
+    }
+    addNext();
+  }
+
+  function addTen() {
+    if (state.isBundling) return;
+    if (state.tens >= 9 || getValue() + 10 > 99) { showToast('Full!'); return; }
+    getAudio();
+    state.tens++;
+    renderBlocks();
+    playAddTen();
+    if (state.mode === 'build') checkBuildTarget();
+  }
+
+  function removeOne() {
+    if (state.isBundling) return;
+    if (getValue() === 0) return;
+    getAudio();
+    if (state.ones > 0) {
+      state.ones--;
+      renderBlocks();
+      playRemove();
+    } else if (state.tens > 0) {
+      // "unbundle": remove a ten rod, add 9 ones
+      state.tens--;
+      state.ones = 9;
+      // Rebuild ones from scratch since we're adding many at once
+      const tensRow  = document.getElementById('tens-row');
+      const onesGrid = document.getElementById('ones-grid');
+      const lastRod = tensRow.lastElementChild;
+      if (lastRod) {
+        lastRod.classList.add('pop-out');
+        setTimeout(() => lastRod.remove(), 180);
+      }
+      renderedTens = state.tens;
+      onesGrid.innerHTML = '';
+      renderedOnes = 0;
+      for (let i = 0; i < 9; i++) {
+        const cube = document.createElement('div');
+        cube.className = 'one-cube pop-in';
+        cube.style.animationDelay = (i * 0.03) + 's';
+        onesGrid.appendChild(cube);
+      }
+      renderedOnes = 9;
+      playRemove();
+      updateDisplay();
+    }
+  }
+
+  function clearAll(silent = false) {
+    if (!silent) getAudio();
+    state.ones = 0;
+    state.tens = 0;
+    state.isBundling = false;
+    setAddDisabled(false);
+    renderFromScratch();
+  }
+
+  // ── Build It mode ──────────────────────────────────────────────────────────
+  function nextBuildChallenge() {
+    clearAll(true);
+    document.getElementById('build-feedback').textContent = '';
+    document.getElementById('btn-next-build').style.display = 'none';
+    setAddDisabled(false);
+
+    state.target = randomTarget(state.level, state.lastTarget);
+    state.lastTarget = state.target;
+    document.getElementById('build-target').textContent = `Build: ${state.target}`;
+  }
+
+  function checkBuildTarget() {
+    if (state.target === null) return;
+    if (getValue() === state.target) {
+      setTimeout(() => {
+        if (getValue() !== state.target) return; // may have changed
+        playCorrect();
+        spawnConfetti();
+        document.getElementById('build-feedback').textContent = randomPraise();
+        document.getElementById('build-feedback').className = 'feedback-msg correct';
+        document.getElementById('btn-next-build').style.display = '';
+        setAddDisabled(true);
+
+        progress.buildCorrect++;
+        if (progress.buildCorrect >= 5 && progress.buildLevel < 3) {
+          progress.buildLevel++;
+          progress.buildCorrect = 0;
+          showToast('Level Up! 🌟');
+        }
+        state.level = progress.buildLevel;
+        state.correctCount = progress.buildCorrect;
+        saveProgress();
+        updateLevelBar();
+      }, 300);
+    } else {
+      document.getElementById('build-feedback').textContent = '';
+      document.getElementById('build-feedback').className = 'feedback-msg';
+    }
+  }
+
+  // ── What Number? mode ──────────────────────────────────────────────────────
+  function nextIdentifyChallenge() {
+    state.target = randomTarget(state.level, state.lastTarget);
+    state.lastTarget = state.target;
+    state.answerTens = null;
+    state.answerOnes = null;
+
+    // Hide the number display — that's the answer
+    document.querySelector('.number-display').style.display = 'none';
+
+    // Pre-build the blocks silently
+    state.tens = Math.floor(state.target / 10);
+    state.ones = state.target % 10;
+    renderFromScratch();
+
+    // Reset answer slots
+    updateSlots();
+    document.getElementById('identify-feedback').textContent = '';
+    document.getElementById('identify-feedback').className = 'feedback-msg';
+  }
+
+  function updateSlots() {
+    const slotT = document.getElementById('slot-tens');
+    const slotO = document.getElementById('slot-ones');
+    slotT.textContent = state.answerTens !== null ? state.answerTens : '_';
+    slotO.textContent = state.answerOnes !== null ? state.answerOnes : '_';
+    // Highlight active slot
+    slotT.classList.toggle('active-slot', state.answerTens === null);
+    slotO.classList.toggle('active-slot', state.answerTens !== null && state.answerOnes === null);
+  }
+
+  function numpadPress(digit) {
+    getAudio();
+    if (state.answerTens === null) {
+      state.answerTens = digit;
+    } else if (state.answerOnes === null) {
+      state.answerOnes = digit;
+    }
+    playTone(700, 0.05);
+    updateSlots();
+  }
+
+  function numpadBackspace() {
+    if (state.answerOnes !== null) {
+      state.answerOnes = null;
+    } else if (state.answerTens !== null) {
+      state.answerTens = null;
+    }
+    updateSlots();
+  }
+
+  function checkIdentifyAnswer() {
+    if (state.answerTens === null || state.answerOnes === null) return;
+    const guessed = state.answerTens * 10 + state.answerOnes;
+    const fb = document.getElementById('identify-feedback');
+
+    if (guessed === state.target) {
+      fb.textContent = randomPraise();
+      fb.className = 'feedback-msg correct';
+      playCorrect();
+      spawnConfetti();
+      // Reveal the answer in the number display
+      document.querySelector('.number-display').style.display = '';
+
+      progress.identifyCorrect++;
+      if (progress.identifyCorrect >= 5 && progress.identifyLevel < 3) {
+        progress.identifyLevel++;
+        progress.identifyCorrect = 0;
+        showToast('Level Up! 🌟');
+      }
+      state.level = progress.identifyLevel;
+      state.correctCount = progress.identifyCorrect;
+      saveProgress();
+      updateLevelBar();
+
+      setTimeout(() => nextIdentifyChallenge(), 1200);
+    } else {
+      fb.textContent = 'Try again!';
+      fb.className = 'feedback-msg wrong';
+      playWrong();
+      // Reset answer
+      state.answerTens = null;
+      state.answerOnes = null;
+      updateSlots();
+    }
+  }
+
+  function buildNumpad() {
+    const pad = document.getElementById('numpad');
+    // Layout: 0-9 in two rows of 5, then backspace + check
+    let html = '';
+    for (let d = 0; d <= 9; d++) {
+      html += `<button class="numpad-btn" onclick="numpadPress(${d})">${d}</button>`;
+    }
+    html += `<button class="numpad-btn backspace" onclick="numpadBackspace()">⌫</button>`;
+    html += `<button class="numpad-btn check-btn" onclick="checkIdentifyAnswer()">✓</button>`;
+    pad.innerHTML = html;
+  }
+
+  // ── Level bar ──────────────────────────────────────────────────────────────
+  function updateLevelBar() {
+    document.getElementById('level-pill').textContent = `Level ${state.level}`;
+    const needed = 5;
+    const done = state.mode === 'build' ? progress.buildCorrect : progress.identifyCorrect;
+    document.getElementById('score-pill').textContent = `${done} / ${needed} to next level`;
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  const PRAISE = ['Amazing! 🌟','You got it! ⭐','Brilliant! 💫','Fantastic! 🎈',
+                  'Super! 🌈','Awesome! 🦋','Correct! 🎀','Wonderful! 💎','Yes! 🎉'];
+
+  function randomPraise() {
+    return PRAISE[Math.floor(Math.random() * PRAISE.length)];
+  }
+
+  function spawnConfetti() {
+    const colors = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
+    for (let i = 0; i < 22; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        top: -15px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        animation-duration: ${1 + Math.random() * 1.2}s;
+        animation-delay: ${Math.random() * 0.4}s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2200);
+    }
+  }
+
+  function celebrate99() {
+    if (getValue() === 99) {
+      spawnConfetti();
+      playCorrect();
+    }
+  }
+
+  let toastTimer = null;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  // ── Keyboard ───────────────────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    // Don't intercept if user is typing in an input
+    if (e.target.tagName === 'INPUT') return;
+
+    if (e.key === '1' || e.key === '+' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      addOnes(1);
+    } else if (e.key === '3') {
+      e.preventDefault();
+      addOnes(3);
+    } else if (e.key === '5') {
+      e.preventDefault();
+      addOnes(5);
+    } else if (e.key === '0' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      removeOne();
+    } else if (e.key === 't') {
+      addTen();
+    } else if (e.key === 'c' || e.key === 'C') {
+      clearAll();
+    } else if (e.key === 'Enter') {
+      if (state.mode === 'identify') checkIdentifyAnswer();
+      else if (state.mode === 'build' && document.getElementById('btn-next-build').style.display !== 'none') {
+        nextBuildChallenge();
+      }
+    } else if (e.key === 'Backspace' && state.mode === 'identify') {
+      numpadBackspace();
+    } else if (state.mode === 'identify' && e.key >= '0' && e.key <= '9') {
+      numpadPress(parseInt(e.key, 10));
+    }
+  });
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  loadProgress();
+  buildNumpad();
+  setMode('free');
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

@@ -202,6 +202,34 @@
       display: inline-block;
     }
 
+    /* List selector */
+    .list-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .list-btn {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      border: 3px solid transparent;
+      border-radius: 22px;
+      padding: 7px 18px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: rgba(255,255,255,0.5);
+      color: #7c4700;
+    }
+
+    .list-btn.active {
+      background: white;
+      border-color: #cc0000;
+      color: #cc0000;
+      box-shadow: 0 2px 8px rgba(204,0,0,0.2);
+    }
+
+    .list-btn:active { transform: scale(0.94); }
+
     .reset-link {
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
@@ -393,6 +421,11 @@
 </head>
 <body>
   <h1>Red Words!</h1>
+  <div class="list-selector">
+    <button class="list-btn" id="btn-kdp" onclick="setList('kdp')">KDP</button>
+    <button class="list-btn" id="btn-extra" onclick="setList('extra')">Extra</button>
+    <button class="list-btn" id="btn-both" onclick="setList('both')">Both</button>
+  </div>
   <div class="progress" id="progress"></div>
   <div class="status-badge status-new" id="statusBadge"></div>
   <div class="card-container">
@@ -438,28 +471,49 @@
   <div class="confetti" id="confetti"></div>
 
   <script>
-    // ===== WORD LIST =====
-    const BUILTIN_WORDS = [
-      'a', 'the', 'my', 'to', 'is', 'of', 'and',
-      'like', 'you', 'was', 'are', 'she', 'he'
+    // ===== WORD LISTS — add more words here! =====
+    const KDP_WORDS = [
+      'a',
+      'the',
+      'my',
+      'to',
+      'is',
+      'of',
+      'and',
+      'like',
+      'you',
+      'was',
+      'are',
+      'she',
+      'he'
     ];
 
-    function loadCustomWords() {
-      try {
-        const saved = localStorage.getItem('redwords-custom');
-        return saved ? JSON.parse(saved) : [];
-      } catch(e) { return []; }
-    }
-
-    function saveCustomWords(words) {
-      localStorage.setItem('redwords-custom', JSON.stringify(words));
-    }
-
-    let customWords = loadCustomWords();
-
-    function getWords() {
-      return BUILTIN_WORDS.concat(customWords);
-    }
+    const EXTRA_WORDS = [
+      'I',
+      'it',
+      'in',
+      'on',
+      'at',
+      'me',
+      'we',
+      'do',
+      'go',
+      'up',
+      'that',
+      'this',
+      'with',
+      'have',
+      'they',
+      'what',
+      'said',
+      'come',
+      'here',
+      'look',
+      'some',
+      'them',
+      'were',
+      'your',
+    ];
 
     // Frequency weights: oops words appear ~4x, almost ~2x, known ~1x, new ~2x
     const WEIGHT = { oops: 4, almost: 2, known: 1, new: 2 };
@@ -467,6 +521,23 @@
     let ratings = {};  // word -> 'known' | 'almost' | 'oops'
     let deck = [];
     let currentIndex = 0;
+    let activeList = 'kdp'; // 'kdp' | 'extra' | 'both'
+
+    function activeWords() {
+      if (activeList === 'kdp') return KDP_WORDS;
+      if (activeList === 'extra') return EXTRA_WORDS;
+      // 'both': merge, dedupe
+      return [...new Set([...KDP_WORDS, ...EXTRA_WORDS])];
+    }
+
+    function setList(list) {
+      activeList = list;
+      localStorage.setItem('redwords-list', list);
+      document.querySelectorAll('.list-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-' + list).classList.add('active');
+      buildDeck();
+      showWord();
+    }
 
     // --- localStorage persistence ---
     function saveRatings() {
@@ -477,13 +548,15 @@
       try {
         const saved = localStorage.getItem('redwords-ratings');
         if (saved) ratings = JSON.parse(saved);
+        const savedList = localStorage.getItem('redwords-list');
+        if (savedList) activeList = savedList;
       } catch(e) { /* ignore */ }
     }
 
     // --- Build a weighted deck ---
     function buildDeck() {
       deck = [];
-      getWords().forEach(w => {
+      activeWords().forEach(w => {
         const status = ratings[w] || 'new';
         const count = WEIGHT[status];
         for (let i = 0; i < count; i++) deck.push(w);
@@ -583,7 +656,7 @@
 
     function updateScoreBar() {
       const counts = { known: 0, almost: 0, oops: 0, new: 0 };
-      getWords().forEach(w => {
+      activeWords().forEach(w => {
         const s = ratings[w] || 'new';
         counts[s]++;
       });
@@ -711,6 +784,7 @@
 
     // Init
     loadRatings();
+    document.getElementById('btn-' + activeList).classList.add('active');
     buildDeck();
     placeStars();
     showWord();
