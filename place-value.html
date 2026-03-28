@@ -293,6 +293,51 @@
       animation: cubeBundling 0.45s ease-in both !important;
     }
 
+    /* ── Split-bundle animations ──────────────────────────── */
+    @keyframes glowPulse {
+      0%   { box-shadow: 0 3px 0 var(--ones-shadow), 0 0 0 0 rgba(59,130,246,0.5); }
+      50%  { box-shadow: 0 3px 0 var(--ones-shadow), 0 0 12px 4px rgba(59,130,246,0.6); }
+      100% { box-shadow: 0 3px 0 var(--ones-shadow), 0 0 0 0 rgba(59,130,246,0.5); }
+    }
+
+    .bundle-highlight {
+      border: 3px solid var(--tens-color);
+      animation: glowPulse 0.6s ease-in-out infinite;
+      z-index: 2;
+    }
+
+    .remainder-mark {
+      opacity: 0.45;
+      transition: opacity 0.3s;
+    }
+
+    @keyframes settleDown {
+      0%   { transform: translateY(-8px); }
+      50%  { transform: translateY(3px); }
+      100% { transform: translateY(0); }
+    }
+
+    .settle {
+      animation: settleDown 0.35s ease-out both;
+    }
+
+    .split-callout {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      font-family: 'Fredoka One', cursive;
+      font-size: 2rem;
+      color: white;
+      background: linear-gradient(135deg, var(--ones-color), var(--tens-color));
+      padding: 16px 32px;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 9500;
+      pointer-events: none;
+      animation: calloutPop 1.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
     /* Starburst particle */
     @keyframes starburstFly {
       0%   { transform: translate(0,0) scale(1); opacity: 1; }
@@ -738,6 +783,10 @@
     [523, 659, 784].forEach(f => playTone(f, 0.3, 'sine', 0.14));
   }
 
+  function playSplitReveal() {
+    [440, 554, 659].forEach((f, i) => playTone(f, 0.12, 'sine', 0.12, i * 0.06));
+  }
+
   function playCorrect() {
     // C5-D5-E5-G5-C6
     [523, 587, 659, 784, 1047].forEach((f, i) => playTone(f, 0.08, 'sine', 0.18, i * 0.09));
@@ -974,56 +1023,80 @@
   }
 
   // ── Bundling animation ─────────────────────────────────────────────────────
-  function triggerBundle() {
+  function triggerSplitBundle(totalOnes, remainder) {
     state.isBundling = true;
     setAddDisabled(true);
 
-    const cubes = Array.from(document.getElementById('ones-grid').children);
-    playBundleStart();
+    const onesGrid = document.getElementById('ones-grid');
+    const cubes = Array.from(onesGrid.children);
 
-    // Stagger the cube bundling animations
-    cubes.forEach((cube, i) => {
-      setTimeout(() => {
-        cube.classList.remove('pop-in');
-        cube.classList.add('bundling-cube');
-      }, i * 30);
-    });
+    // Phase 1: Highlight the split
+    const bundleCubes = cubes.slice(0, 10);
+    const remainCubes = cubes.slice(10);
 
-    // Spawn starburst particles near the ones zone
-    const onesZone = document.querySelector('.ones-zone');
-    const rect = onesZone.getBoundingClientRect();
-    spawnStarburst(rect.left + rect.width * 0.5, rect.top + rect.height * 0.5);
+    playSplitReveal();
 
-    const lastDelay = 30 * (cubes.length - 1) + 450;
+    bundleCubes.forEach(c => c.classList.add('bundle-highlight'));
+    remainCubes.forEach(c => c.classList.add('remainder-mark'));
 
+    // Show split callout
+    const callout = document.createElement('div');
+    callout.className = 'split-callout';
+    callout.textContent = `10 + ${remainder}`;
+    document.body.appendChild(callout);
+
+    // Phase 2: After pause, bundle the 10
     setTimeout(() => {
-      // Remove all cubes from DOM
-      const onesGrid = document.getElementById('ones-grid');
-      onesGrid.innerHTML = '';
-      renderedOnes = 0;
+      playBundleStart();
+      callout.remove();
 
-      // Increment tens, reset ones
-      state.tens++;
-      state.ones = 0;
+      // Animate the 10 cubes out
+      bundleCubes.forEach((cube, i) => {
+        cube.classList.remove('bundle-highlight', 'pop-in');
+        setTimeout(() => cube.classList.add('bundling-cube'), i * 30);
+      });
 
-      // Add the new ten-rod with animation
-      const tensRow = document.getElementById('tens-row');
-      const rod = document.createElement('div');
-      rod.className = 'ten-rod rod-pop';
-      tensRow.appendChild(rod);
-      renderedTens = state.tens;
+      // Starburst
+      const onesZone = document.querySelector('.ones-zone');
+      const rect = onesZone.getBoundingClientRect();
+      spawnStarburst(rect.left + rect.width * 0.5, rect.top + rect.height * 0.5);
 
-      playBundleComplete();
-      showBundleCallout();
-      updateDisplay();
+      const bundleAnimDuration = 30 * 9 + 450;
 
       setTimeout(() => {
-        state.isBundling = false;
-        setAddDisabled(false);
-        // In build mode, check if target was just hit
-        if (state.mode === 'build') checkBuildTarget();
-      }, 200);
-    }, lastDelay);
+        // Remove the 10 bundled cubes
+        bundleCubes.forEach(c => c.remove());
+
+        // Update state
+        state.tens++;
+        state.ones = remainder;
+        renderedOnes = remainder;
+
+        // Add ten-rod
+        const tensRow = document.getElementById('tens-row');
+        const rod = document.createElement('div');
+        rod.className = 'ten-rod rod-pop';
+        tensRow.appendChild(rod);
+        renderedTens = state.tens;
+
+        playBundleComplete();
+        showBundleCallout();
+        updateDisplay();
+
+        // Settle the remainder cubes
+        remainCubes.forEach(c => {
+          c.classList.remove('remainder-mark');
+          c.classList.add('settle');
+        });
+
+        setTimeout(() => {
+          remainCubes.forEach(c => c.classList.remove('settle'));
+          state.isBundling = false;
+          setAddDisabled(false);
+          if (state.mode === 'build') checkBuildTarget();
+        }, 350);
+      }, bundleAnimDuration);
+    }, 600);
   }
 
   function showBundleCallout() {
@@ -1077,31 +1150,44 @@
     getAudio();
     const toAdd = Math.min(n, space);
 
-    // Add cubes one at a time with staggered animation, then bundle if we hit 10
-    let added = 0;
-    function addNext() {
-      if (added >= toAdd) return;
-      state.ones++;
-      renderBlocks();
+    const willCross = state.ones + toAdd >= 10;
+
+    if (willCross) {
+      // Add all cubes at once with staggered pop-in
+      const onesGrid = document.getElementById('ones-grid');
+      for (let i = 0; i < toAdd; i++) {
+        const cube = document.createElement('div');
+        cube.className = 'one-cube pop-in';
+        cube.style.animationDelay = (i * 0.05) + 's';
+        onesGrid.appendChild(cube);
+      }
+      state.ones += toAdd;
+      renderedOnes = state.ones;
       playAddOne();
-      added++;
-      if (state.ones === 10) {
-        triggerBundle();
-        // After bundle completes, continue adding remaining cubes
+      updateDisplay();
+
+      // Brief pause so the child sees all cubes, then split-bundle
+      const remainder = state.ones - 10;
+      setTimeout(() => {
+        triggerSplitBundle(state.ones, remainder);
+      }, 800);
+    } else {
+      // Small additions: add one at a time (existing behavior)
+      let added = 0;
+      function addNext() {
+        if (added >= toAdd) return;
+        state.ones++;
+        renderBlocks();
+        playAddOne();
+        added++;
         if (added < toAdd) {
-          const remaining = toAdd - added;
-          const waitForBundle = 30 * 9 + 450 + 250; // match triggerBundle timing
-          setTimeout(() => addOnes(remaining), waitForBundle);
+          setTimeout(addNext, 80);
+        } else if (state.mode === 'build') {
+          checkBuildTarget();
         }
-        return;
       }
-      if (added < toAdd) {
-        setTimeout(addNext, 80);
-      } else if (state.mode === 'build') {
-        checkBuildTarget();
-      }
+      addNext();
     }
-    addNext();
   }
 
   function addTen() {
