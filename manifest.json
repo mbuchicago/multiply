@@ -1,10 +1,10 @@
 {
-  "name": "Times Tables!",
-  "short_name": "Times Tables",
-  "description": "Interactive 12x12 times tables practice for kids",
+  "name": "Leon's Learning Games",
+  "short_name": "Learn!",
+  "description": "Fun learning games for 1st grade",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#a78bfa",
-  "theme_color": "#7c3aed",
+  "background_color": "#4ade80",
+  "theme_color": "#059669",
   "orientation": "any"
 }

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Times Tables!">
+  <link rel="manifest" href="manifest.json">
+  <title>Times Tables!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      font-family: 'Fredoka One', cursive;
+      text-align: center;
+      color: white;
+      font-size: 3.2rem;
+      text-shadow: 3px 4px 0 rgba(0,0,0,0.18);
+      margin-bottom: 24px;
+      letter-spacing: 2px;
+    }
+
+    .layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ── Quiz Panel ── */
+    .quiz-panel {
+      background: white;
+      border-radius: 28px;
+      padding: 32px 28px 24px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      min-width: 280px;
+      flex: 0 0 300px;
+    }
+
+    .stars-row {
+      font-size: 1.6rem;
+      min-height: 36px;
+      margin-bottom: 8px;
+    }
+
+    .question {
+      font-family: 'Fredoka One', cursive;
+      font-size: 4rem;
+      color: #7c3aed;
+      margin: 12px 0 6px;
+      line-height: 1.1;
+    }
+
+    .feedback {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      min-height: 46px;
+      margin: 6px 0;
+      transition: opacity 0.3s;
+    }
+    .feedback.correct { color: #16a34a; }
+    .feedback.wrong   { color: #dc2626; }
+
+    .answer-input {
+      font-size: 2.8rem;
+      width: 140px;
+      text-align: center;
+      border: 4px solid #c4b5fd;
+      border-radius: 18px;
+      padding: 8px 12px;
+      font-family: 'Fredoka One', cursive;
+      color: #7c3aed;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .answer-input:focus { border-color: #7c3aed; }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 28px;
+      font-size: 1.3rem;
+      font-family: 'Fredoka One', cursive;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn:active { transform: translateY(3px); box-shadow: none !important; }
+
+    .btn-check {
+      background: #22c55e;
+      color: white;
+      box-shadow: 0 4px 0 #15803d;
+    }
+    .btn-show {
+      background: #f97316;
+      color: white;
+      box-shadow: 0 4px 0 #c2410c;
+    }
+    .btn-skip {
+      background: #94a3b8;
+      color: white;
+      box-shadow: 0 4px 0 #64748b;
+      font-size: 1rem;
+      padding: 10px 18px;
+    }
+
+    .progress-bar-wrap {
+      margin-top: 18px;
+      background: #f1f5f9;
+      border-radius: 20px;
+      height: 16px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #86efac);
+      border-radius: 20px;
+      transition: width 0.4s ease;
+    }
+    .progress-text {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+
+    /* ── Grid Panel ── */
+    .grid-panel {
+      background: white;
+      border-radius: 28px;
+      padding: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      overflow-x: auto;
+    }
+
+    .grid-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .grid-hint {
+      font-size: 0.82rem;
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    .btn-reveal {
+      background: #e0e7ff;
+      color: #4338ca;
+      box-shadow: 0 3px 0 #a5b4fc;
+      font-size: 0.85rem;
+      padding: 8px 14px;
+      white-space: nowrap;
+    }
+    .btn-reveal.active {
+      background: #4338ca;
+      color: white;
+      box-shadow: 0 3px 0 #3730a3;
+    }
+
+    .grid-table {
+      border-collapse: separate;
+      border-spacing: 3px;
+    }
+
+    .grid-table th {
+      font-family: 'Fredoka One', cursive;
+      color: #7c3aed;
+      font-size: 0.85rem;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .grid-cell {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      cursor: pointer;
+      font-family: 'Fredoka One', cursive;
+      font-size: 0.7rem;
+      color: #cbd5e1;
+      text-align: center;
+      vertical-align: middle;
+      transition: transform 0.15s, background 0.2s, border-color 0.2s;
+      user-select: none;
+    }
+    .grid-cell:hover {
+      background: #ede9fe;
+      border-color: #a78bfa;
+      transform: scale(1.12);
+      color: #7c3aed;
+      z-index: 1;
+      position: relative;
+    }
+    .grid-cell.correct {
+      background: #dcfce7;
+      border-color: #86efac;
+      color: #16a34a;
+    }
+    .grid-cell.current {
+      background: #fef9c3;
+      border-color: #fbbf24;
+      color: #92400e;
+      animation: wobble 0.8s infinite alternate;
+    }
+    @keyframes wobble {
+      from { transform: scale(1);   }
+      to   { transform: scale(1.12); }
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 28px;
+      padding: 30px;
+      max-width: 640px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .modal-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.8rem;
+      color: #7c3aed;
+      margin-bottom: 6px;
+    }
+    .modal-subtitle {
+      font-size: 1rem;
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+
+    /* ── Group-by controls ── */
+    .groupby-section {
+      margin: 10px 0 16px;
+    }
+    .groupby-label {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+    .groupby-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .btn-gb {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      padding: 6px 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      background: #f8fafc;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-gb:hover { background: #ede9fe; border-color: #a78bfa; color: #7c3aed; }
+    .btn-gb.active {
+      background: #7c3aed;
+      border-color: #7c3aed;
+      color: white;
+      box-shadow: 0 3px 0 #5b21b6;
+    }
+
+    /* ── Dot boxes ── */
+    .boxes-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin: 6px 0 20px;
+    }
+    .dot-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 8px;
+      border-radius: 14px;
+      border: 3px solid;
+      background: white;
+    }
+    .dot-box.partial {
+      border-style: dashed;
+      opacity: 0.85;
+    }
+    .dot {
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.15s;
+      animation: dropIn 0.25s both;
+    }
+    .dot:hover { transform: scale(1.3); }
+    .dot.ghost {
+      background: transparent !important;
+      box-shadow: none !important;
+      border: 2px dashed #cbd5e1;
+    }
+    @keyframes dropIn {
+      from { transform: scale(0) rotate(-20deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0);      opacity: 1; }
+    }
+
+    .btn-close {
+      background: #f43f5e;
+      color: white;
+      box-shadow: 0 4px 0 #be123c;
+      font-size: 1.2rem;
+      padding: 12px 32px;
+    }
+
+    /* ── Confetti ── */
+    .confetti {
+      position: fixed;
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(105vh) rotate(900deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>⭐ Times Tables! ⭐</h1>
+
+<div class="layout">
+
+  <!-- Quiz Panel -->
+  <div class="quiz-panel">
+    <div class="stars-row" id="stars"></div>
+    <div class="question" id="question">? × ? = ?</div>
+    <div class="feedback" id="feedback"></div>
+    <input class="answer-input" id="answer" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="?">
+    <div class="btn-row">
+      <button class="btn btn-check" onclick="checkAnswer()">Check ✓</button>
+      <button class="btn btn-show"  onclick="showCurrent()">Show me! 👀</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-skip" onclick="nextQuestion()">Skip →</button>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="pbar" style="width:0%"></div>
+    </div>
+    <div class="progress-text" id="ptext">0 / 144 done</div>
+  </div>
+
+  <!-- Grid Panel -->
+  <div class="grid-panel">
+    <div class="grid-top-row">
+      <div class="grid-hint">Click any square to see its picture!</div>
+      <button class="btn btn-reveal" id="reveal-btn" onclick="toggleAnswers()">Show Answers 👁</button>
+    </div>
+    <table class="grid-table" id="grid"></table>
+  </div>
+
+</div>
+
+<!-- Visualization Modal -->
+<div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-subtitle" id="modal-sub"></div>
+    <div class="groupby-section">
+      <div class="groupby-label">Group by:</div>
+      <div class="groupby-btns" id="groupby-btns"></div>
+    </div>
+    <div class="boxes-container" id="dots"></div>
+    <button class="btn btn-close" onclick="closeModal()">Close ✕</button>
+  </div>
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────────────────
+  const correct = new Set();   // "AxB" keys that were answered correctly
+  let curA = 1, curB = 1;
+  let answersVisible = false;
+
+  // Row colours (one per row in visualization)
+  const ROW_COLORS = [
+    '#ef4444','#f97316','#eab308','#22c55e',
+    '#06b6d4','#3b82f6','#8b5cf6','#ec4899',
+    '#14b8a6','#f59e0b','#84cc16','#6366f1',
+  ];
+  const ROW_EMOJI = ['🍎','🍊','🌟','🌿','💧','💙','🦄','🌸','🌊','🌻','🍀','💜'];
+
+  // ── Build Grid ─────────────────────────────────────────────────────────────
+  function buildGrid() {
+    const tbl = document.getElementById('grid');
+    let html = '<tr><th></th>';
+    for (let j = 1; j <= 12; j++) html += `<th>${j}</th>`;
+    html += '</tr>';
+    for (let i = 1; i <= 12; i++) {
+      html += `<tr><th>${i}</th>`;
+      for (let j = 1; j <= 12; j++) {
+        const key = `${i}x${j}`;
+        html += `<td class="grid-cell" id="c-${key}" onclick="showViz(${i},${j})" title="${i} × ${j}">?</td>`;
+      }
+      html += '</tr>';
+    }
+    tbl.innerHTML = html;
+  }
+
+  // ── Quiz ───────────────────────────────────────────────────────────────────
+  function allPairs() {
+    const pairs = [];
+    for (let i = 1; i <= 12; i++)
+      for (let j = 1; j <= 12; j++)
+        pairs.push([i, j]);
+    return pairs;
+  }
+
+  function nextQuestion() {
+    clearCurrentHighlight();
+    const pool = allPairs().filter(([a,b]) => !correct.has(`${a}x${b}`));
+    if (!pool.length) { celebrate(); return; }
+    const [a, b] = pool[Math.floor(Math.random() * pool.length)];
+    curA = a; curB = b;
+    document.getElementById('question').textContent = `${a} × ${b} = ?`;
+    setFeedback('', '');
+    document.getElementById('answer').value = '';
+    document.getElementById('answer').focus();
+    const cell = document.getElementById(`c-${a}x${b}`);
+    if (cell) cell.classList.add('current');
+  }
+
+  function checkAnswer() {
+    const val = parseInt(document.getElementById('answer').value, 10);
+    if (isNaN(val)) return;
+
+    if (val === curA * curB) {
+      const key = `${curA}x${curB}`;
+      correct.add(key);
+      clearCurrentHighlight();
+      const cell = document.getElementById(`c-${key}`);
+      if (cell) { cell.classList.remove('current'); cell.classList.add('correct'); cell.textContent = curA * curB; }
+      setFeedback(randomPraise(), 'correct');
+      updateProgress();
+      updateStars();
+      spawnConfetti();
+      setTimeout(nextQuestion, 1100);
+    } else {
+      setFeedback('Not quite — try again! 🤔', 'wrong');
+      const inp = document.getElementById('answer');
+      inp.value = '';
+      inp.focus();
+    }
+  }
+
+  function celebrate() {
+    document.getElementById('question').textContent = '🎉 All done! 🎉';
+    setFeedback('You are a superstar! 🌟', 'correct');
+    for (let i = 0; i < 5; i++) setTimeout(spawnConfetti, i * 300);
+  }
+
+  function clearCurrentHighlight() {
+    document.querySelectorAll('.grid-cell.current').forEach(el => el.classList.remove('current'));
+  }
+
+  // ── Feedback helpers ───────────────────────────────────────────────────────
+  function setFeedback(msg, cls) {
+    const el = document.getElementById('feedback');
+    el.textContent = msg;
+    el.className = 'feedback ' + cls;
+  }
+
+  function randomPraise() {
+    const msgs = ['Amazing! 🌟','You got it! ⭐','Brilliant! 💫','Fantastic! 🎈',
+                  'Super! 🌈','Awesome! 🦋','Correct! 🎀','Wonderful! 💎','Yes! 🎉'];
+    return msgs[Math.floor(Math.random() * msgs.length)];
+  }
+
+  // ── Progress ───────────────────────────────────────────────────────────────
+  function updateProgress() {
+    const n = correct.size;
+    document.getElementById('pbar').style.width = (n / 144 * 100) + '%';
+    document.getElementById('ptext').textContent = `${n} / 144 done`;
+  }
+
+  function updateStars() {
+    const earned = Math.floor(correct.size / 12);   // 1 star per 12 correct
+    document.getElementById('stars').textContent = '⭐'.repeat(Math.min(earned, 12));
+  }
+
+  // ── Confetti ───────────────────────────────────────────────────────────────
+  function spawnConfetti() {
+    const colors = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
+    for (let i = 0; i < 22; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        top: -15px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        animation-duration: ${1 + Math.random() * 1.2}s;
+        animation-delay: ${Math.random() * 0.4}s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2200);
+    }
+  }
+
+  // ── Visualization ──────────────────────────────────────────────────────────
+  let vizA = 1, vizB = 1, vizGroupSize = 1;
+
+  // How many columns of dots to use inside a box for a given group size
+  const BOX_COLS = {1:1,2:2,3:3,4:2,5:5,6:3,7:4,8:4,9:3,10:5,11:4,12:4};
+
+  function showCurrent() { showViz(curA, curB); }
+
+  function showViz(a, b) {
+    vizA = a; vizB = b;
+    const total = a * b;
+    document.getElementById('modal-title').textContent = `${a} × ${b} = ?`;
+
+    // Build group-by buttons: offer sizes 2..min(total,12), always include b
+    const sizes = new Set([2,3,4,5,6,8,10,12,b].filter(s => s >= 1 && s <= total));
+    const sorted = [...sizes].sort((x,y) => x - y);
+    let btnHtml = '';
+    sorted.forEach(s => {
+      btnHtml += `<button class="btn-gb" data-size="${s}" onclick="setGroupBy(${s})">${s}</button>`;
+    });
+    document.getElementById('groupby-btns').innerHTML = btnHtml;
+
+    vizGroupSize = b;
+    renderGrouped(b);
+    document.getElementById('modal').classList.add('active');
+  }
+
+  function setGroupBy(size) {
+    vizGroupSize = size;
+    renderGrouped(size);
+  }
+
+  function renderGrouped(groupSize) {
+    const total = vizA * vizB;
+    const numFull = Math.floor(total / groupSize);
+    const remainder = total % groupSize;
+
+    // Subtitle
+    let sub = `${numFull} group${numFull !== 1 ? 's' : ''} of ${groupSize}`;
+    if (remainder > 0) sub += ` + ${remainder} left over`;
+    document.getElementById('modal-sub').textContent = sub;
+
+    // Highlight active button
+    document.querySelectorAll('.btn-gb').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.size) === groupSize);
+    });
+
+    // Dot sizing: scale to fit within modal based on box width
+    const boxCols = BOX_COLS[groupSize] || Math.ceil(Math.sqrt(groupSize));
+    const dotSize = groupSize <= 6 ? 28 : groupSize <= 9 ? 24 : 20;
+    const fontSize = dotSize >= 26 ? '0.85rem' : dotSize >= 22 ? '0.7rem' : '0.6rem';
+    const boxWidth = boxCols * (dotSize + 4) - 4 + 16 + 6; // cols*(size+gap)-gap + 2*pad + 2*border
+
+    let html = '';
+
+    // Full boxes
+    for (let g = 0; g < numFull; g++) {
+      const color = ROW_COLORS[g % ROW_COLORS.length];
+      const emoji = ROW_EMOJI[g % ROW_EMOJI.length];
+      html += `<div class="dot-box full" style="border-color:${color};width:${boxWidth}px">`;
+      for (let d = 0; d < groupSize; d++) {
+        const delay = (g * 0.04 + d * 0.015).toFixed(3);
+        html += `<div class="dot" style="width:${dotSize}px;height:${dotSize}px;
+          background:${color};font-size:${fontSize};animation-delay:${delay}s;
+          box-shadow:0 2px 0 ${color}88">${emoji}</div>`;
+      }
+      html += '</div>';
+    }
+
+    // Partial box (remainder)
+    if (remainder > 0) {
+      const color = ROW_COLORS[numFull % ROW_COLORS.length];
+      const emoji = ROW_EMOJI[numFull % ROW_EMOJI.length];
+      html += `<div class="dot-box partial" style="border-color:${color};width:${boxWidth}px">`;
+      for (let d = 0; d < remainder; d++) {
+        const delay = (numFull * 0.04 + d * 0.015).toFixed(3);
+        html += `<div class="dot" style="width:${dotSize}px;height:${dotSize}px;
+          background:${color};font-size:${fontSize};animation-delay:${delay}s;
+          box-shadow:0 2px 0 ${color}88">${emoji}</div>`;
+      }
+      // Ghost slots to show the box isn't full
+      for (let d = remainder; d < groupSize; d++) {
+        html += `<div class="dot ghost" style="width:${dotSize}px;height:${dotSize}px"></div>`;
+      }
+      html += '</div>';
+    }
+
+    document.getElementById('dots').innerHTML = html;
+  }
+
+  // ── Show/Hide Answers ──────────────────────────────────────────────────────
+  function toggleAnswers() {
+    answersVisible = !answersVisible;
+    const btn = document.getElementById('reveal-btn');
+    btn.textContent = answersVisible ? 'Hide Answers 🙈' : 'Show Answers 👁';
+    btn.classList.toggle('active', answersVisible);
+    for (let i = 1; i <= 12; i++) {
+      for (let j = 1; j <= 12; j++) {
+        const key = `${i}x${j}`;
+        const cell = document.getElementById(`c-${key}`);
+        if (cell && !correct.has(key)) {
+          cell.textContent = answersVisible ? i * j : '?';
+        }
+      }
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal')) closeModal();
+  }
+
+  // ── Keyboard ───────────────────────────────────────────────────────────────
+  document.getElementById('answer').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkAnswer();
+  });
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  buildGrid();
+  nextQuestion();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+</body>
+</html>

@@ -42,7 +42,7 @@ Established patterns already in this repo:
 
 | Pattern | File |
 |---|---|
-| Confetti animation | `index.html`, `red-words.html` |
+| Confetti animation | `multiply.html`, `red-words.html` |
 | Spaced repetition deck | `red-words.html` |
 | LocalStorage persistence | `red-words.html` |
 | Swipe gesture support | `red-words.html` |
@@ -71,6 +71,7 @@ Always check existing files for reusable logic before writing from scratch.
 
 | File | Description |
 |---|---|
-| `index.html` | Times Tables — multiplication quiz with 12×12 grid, confetti, PWA |
+| `index.html` | Game launcher hub — links to all games |
+| `multiply.html` | Times Tables — multiplication quiz with 12×12 grid, confetti, PWA |
 | `red-words.html` | Red Words — sight word flashcards with spaced repetition |
 | `place-value.html` | Place Value — interactive base-10 blocks visualization with bundling animation |
