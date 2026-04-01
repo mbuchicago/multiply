@@ -151,6 +151,43 @@
       touch-action: manipulation;
     }
 
+    /* ── Pressure Gauge ──────────────────────────────────── */
+    .pressure-gauge-wrap {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pressure-gauge-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-dim);
+    }
+
+    .pressure-gauge {
+      width: 60px;
+      height: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .pressure-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 5px;
+      transition: width 0.4s ease, background 0.4s ease;
+    }
+
+    .pressure-fill.pulse {
+      animation: pressurePulse 0.6s ease-out;
+    }
+
+    @keyframes pressurePulse {
+      0%, 100% { box-shadow: none; }
+      50% { box-shadow: 0 0 12px rgba(46,204,113,0.8); }
+    }
+
     /* ── Screens ─────────────────────────────────────────── */
     .screen {
       display: none;
@@ -188,7 +225,15 @@
     .monitors {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 14px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .monitors-row2 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
       width: 100%;
       max-width: 400px;
     }
@@ -197,19 +242,19 @@
       background: var(--bg-light);
       border: 3px solid rgba(74,144,217,0.3);
       border-radius: 20px;
-      padding: 20px 12px;
+      padding: 16px 10px;
       text-align: center;
       cursor: pointer;
       touch-action: manipulation;
       transition: transform 0.15s, border-color 0.2s;
       position: relative;
       overflow: hidden;
-      min-height: 130px;
+      min-height: 110px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 4px;
     }
 
     .monitor:active { transform: scale(0.95); }
@@ -230,24 +275,24 @@
     .monitor.locked:active { transform: none; }
 
     .monitor-icon {
-      font-size: 2.2rem;
+      font-size: 2rem;
       margin-bottom: 2px;
     }
 
     .monitor-title {
       font-weight: 800;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       color: var(--pipe-glow);
     }
 
     .monitor-stars {
-      font-size: 1.1rem;
+      font-size: 1rem;
       color: var(--gold);
-      min-height: 22px;
+      min-height: 20px;
     }
 
     .monitor .lock-icon {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       color: var(--text-dim);
     }
 
@@ -262,6 +307,7 @@
       cursor: pointer;
       touch-action: manipulation;
       margin-top: 8px;
+      min-height: 50px;
     }
 
     /* ── Pipeline Area ───────────────────────────────────── */
@@ -285,6 +331,40 @@
       font-weight: 700;
       color: var(--caution);
       padding: 4px 12px;
+    }
+
+    /* ── Rule display for Level 7 Build mode ─────────────── */
+    .rule-display {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--pipe-glow);
+      background: rgba(74,144,217,0.15);
+      border-radius: 12px;
+      padding: 10px 16px;
+      margin-bottom: 4px;
+    }
+
+    /* ── Boss Pipe Banner ────────────────────────────────── */
+    .boss-banner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: white;
+      font-size: 1.6rem;
+      font-weight: 900;
+      padding: 20px 40px;
+      border-radius: 20px;
+      z-index: 100;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(231,76,60,0.6);
+      pointer-events: none;
+    }
+
+    .boss-banner.show {
+      animation: bannerPop 1.5s ease-out forwards;
     }
 
     /* ── Pipe Rendering ──────────────────────────────────── */
@@ -318,6 +398,59 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.15);
       z-index: 1;
       overflow: hidden;
+    }
+
+    /* ── Pipe tier styles ────────────────────────────────── */
+    .pipe-copper .pipe-segment {
+      background: linear-gradient(180deg, #4a90d9 0%, #2d6cb5 100%);
+      border-color: #6bb5ff;
+    }
+    .pipe-copper .pipe-joint {
+      background: linear-gradient(180deg, #7ab5e0 0%, #4a7aab 100%);
+    }
+
+    .pipe-steel .pipe-segment {
+      background: linear-gradient(180deg, #8eafc4 0%, #5a7d9a 100%);
+      border-color: #b0d4ed;
+    }
+    .pipe-steel .pipe-joint {
+      background: linear-gradient(180deg, #a0c8e0 0%, #6a8daa 100%);
+    }
+
+    .pipe-plasma .pipe-segment {
+      background: linear-gradient(180deg, #8e44ad 0%, #2980b9 100%);
+      border-color: #bb6bd9;
+      animation: plasmaGlow 2s ease-in-out infinite;
+    }
+    .pipe-plasma .pipe-segment.gap { animation: gapPulse 1.5s ease-in-out infinite; }
+    .pipe-plasma .pipe-segment.welding { animation: weldFlash 0.6s ease-out; }
+    .pipe-plasma .pipe-segment.wrong-flash { animation: wrongShake 0.5s ease-out; }
+    .pipe-plasma .pipe-joint {
+      background: linear-gradient(180deg, #a855c8 0%, #3498db 100%);
+    }
+
+    @keyframes plasmaGlow {
+      0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.15), 0 0 8px rgba(142,68,173,0.3); }
+      50% { box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.15), 0 0 20px rgba(142,68,173,0.6); }
+    }
+
+    .pipe-gold .pipe-segment {
+      background: linear-gradient(180deg, #f1c40f 0%, #d4a00a 100%);
+      border-color: #fce373;
+      color: #1a2332;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.3);
+      animation: goldShimmer 3s ease-in-out infinite;
+    }
+    .pipe-gold .pipe-segment.gap { animation: gapPulse 1.5s ease-in-out infinite; }
+    .pipe-gold .pipe-segment.welding { animation: weldFlash 0.6s ease-out; }
+    .pipe-gold .pipe-segment.wrong-flash { animation: wrongShake 0.5s ease-out; }
+    .pipe-gold .pipe-joint {
+      background: linear-gradient(180deg, #f5d442 0%, #c89b0a 100%);
+    }
+
+    @keyframes goldShimmer {
+      0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.3); }
+      50% { box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.3), 0 0 16px rgba(241,196,15,0.5); }
     }
 
     .pipe-segment .flow-dots {
@@ -368,6 +501,29 @@
 
     .pipe-joint.inactive {
       background: linear-gradient(180deg, #4a5a6e 0%, #3a4a5e 100%);
+    }
+
+    /* ── Fogged Segment ──────────────────────────────────── */
+    .pipe-segment.fogged {
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .pipe-segment.fogged .fog-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(20,30,45,0.88);
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .pipe-segment.fogged.peeking .fog-overlay {
+      display: none;
     }
 
     /* ── Gap Segment ─────────────────────────────────────── */
@@ -574,6 +730,48 @@
     }
 
     .option-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    /* ── Rule Choice Buttons (Level 7) ───────────────────── */
+    .rule-options-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 8px 16px 16px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .rule-option-btn {
+      background: linear-gradient(180deg, #3a5068 0%, #2a3d52 100%);
+      border: 3px solid rgba(74,144,217,0.4);
+      border-radius: 16px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 16px 20px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.1s;
+      min-height: 64px;
+      text-align: center;
+    }
+
+    .rule-option-btn:active { transform: scale(0.96); }
+
+    .rule-option-btn.correct-pick {
+      background: linear-gradient(180deg, var(--correct-green) 0%, #1a9e52 100%);
+      border-color: #5dff9e;
+    }
+
+    .rule-option-btn.wrong-pick {
+      background: linear-gradient(180deg, var(--wrong-red) 0%, #c0392b 100%);
+      border-color: #ff6b6b;
+    }
+
+    .rule-option-btn:disabled {
       opacity: 0.5;
       cursor: default;
     }
@@ -822,12 +1020,92 @@
       background: rgba(241,196,15,0.8);
       box-shadow: 0 0 4px rgba(241,196,15,0.5);
     }
+
+    /* ── Pattern Log Modal ───────────────────────────────── */
+    .pattern-log-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 50;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .pattern-log-overlay.active { display: flex; }
+
+    .pattern-log-card {
+      background: var(--bg-light);
+      border: 3px solid var(--pipe-color);
+      border-radius: 24px;
+      padding: 24px 20px;
+      max-width: 440px;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .pattern-log-card h2 {
+      font-size: 1.4rem;
+      color: var(--pipe-glow);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .pattern-log-close {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      cursor: pointer;
+      touch-action: manipulation;
+      display: block;
+      margin: 12px auto 0;
+    }
+
+    .pattern-cat-title {
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--caution);
+      margin: 14px 0 6px;
+      text-transform: uppercase;
+    }
+
+    .pattern-log-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 0.9rem;
+    }
+
+    .pattern-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .pattern-dot.green { background: var(--correct-green); }
+    .pattern-dot.yellow { background: #f1c40f; }
+    .pattern-dot.red { background: var(--wrong-red); }
+    .pattern-dot.gray { background: #555; }
+
+    .pattern-log-name { flex: 1; color: var(--text); }
+    .pattern-log-count { color: var(--text-dim); font-size: 0.8rem; }
   </style>
 </head>
 <body>
 
   <!-- Master Banner -->
   <div class="master-banner" id="masterBanner">MASTER ENGINEER!</div>
+
+  <!-- Boss Pipe Banner -->
+  <div class="boss-banner" id="bossBanner">BOSS PIPE!</div>
 
   <!-- Confetti container -->
   <div class="confetti-container" id="confettiContainer"></div>
@@ -842,34 +1120,24 @@
     </div>
   </div>
 
+  <!-- Pattern Log overlay -->
+  <div class="pattern-log-overlay" id="patternLogOverlay">
+    <div class="pattern-log-card">
+      <h2>Pattern Log</h2>
+      <div id="patternLogContent"></div>
+      <button class="pattern-log-close" onclick="closePatternLog()">&#10005;</button>
+    </div>
+  </div>
+
   <!-- ── SCREEN: Level Select ──────────────────────────── -->
   <div class="screen level-select" id="screenLevelSelect">
     <h1>Pipeline Engineer</h1>
     <p class="subtitle">Fix the pipes!</p>
-    <div class="monitors">
-      <div class="monitor" id="mon0" onclick="selectLevel(0)">
-        <div class="monitor-icon">&#128295;</div>
-        <div class="monitor-title">Pipe Fitter</div>
-        <div class="monitor-stars" id="stars0"></div>
-      </div>
-      <div class="monitor" id="mon1" onclick="selectLevel(1)">
-        <div class="monitor-icon">&#9881;&#65039;</div>
-        <div class="monitor-title">Valve Tech</div>
-        <div class="monitor-stars" id="stars1"></div>
-      </div>
-      <div class="monitor" id="mon2" onclick="selectLevel(2)">
-        <div class="monitor-icon">&#128736;&#65039;</div>
-        <div class="monitor-title">Flow Engineer</div>
-        <div class="monitor-stars" id="stars2"></div>
-      </div>
-      <div class="monitor" id="mon3" onclick="selectLevel(3)">
-        <div class="monitor-icon">&#127942;</div>
-        <div class="monitor-title">Master</div>
-        <div class="monitor-stars" id="stars3"></div>
-      </div>
-    </div>
+    <div class="monitors" id="monitorsRow1"></div>
+    <div class="monitors-row2" id="monitorsRow2"></div>
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
       <button class="level-back-btn" onclick="location.href='index.html'">Back to Games</button>
+      <button class="level-back-btn" onclick="openPatternLog()" style="background:rgba(74,144,217,0.15);border-color:rgba(74,144,217,0.4);color:var(--pipe-glow);">Pattern Log</button>
       <button class="level-back-btn" onclick="confirmReset()" style="background:rgba(231,76,60,0.15);border-color:rgba(231,76,60,0.4);color:#e74c3c;">Reset Progress</button>
     </div>
   </div>
@@ -883,6 +1151,9 @@
       </div>
       <div class="top-bar-center">
         <span class="progress-text" id="progressDisplay">Q 1/10</span>
+        <div class="pressure-gauge-wrap">
+          <div class="pressure-gauge"><div class="pressure-fill" id="pressureFill"></div></div>
+        </div>
         <span class="score-text" id="scoreDisplay">0</span>
         <span class="streak-badge" id="streakBadge">&#128293; 0</span>
       </div>
@@ -894,6 +1165,7 @@
 
     <div class="pipeline-area">
       <div class="hint-display" id="hintDisplay"></div>
+      <div id="ruleDisplayArea"></div>
       <div class="diff-arrows" id="diffArrows"></div>
       <div class="pipeline" id="pipelineContainer"></div>
       <div id="inputArea"></div>
@@ -913,10 +1185,64 @@
   </div>
 
 <script>
-// ── State ──────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────
 const TOTAL_QUESTIONS = 10;
-const LEVEL_NAMES = ['Pipe Fitter', 'Valve Tech', 'Flow Engineer', 'Master Engineer'];
+const LEVEL_NAMES = ['Pipe Fitter', 'Valve Tech', 'Flow Engineer', 'Master Engineer', 'Supervisor', 'Chief Engineer', 'Master Architect'];
+const LEVEL_ICONS = ['\u{1F527}', '\u2699\uFE0F', '\u{1F6E0}\uFE0F', '\u{1F3C6}', '\u{1F52D}', '\u26A1', '\u{1F3D7}\uFE0F'];
 
+const PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+
+const PATTERN_CATEGORIES = {
+  counting: ['count_by_1', 'count_back_1', 'neighbors'],
+  skip_counting: ['count_by_2', 'count_by_5', 'count_by_10', 'odds', 'evens', 'count_back_2', 'count_by_3', 'count_by_4', 'count_back_5', 'count_back_10'],
+  arithmetic: ['add_constant', 'sub_constant', 'count_10s_offset', 'count_5s_offset', 'to_zero'],
+  multiplicative: ['doubling', 'halving', 'powers_of_3', 'geometric_offset', 'two_step_rule'],
+  special: ['fibonacci', 'alternating_ops', 'squares_intro', 'plus_n_more', 'triangular', 'primes_intro', 'second_order', 'multi_rule', 'interleaved'],
+};
+
+const PATTERN_READABLE_NAMES = {
+  count_by_1: 'Count by 1s',
+  count_back_1: 'Count Back by 1',
+  neighbors: 'Neighbors',
+  count_by_2: 'Count by 2s',
+  count_by_5: 'Count by 5s',
+  count_by_10: 'Count by 10s',
+  odds: 'Odd Numbers',
+  evens: 'Even Numbers',
+  count_back_2: 'Count Back by 2s',
+  count_by_3: 'Count by 3s',
+  count_by_4: 'Count by 4s',
+  add_constant: 'Add a Number',
+  sub_constant: 'Subtract a Number',
+  count_10s_offset: 'Count by 10s (offset)',
+  count_5s_offset: 'Count by 5s (offset)',
+  doubling: 'Doubling',
+  plus_n_more: 'Growing Differences',
+  halving: 'Halving',
+  fibonacci: 'Add the Last Two',
+  alternating_ops: 'Alternating +/-',
+  squares_intro: 'Square Numbers',
+  count_back_5: 'Count Back by 5s',
+  count_back_10: 'Count Back by 10s',
+  to_zero: 'Down to Zero',
+  two_step_rule: 'Two-Step Rule',
+  triangular: 'Triangular Numbers',
+  powers_of_3: 'Powers of 3',
+  primes_intro: 'Special Numbers (Primes)',
+  multi_rule: 'Multi-Rule Cycle',
+  second_order: 'Growing Gaps',
+  geometric_offset: 'Multiply + Offset',
+  interleaved: 'Two Patterns Mixed',
+};
+
+function getCategoryFor(patternType) {
+  for (const [cat, patterns] of Object.entries(PATTERN_CATEGORIES)) {
+    if (patterns.includes(patternType)) return cat;
+  }
+  return 'special';
+}
+
+// ── State ──────────────────────────────────────────────
 let state = {
   phase: 'levelSelect',
   currentLevel: 0,
@@ -927,8 +1253,8 @@ let state = {
   attemptsOnCurrent: 0,
   hintsRemaining: 3,
   hintsUsedOnCurrent: 0,
-  unlockedLevels: [true, false, false, false],
-  levelStars: [[], [], [], []],
+  unlockedLevels: [true, false, false, false, false, false, false],
+  levelStars: [[], [], [], [], [], [], []],
   currentSequence: [],
   missingIndices: [],
   correctAnswers: [],
@@ -943,6 +1269,16 @@ let state = {
   muted: false,
   inputLocked: false,
   shownPatternIntros: {},
+  lastTwoPatterns: [],
+  foggedIndices: [],
+  patternStats: {},
+  level7Mode: null,
+  level7BuildIdx: 0,
+  level7RuleOptions: [],
+  level7CorrectRuleIdx: 0,
+  level7RuleDesc: '',
+  bossRound: false,
+  roundCount: {},
 };
 
 function loadState() {
@@ -950,10 +1286,16 @@ function loadState() {
     const saved = localStorage.getItem('pipeline_state');
     if (saved) {
       const parsed = JSON.parse(saved);
-      state.unlockedLevels = parsed.unlockedLevels || [true, false, false, false];
-      state.levelStars = parsed.levelStars || [[], [], [], []];
+      const defaults7 = [true, false, false, false, false, false, false];
+      state.unlockedLevels = parsed.unlockedLevels || defaults7;
+      // Pad to 7 if saved from old version
+      while (state.unlockedLevels.length < 7) state.unlockedLevels.push(false);
+      state.levelStars = parsed.levelStars || [[], [], [], [], [], [], []];
+      while (state.levelStars.length < 7) state.levelStars.push([]);
       state.muted = parsed.muted || false;
       state.shownPatternIntros = parsed.shownPatternIntros || {};
+      state.patternStats = parsed.patternStats || {};
+      state.roundCount = parsed.roundCount || {};
     }
   } catch (e) {}
 }
@@ -965,6 +1307,8 @@ function saveState() {
       levelStars: state.levelStars,
       muted: state.muted,
       shownPatternIntros: state.shownPatternIntros,
+      patternStats: state.patternStats,
+      roundCount: state.roundCount,
     }));
   } catch (e) {}
 }
@@ -1021,6 +1365,12 @@ function playClickSound() {
   playTone(800, 0.05, 'sine', 0.06);
 }
 
+function playBossSound() {
+  [330, 392, 494, 659].forEach((f, i) => {
+    setTimeout(() => playTone(f, 0.2, 'square', 0.1), i * 120);
+  });
+}
+
 function toggleMute() {
   state.muted = !state.muted;
   document.getElementById('muteBtn').textContent = state.muted ? '\u{1F507}' : '\u{1F50A}';
@@ -1033,6 +1383,9 @@ const PATTERNS_BY_LEVEL = [
   ['count_by_2', 'count_by_5', 'count_by_10', 'odds', 'evens', 'count_back_2'],
   ['count_by_3', 'count_by_4', 'add_constant', 'sub_constant', 'doubling', 'plus_n_more', 'count_10s_offset', 'count_5s_offset'],
   ['halving', 'fibonacci', 'alternating_ops', 'squares_intro', 'count_back_5', 'count_back_10', 'to_zero'],
+  ['two_step_rule', 'triangular', 'powers_of_3', 'primes_intro'],
+  ['multi_rule', 'second_order', 'geometric_offset', 'interleaved'],
+  [],
 ];
 
 function getAllPatternsForLevel(level) {
@@ -1044,30 +1397,105 @@ function getAllPatternsForLevel(level) {
 }
 
 function pickPatternForQuestion(level, qIdx) {
+  if (qIdx === 0) {
+    state.lastTwoPatterns = [];
+  }
+
   const available = getAllPatternsForLevel(level);
   const newPatterns = PATTERNS_BY_LEVEL[level];
-  const oldPatterns = available.filter(p => !newPatterns.includes(p));
 
+  // Build candidate pool based on question position
+  let pool;
   if (qIdx < 3) {
-    // First 3: simplest for this level (or first from new patterns)
-    const pool = newPatterns.length > 0 ? newPatterns.slice(0, 2) : available;
-    return pool[Math.floor(Math.random() * pool.length)];
+    pool = newPatterns.length > 0 ? newPatterns.slice(0, Math.max(2, newPatterns.length)) : available;
   } else if (qIdx < 6) {
-    // 4-6: mix in second type
-    const pool = newPatterns.length > 1 ? newPatterns : available;
-    return pool[Math.floor(Math.random() * pool.length)];
+    pool = newPatterns.length > 1 ? newPatterns : available;
   } else {
-    // 7-10: full mix
-    return available[Math.floor(Math.random() * available.length)];
+    pool = available.slice();
   }
+
+  // No-repeat: exclude last 2 patterns used
+  if (state.lastTwoPatterns.length > 0) {
+    const filtered = pool.filter(p => !state.lastTwoPatterns.includes(p));
+    if (filtered.length > 0) pool = filtered;
+  }
+
+  // Category contrast weighting (after question 3)
+  let weights = pool.map(() => 1);
+  if (qIdx >= 3 && state.lastTwoPatterns.length > 0) {
+    const prevPattern = state.lastTwoPatterns[state.lastTwoPatterns.length - 1];
+    const prevCat = getCategoryFor(prevPattern);
+
+    const mustDifferent = (qIdx === 4 || qIdx === 7); // "Surprise" slots (questions 5 and 8, 0-indexed 4 and 7)
+
+    for (let i = 0; i < pool.length; i++) {
+      const cat = getCategoryFor(pool[i]);
+      if (cat === prevCat) {
+        if (mustDifferent) {
+          weights[i] = 0;
+        } else {
+          weights[i] *= (1 / 3);
+        }
+      }
+    }
+  }
+
+  // Adaptive weighting from patternStats
+  for (let i = 0; i < pool.length; i++) {
+    const stats = state.patternStats[pool[i]];
+    if (stats && stats.attempts >= 5) {
+      const recentAcc = stats.firstTry / stats.attempts;
+      if (recentAcc >= 1.0 && stats.attempts >= 5) {
+        weights[i] *= 0.3;
+      } else if (recentAcc < 0.5 && stats.attempts >= 5) {
+        weights[i] *= 2.5;
+      }
+    }
+  }
+
+  // Ensure at least one option
+  const totalWeight = weights.reduce((a, b) => a + b, 0);
+  if (totalWeight === 0) {
+    weights = pool.map(() => 1);
+  }
+
+  // Weighted random selection
+  const pick = weightedRandom(pool, weights);
+
+  // Track last two
+  state.lastTwoPatterns.push(pick);
+  if (state.lastTwoPatterns.length > 2) state.lastTwoPatterns.shift();
+
+  return pick;
+}
+
+function weightedRandom(items, weights) {
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < items.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return items[i];
+  }
+  return items[items.length - 1];
 }
 
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function generateSequence(patternType, level) {
-  const seqLen = level <= 1 ? 5 : (level === 2 ? randInt(5, 6) : randInt(6, 7));
+function generateSequence(patternType, level, overrideLen) {
+  let seqLen;
+  if (overrideLen) {
+    seqLen = overrideLen;
+  } else if (level <= 1) {
+    seqLen = 5;
+  } else if (level === 2) {
+    seqLen = randInt(5, 6);
+  } else if (level <= 5) {
+    seqLen = randInt(6, 8);
+  } else {
+    seqLen = 7;
+  }
 
   let seq = [];
   let step = 0;
@@ -1184,7 +1612,6 @@ function generateSequence(patternType, level) {
       break;
     }
     case 'halving': {
-      // Ensure power is large enough so sequence never has trailing duplicate zeros
       const minPower = seqLen;
       const power = randInt(minPower, Math.max(minPower, 7));
       const start = Math.pow(2, power);
@@ -1237,31 +1664,171 @@ function generateSequence(patternType, level) {
       for (let i = 0; i < seqLen; i++) seq.push(start - i * step);
       break;
     }
+
+    // ── Level 5 patterns ──────────────────────────────────
+    case 'two_step_rule': {
+      const mult = [2, 3][randInt(0, 1)];
+      const add = randInt(1, 3);
+      const start = randInt(1, 5);
+      seqLen = Math.min(seqLen, 6);
+      seq = [start];
+      for (let i = 1; i < seqLen; i++) {
+        const next = seq[i - 1] * mult + add;
+        if (next > 300) { seqLen = i; break; }
+        seq.push(next);
+      }
+      step = 0;
+      break;
+    }
+    case 'triangular': {
+      const startK = randInt(1, 4);
+      seqLen = Math.min(seqLen, 6);
+      for (let i = 0; i < seqLen; i++) {
+        const n = startK + i;
+        seq.push(n * (n + 1) / 2);
+      }
+      step = 0;
+      break;
+    }
+    case 'powers_of_3': {
+      seqLen = 5;
+      const startPow = randInt(0, 1);
+      for (let i = 0; i < seqLen; i++) seq.push(Math.pow(3, startPow + i));
+      step = 0;
+      break;
+    }
+    case 'primes_intro': {
+      seqLen = Math.min(seqLen, 6);
+      const maxStart = PRIMES.length - seqLen;
+      const startIdx = randInt(0, Math.max(0, maxStart));
+      for (let i = 0; i < seqLen; i++) seq.push(PRIMES[startIdx + i]);
+      step = 0;
+      break;
+    }
+
+    // ── Level 6 patterns ──────────────────────────────────
+    case 'multi_rule': {
+      const ops = [];
+      const opChoices = [
+        () => { const v = randInt(1, 5); return { fn: x => x + v, label: '+' + v }; },
+        () => { const v = [2, 3][randInt(0, 1)]; return { fn: x => x * v, label: '*' + v }; },
+        () => { const v = randInt(1, 3); return { fn: x => x - v, label: '-' + v }; },
+      ];
+      for (let i = 0; i < 3; i++) ops.push(opChoices[randInt(0, opChoices.length - 1)]());
+      const start = randInt(2, 10);
+      seqLen = Math.min(seqLen, 7);
+      seq = [start];
+      let valid = true;
+      for (let i = 1; i < seqLen; i++) {
+        const next = ops[(i - 1) % 3].fn(seq[i - 1]);
+        if (next <= 0 || next > 500) { valid = false; break; }
+        seq.push(next);
+      }
+      if (!valid || seq.length < 5) {
+        // Fallback: simple +3 cycle
+        seq = [start];
+        for (let i = 1; i < 7; i++) seq.push(seq[i-1] + 3);
+      }
+      step = 0;
+      break;
+    }
+    case 'second_order': {
+      const secondDiff = randInt(1, 3);
+      const startVal = randInt(1, 10);
+      const firstDiff = randInt(1, 5);
+      seqLen = Math.min(seqLen, 6);
+      seq = [startVal];
+      let d = firstDiff;
+      for (let i = 1; i < seqLen; i++) {
+        seq.push(seq[i - 1] + d);
+        d += secondDiff;
+      }
+      step = 0;
+      break;
+    }
+    case 'geometric_offset': {
+      const mult = [2, 3][randInt(0, 1)];
+      const offset = randInt(1, 3);
+      const start = randInt(1, 5);
+      seqLen = Math.min(seqLen, 6);
+      seq = [start];
+      for (let i = 1; i < seqLen; i++) {
+        const next = seq[i - 1] * mult + offset;
+        if (next > 500) { seqLen = i; break; }
+        seq.push(next);
+      }
+      step = 0;
+      break;
+    }
+    case 'interleaved': {
+      const step1 = randInt(1, 5);
+      const step2 = randInt(5, 15);
+      const start1 = randInt(1, 10);
+      const start2 = randInt(10, 30);
+      seqLen = 6;
+      seq = [];
+      for (let i = 0; i < 3; i++) {
+        seq.push(start1 + i * step1);
+        seq.push(start2 + i * step2);
+      }
+      step = 0;
+      break;
+    }
   }
 
-  // Ensure no negatives
-  seq = seq.map(n => Math.max(0, n));
+  // Ensure no negatives (allow zero for levels 5+)
+  const minVal = level >= 5 ? 0 : 0;
+  seq = seq.map(n => Math.max(minVal, n));
 
   return { sequence: seq, step, patternType };
 }
 
-function chooseMissingPositions(seq, level) {
+function chooseMissingPositions(seq, level, numGaps) {
   const len = seq.length;
+  if (numGaps && numGaps > 1) {
+    // Multiple gaps for boss or level 6+
+    const positions = [];
+    const available = [];
+    for (let i = 0; i < len; i++) available.push(i);
+    // Shuffle
+    for (let i = available.length - 1; i > 0; i--) {
+      const j = randInt(0, i);
+      [available[i], available[j]] = [available[j], available[i]];
+    }
+    // Pick numGaps positions with at least 1 gap between them (if possible)
+    available.sort((a, b) => a - b);
+    const picked = [];
+    for (let i = 0; i < available.length && picked.length < numGaps; i++) {
+      if (picked.length === 0 || available[i] - picked[picked.length - 1] >= 2) {
+        picked.push(available[i]);
+      }
+    }
+    // If we couldn't get enough with spacing, just take what we can
+    if (picked.length < numGaps) {
+      for (let i = 0; i < available.length && picked.length < numGaps; i++) {
+        if (!picked.includes(available[i])) picked.push(available[i]);
+      }
+    }
+    return picked.sort((a, b) => a - b);
+  }
+
   if (level === 3 && Math.random() < 0.15) {
-    // Level 4: multiple gaps
+    const idx1 = randInt(0, len - 3);
+    let idx2 = randInt(idx1 + 2, len - 1);
+    return [idx1, idx2];
+  }
+  if (level >= 5 && Math.random() < 0.3) {
+    // Levels 5+: sometimes 2 gaps
     const idx1 = randInt(0, len - 3);
     let idx2 = randInt(idx1 + 2, len - 1);
     return [idx1, idx2];
   }
   if (level === 0) {
-    // Never first/last
     return [randInt(1, len - 2)];
   }
   if (level === 1) {
-    // Any except first/last
     return [randInt(1, len - 2)];
   }
-  // Levels 3-4: anywhere
   return [randInt(0, len - 1)];
 }
 
@@ -1270,32 +1837,26 @@ function generateDistractors(correctAnswer, patternType, step, level) {
   const distractors = new Set();
   distractors.add(correctAnswer);
 
-  // Off by 1
   if (correctAnswer > 0) distractors.add(correctAnswer - 1);
   distractors.add(correctAnswer + 1);
 
-  // Off by step
   const absStep = Math.abs(step) || 2;
   if (correctAnswer - absStep >= 0) distractors.add(correctAnswer - absStep);
   distractors.add(correctAnswer + absStep);
 
-  // Wrong operation
   if (correctAnswer > 1) distractors.add(correctAnswer * 2);
   distractors.add(correctAnswer + randInt(2, 5));
 
-  // Random nearby
   distractors.add(correctAnswer + randInt(3, 8));
   if (correctAnswer > 3) distractors.add(correctAnswer - randInt(2, 4));
 
   const opts = Array.from(distractors).filter(n => n >= 0 && n !== correctAnswer);
-  // Shuffle and pick
   for (let i = opts.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [opts[i], opts[j]] = [opts[j], opts[i]];
   }
 
   const result = [correctAnswer, ...opts.slice(0, numOptions - 1)];
-  // Shuffle final
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [result[i], result[j]] = [result[j], result[i]];
@@ -1320,7 +1881,7 @@ const PATTERN_INTROS = {
 };
 
 function shouldShowIntro(patternType, level) {
-  return false; // Let the player discover patterns on their own
+  return false;
 }
 
 function showPatternIntro(patternType, level, callback) {
@@ -1347,6 +1908,158 @@ function dismissIntro() {
   }
 }
 
+// ── Level 7 Helpers ───────────────────────────────────
+function getLevel7Mode(qIdx) {
+  // Sub-mode 1: questions 1,4,7,10 (0-indexed: 0,3,6,9)
+  // Sub-mode 2: questions 2,5,8 (0-indexed: 1,4,7)
+  // Sub-mode 3: questions 3,6,9 (0-indexed: 2,5,8)
+  if ([0, 3, 6, 9].includes(qIdx)) return 'whats_the_rule';
+  if ([1, 4, 7].includes(qIdx)) return 'build_sequence';
+  return 'standard';
+}
+
+function generateRuleDescription(patternType, sequence) {
+  const diff = sequence.length >= 2 ? sequence[1] - sequence[0] : 0;
+  switch (patternType) {
+    case 'count_by_1': return 'Adds 1 each time';
+    case 'count_back_1': return 'Subtracts 1 each time';
+    case 'neighbors': return 'Adds 1 each time';
+    case 'count_by_2': return 'Adds 2 each time';
+    case 'count_by_5': return 'Adds 5 each time';
+    case 'count_by_10': return 'Adds 10 each time';
+    case 'odds': return 'Odd numbers going up';
+    case 'evens': return 'Even numbers going up';
+    case 'count_back_2': return 'Subtracts 2 each time';
+    case 'count_by_3': return 'Adds 3 each time';
+    case 'count_by_4': return 'Adds 4 each time';
+    case 'add_constant': return `Adds ${diff} each time`;
+    case 'sub_constant': return `Subtracts ${Math.abs(diff)} each time`;
+    case 'doubling': return 'Doubles each time';
+    case 'halving': return 'Halves each time';
+    case 'fibonacci': return 'Adds the two previous numbers';
+    case 'alternating_ops': {
+      const d1 = sequence[1] - sequence[0];
+      const d2 = sequence[2] - sequence[1];
+      return `Alternates: +${d1} then ${d2}`;
+    }
+    case 'squares_intro': return 'Square numbers (1x1, 2x2, 3x3...)';
+    case 'plus_n_more': return 'Each step adds 1 more than the last';
+    case 'triangular': return 'Triangular numbers';
+    case 'powers_of_3': return 'Multiplies by 3 each time';
+    case 'primes_intro': return 'Special numbers (primes)';
+    case 'two_step_rule': return 'Multiply then add';
+    case 'count_10s_offset': return `Adds 10 each time (starts at ${sequence[0]})`;
+    case 'count_5s_offset': return `Adds 5 each time (starts at ${sequence[0]})`;
+    case 'count_back_5': return 'Subtracts 5 each time';
+    case 'count_back_10': return 'Subtracts 10 each time';
+    case 'to_zero': return `Subtracts ${Math.abs(diff)} down to zero`;
+    case 'multi_rule': return 'Three operations cycle over and over';
+    case 'second_order': return 'The gaps between numbers keep growing';
+    case 'geometric_offset': return 'Multiply then add a number';
+    case 'interleaved': return 'Two patterns mixed together';
+    default: return `Starts at ${sequence[0]}, changes by ${diff}`;
+  }
+}
+
+function generateWrongRules(patternType, sequence) {
+  const rules = [];
+  const diff = sequence.length >= 2 ? sequence[1] - sequence[0] : 1;
+  const absDiff = Math.abs(diff);
+
+  const wrongs = [
+    `Adds ${absDiff + 1} each time`,
+    `Subtracts ${absDiff} each time`,
+    `Doubles each time`,
+    `Adds ${absDiff * 2} each time`,
+    `Multiplies by ${absDiff} each time`,
+    'Adds the previous number',
+    `Subtracts ${absDiff + 2} each time`,
+    `Adds ${Math.max(1, absDiff - 1)} each time`,
+    'Square numbers',
+    'Halves each time',
+    'Multiplies by 3 each time',
+    'Even numbers going up',
+    'Odd numbers going up',
+    'Three operations cycling',
+    'Each step adds 1 more than the last',
+  ];
+
+  const correct = generateRuleDescription(patternType, sequence);
+  const filtered = wrongs.filter(r => r !== correct);
+  // Shuffle and pick 2
+  for (let i = filtered.length - 1; i > 0; i--) {
+    const j = randInt(0, i);
+    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+  }
+  return filtered.slice(0, 2);
+}
+
+function generateBuildSequenceData(level) {
+  // Pick a simple pattern and describe the rule
+  const simplePatterns = ['count_by_2', 'count_by_3', 'count_by_4', 'count_by_5', 'count_by_10', 'add_constant', 'doubling'];
+  const available = simplePatterns.filter(p => getAllPatternsForLevel(level).includes(p));
+  const pick = available[randInt(0, available.length - 1)] || 'count_by_2';
+  const { sequence, step } = generateSequence(pick, level, 5);
+
+  let ruleDesc;
+  if (['count_by_2', 'count_by_3', 'count_by_4', 'count_by_5', 'count_by_10', 'add_constant'].includes(pick)) {
+    const d = sequence[1] - sequence[0];
+    ruleDesc = `Start at ${sequence[0]}, add ${d} each time`;
+  } else if (pick === 'doubling') {
+    ruleDesc = `Start at ${sequence[0]}, double each time`;
+  } else {
+    const d = sequence[1] - sequence[0];
+    ruleDesc = `Start at ${sequence[0]}, add ${d} each time`;
+  }
+
+  return { sequence, step, patternType: pick, ruleDesc };
+}
+
+// ── Fog Helpers ───────────────────────────────────────
+function chooseFoggedIndices(seq, missingIndices, level) {
+  if (level < 4) return [];
+  const available = [];
+  for (let i = 0; i < seq.length; i++) {
+    if (!missingIndices.includes(i)) available.push(i);
+  }
+  if (available.length <= 2) return [];
+  // Shuffle and pick 1-2
+  for (let i = available.length - 1; i > 0; i--) {
+    const j = randInt(0, i);
+    [available[i], available[j]] = [available[j], available[i]];
+  }
+  const numFog = level >= 6 ? 2 : 1;
+  return available.slice(0, Math.min(numFog, available.length));
+}
+
+function handleFogPeek(idx) {
+  const seg = document.querySelector(`.pipe-segment[data-idx="${idx}"]`);
+  if (!seg || seg.classList.contains('peeking')) return;
+  seg.classList.add('peeking');
+  playClickSound();
+  setTimeout(() => {
+    if (seg) seg.classList.remove('peeking');
+  }, 1500);
+}
+
+// ── Boss Pipe Helpers ─────────────────────────────────
+function isBossQuestion(level, qIdx) {
+  if (level < 2) return false;
+  const roundNum = (state.roundCount[level] || 0) + 1;
+  // Every 3rd round, question 10 (index 9) is boss
+  return (roundNum % 3 === 0) && qIdx === TOTAL_QUESTIONS - 1;
+}
+
+function getHardestPattern(level) {
+  const patterns = PATTERNS_BY_LEVEL[level];
+  if (patterns.length > 0) return patterns[patterns.length - 1];
+  // Fallback to previous level's hardest
+  for (let l = level - 1; l >= 0; l--) {
+    if (PATTERNS_BY_LEVEL[l].length > 0) return PATTERNS_BY_LEVEL[l][PATTERNS_BY_LEVEL[l].length - 1];
+  }
+  return 'count_by_1';
+}
+
 // ── Game Flow ──────────────────────────────────────────
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1355,11 +2068,14 @@ function showScreen(id) {
 
 function confirmReset() {
   if (confirm('Reset all progress? This will lock all levels and clear stars.')) {
-    localStorage.removeItem('pipelineState');
-    state.unlockedLevels = [true, false, false, false];
-    state.levelStars = [[], [], [], []];
+    localStorage.removeItem('pipeline_state');
+    state.unlockedLevels = [true, false, false, false, false, false, false];
+    state.levelStars = [[], [], [], [], [], [], []];
     state.score = 0;
     state.bestStreak = 0;
+    state.patternStats = {};
+    state.roundCount = {};
+    saveState();
     goToLevelSelect();
   }
 }
@@ -1370,10 +2086,47 @@ function goToLevelSelect() {
   updateLevelSelect();
 }
 
+function buildLevelSelectMonitors() {
+  const row1 = document.getElementById('monitorsRow1');
+  const row2 = document.getElementById('monitorsRow2');
+  row1.innerHTML = '';
+  row2.innerHTML = '';
+
+  for (let i = 0; i < 7; i++) {
+    const mon = document.createElement('div');
+    mon.className = 'monitor';
+    mon.id = 'mon' + i;
+    mon.onclick = () => selectLevel(i);
+
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'monitor-icon';
+    iconDiv.textContent = LEVEL_ICONS[i];
+
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'monitor-title';
+    titleDiv.textContent = LEVEL_NAMES[i];
+
+    const starsDiv = document.createElement('div');
+    starsDiv.className = 'monitor-stars';
+    starsDiv.id = 'stars' + i;
+
+    mon.appendChild(iconDiv);
+    mon.appendChild(titleDiv);
+    mon.appendChild(starsDiv);
+
+    if (i < 4) {
+      row1.appendChild(mon);
+    } else {
+      row2.appendChild(mon);
+    }
+  }
+}
+
 function updateLevelSelect() {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 7; i++) {
     const mon = document.getElementById('mon' + i);
     const starsEl = document.getElementById('stars' + i);
+    if (!mon || !starsEl) continue;
 
     if (state.unlockedLevels[i]) {
       mon.className = 'monitor unlocked';
@@ -1398,6 +2151,11 @@ function selectLevel(level) {
   startRound();
 }
 
+function startLevel(level) {
+  state.currentLevel = level;
+  startRound();
+}
+
 function startRound() {
   state.questionIndex = 0;
   state.score = 0;
@@ -1405,11 +2163,19 @@ function startRound() {
   state.bestStreak = 0;
   state.hintsRemaining = 3;
   state.roundResults = [];
+  state.lastTwoPatterns = [];
   state.phase = 'playing';
 
   document.getElementById('levelNameDisplay').textContent = LEVEL_NAMES[state.currentLevel];
   showScreen('screenPlaying');
   nextQuestion();
+}
+
+function getPipeTierClass(level) {
+  if (level <= 1) return 'pipe-copper';
+  if (level <= 3) return 'pipe-steel';
+  if (level <= 5) return 'pipe-plasma';
+  return 'pipe-gold';
 }
 
 function nextQuestion() {
@@ -1425,24 +2191,86 @@ function nextQuestion() {
   state.inputLocked = false;
   state.solvedGaps = {};
   state.activeGapIdx = 0;
+  state.foggedIndices = [];
+  state.bossRound = false;
+  state.level7Mode = null;
+  state.level7BuildIdx = 0;
+  state.level7RuleOptions = [];
+  state.level7CorrectRuleIdx = 0;
+  state.level7RuleDesc = '';
 
   document.getElementById('hintDisplay').textContent = '';
   document.getElementById('diffArrows').innerHTML = '';
+  document.getElementById('ruleDisplayArea').innerHTML = '';
   updateHUD();
 
-  const patternType = pickPatternForQuestion(state.currentLevel, state.questionIndex);
-  const { sequence, step } = generateSequence(patternType, state.currentLevel);
+  // Check boss pipe
+  if (isBossQuestion(state.currentLevel, state.questionIndex)) {
+    state.bossRound = true;
+    showBossBanner(() => setupQuestion());
+    return;
+  }
+
+  setupQuestion();
+}
+
+function showBossBanner(callback) {
+  playBossSound();
+  const banner = document.getElementById('bossBanner');
+  banner.classList.remove('show');
+  void banner.offsetWidth;
+  banner.classList.add('show');
+  setTimeout(callback, 1600);
+}
+
+function setupQuestion() {
+  const level = state.currentLevel;
+  const qIdx = state.questionIndex;
+
+  // Level 7 special modes
+  if (level === 6) {
+    state.level7Mode = getLevel7Mode(qIdx);
+
+    if (state.level7Mode === 'whats_the_rule') {
+      setupWhatsTheRule();
+      return;
+    }
+    if (state.level7Mode === 'build_sequence') {
+      setupBuildSequence();
+      return;
+    }
+  }
+
+  // Standard question (or boss pipe)
+  let patternType;
+  let seqOverride = null;
+  let numGaps = undefined;
+
+  if (state.bossRound) {
+    patternType = getHardestPattern(level);
+    seqOverride = 9;
+    numGaps = 3;
+  } else {
+    patternType = pickPatternForQuestion(level, qIdx);
+  }
+
+  const { sequence, step } = generateSequence(patternType, level, seqOverride);
 
   state.currentSequence = sequence;
   state.stepValue = step;
   state.patternType = patternType;
 
-  const missingPos = chooseMissingPositions(sequence, state.currentLevel);
+  const missingPos = chooseMissingPositions(sequence, level, numGaps);
   state.missingIndices = missingPos;
   state.correctAnswers = missingPos.map(idx => sequence[idx]);
 
-  if (state.currentLevel <= 1) {
-    state.options = generateDistractors(state.correctAnswers[0], patternType, step, state.currentLevel);
+  // Fog for levels 5+
+  if (level >= 4) {
+    state.foggedIndices = chooseFoggedIndices(sequence, missingPos, level);
+  }
+
+  if (level <= 1) {
+    state.options = generateDistractors(state.correctAnswers[0], patternType, step, level);
   } else {
     state.options = [];
   }
@@ -1452,11 +2280,60 @@ function nextQuestion() {
     renderInputArea();
   };
 
-  if (shouldShowIntro(patternType, state.currentLevel)) {
-    showPatternIntro(patternType, state.currentLevel, doRender);
+  if (shouldShowIntro(patternType, level)) {
+    showPatternIntro(patternType, level, doRender);
   } else {
     doRender();
   }
+}
+
+function setupWhatsTheRule() {
+  // Pick a pattern, generate full sequence, show it complete with rule choices
+  const allPatterns = getAllPatternsForLevel(state.currentLevel);
+  const patternType = allPatterns[randInt(0, allPatterns.length - 1)];
+  const { sequence, step } = generateSequence(patternType, state.currentLevel, 5);
+
+  state.currentSequence = sequence;
+  state.stepValue = step;
+  state.patternType = patternType;
+  state.missingIndices = [];
+  state.correctAnswers = [];
+
+  const correctRule = generateRuleDescription(patternType, sequence);
+  const wrongRules = generateWrongRules(patternType, sequence);
+
+  const allRules = [correctRule, ...wrongRules];
+  // Shuffle
+  const indices = [0, 1, 2];
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = randInt(0, i);
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  state.level7RuleOptions = indices.map(idx => allRules[idx]);
+  state.level7CorrectRuleIdx = indices.indexOf(0);
+
+  renderPipeline();
+  renderInputArea();
+}
+
+function setupBuildSequence() {
+  const { sequence, step, patternType, ruleDesc } = generateBuildSequenceData(state.currentLevel);
+
+  state.currentSequence = sequence;
+  state.stepValue = step;
+  state.patternType = patternType;
+  state.level7RuleDesc = ruleDesc;
+  state.level7BuildIdx = 0;
+
+  // All positions are "missing" — player fills them all
+  state.missingIndices = sequence.map((_, i) => i);
+  state.correctAnswers = sequence.slice();
+
+  const rda = document.getElementById('ruleDisplayArea');
+  rda.innerHTML = `<div class="rule-display">${ruleDesc}</div>`;
+
+  renderPipeline();
+  renderInputArea();
 }
 
 function updateHUD() {
@@ -1472,6 +2349,20 @@ function updateHUD() {
   } else {
     badge.classList.remove('active');
   }
+
+  // Pressure gauge
+  const pct = ((state.questionIndex) / TOTAL_QUESTIONS) * 100;
+  const fill = document.getElementById('pressureFill');
+  fill.style.width = pct + '%';
+  if (pct <= 50) {
+    fill.style.background = `linear-gradient(90deg, #f1c40f, #f39c12)`;
+  } else if (pct < 100) {
+    fill.style.background = `linear-gradient(90deg, #f39c12, #2ecc71)`;
+  } else {
+    fill.style.background = `linear-gradient(90deg, #2ecc71, #27ae60)`;
+    fill.classList.add('pulse');
+    setTimeout(() => fill.classList.remove('pulse'), 600);
+  }
 }
 
 // ── Pipeline Rendering ─────────────────────────────────
@@ -1479,13 +2370,16 @@ function renderPipeline() {
   const container = document.getElementById('pipelineContainer');
   container.innerHTML = '';
 
+  // Apply pipe tier class
+  container.className = 'pipeline ' + getPipeTierClass(state.currentLevel);
+
   const seq = state.currentSequence;
+  const isBuild = state.level7Mode === 'build_sequence';
 
   seq.forEach((num, i) => {
     if (i > 0) {
       const joint = document.createElement('div');
       joint.className = 'pipe-joint';
-      // If after an unsolved gap, joints are inactive
       const firstUnsolvedGap = state.missingIndices.find(gi => !state.solvedGaps[gi]);
       if (firstUnsolvedGap !== undefined && i > firstUnsolvedGap) {
         joint.classList.add('inactive');
@@ -1498,19 +2392,45 @@ function renderPipeline() {
     seg.setAttribute('data-idx', i);
 
     const isGap = state.missingIndices.includes(i) && !state.solvedGaps[i];
+    const isFogged = state.foggedIndices.includes(i) && !state.solvedGaps[i] && !isGap;
 
     if (isGap) {
       seg.classList.add('gap');
-      const isActive = i === state.missingIndices[state.activeGapIdx];
 
-      if (isActive && state.typedValue) {
-        seg.classList.add('typing');
-        seg.innerHTML = `<div class="sparks"><div class="spark"></div><div class="spark"></div><div class="spark"></div><div class="spark"></div></div><span class="gap-text">${state.typedValue}</span>`;
+      if (isBuild) {
+        // Build mode: active segment is level7BuildIdx
+        const isActive = (state.missingIndices.indexOf(i) === state.level7BuildIdx);
+        if (isActive && state.typedValue) {
+          seg.classList.add('typing');
+          seg.innerHTML = `<div class="sparks"><div class="spark"></div><div class="spark"></div><div class="spark"></div><div class="spark"></div></div><span class="gap-text">${state.typedValue}</span>`;
+        } else {
+          seg.innerHTML = `<div class="sparks"><div class="spark"></div><div class="spark"></div><div class="spark"></div><div class="spark"></div></div><span class="gap-text">?</span>`;
+        }
       } else {
-        seg.innerHTML = `<div class="sparks"><div class="spark"></div><div class="spark"></div><div class="spark"></div><div class="spark"></div></div><span class="gap-text">?</span>`;
+        const isActive = i === state.missingIndices[state.activeGapIdx];
+        if (isActive && state.typedValue) {
+          seg.classList.add('typing');
+          seg.innerHTML = `<div class="sparks"><div class="spark"></div><div class="spark"></div><div class="spark"></div><div class="spark"></div></div><span class="gap-text">${state.typedValue}</span>`;
+        } else {
+          seg.innerHTML = `<div class="sparks"><div class="spark"></div><div class="spark"></div><div class="spark"></div><div class="spark"></div></div><span class="gap-text">?</span>`;
+        }
       }
+    } else if (isFogged) {
+      // Fogged segment
+      seg.classList.add('fogged');
+      const firstUnsolvedGap = state.missingIndices.find(gi => !state.solvedGaps[gi]);
+      if (firstUnsolvedGap === undefined) {
+        seg.classList.add('flowing');
+      } else if (i < firstUnsolvedGap) {
+        seg.classList.add('flowing');
+      } else {
+        seg.classList.add('inactive');
+      }
+
+      const displayNum = state.solvedGaps[i] !== undefined ? state.solvedGaps[i] : num;
+      seg.innerHTML = `<div class="flow-dots"></div>${displayNum}<div class="fog-overlay">\u{1F441}</div>`;
+      seg.onclick = () => handleFogPeek(i);
     } else {
-      // Determine flow state
       const firstUnsolvedGap = state.missingIndices.find(gi => !state.solvedGaps[gi]);
       if (firstUnsolvedGap === undefined) {
         seg.classList.add('flowing');
@@ -1532,6 +2452,24 @@ function renderInputArea() {
   const area = document.getElementById('inputArea');
   area.innerHTML = '';
 
+  // Level 7 "What's the Rule?" mode
+  if (state.level7Mode === 'whats_the_rule') {
+    const optDiv = document.createElement('div');
+    optDiv.className = 'rule-options-area';
+
+    state.level7RuleOptions.forEach((rule, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'rule-option-btn';
+      btn.textContent = rule;
+      btn.onclick = () => handleRulePick(idx, btn);
+      optDiv.appendChild(btn);
+    });
+
+    area.appendChild(optDiv);
+    return;
+  }
+
+  // Multiple choice for levels 0-1
   if (state.currentLevel <= 1) {
     const optDiv = document.createElement('div');
     optDiv.className = 'options-area';
@@ -1546,6 +2484,7 @@ function renderInputArea() {
 
     area.appendChild(optDiv);
   } else {
+    // Keypad
     const kpDiv = document.createElement('div');
     kpDiv.className = 'keypad-area';
     const kp = document.createElement('div');
@@ -1568,6 +2507,48 @@ function renderInputArea() {
 }
 
 // ── Input Handling ─────────────────────────────────────
+function handleRulePick(idx, btnEl) {
+  if (state.inputLocked) return;
+  playClickSound();
+  state.inputLocked = true;
+
+  if (idx === state.level7CorrectRuleIdx) {
+    btnEl.classList.add('correct-pick');
+    document.querySelectorAll('.rule-option-btn').forEach(b => b.disabled = true);
+    handleCorrectRule();
+  } else {
+    btnEl.classList.add('wrong-pick');
+    state.attemptsOnCurrent++;
+    state.streak = 0;
+    playWrongSound();
+    updateHUD();
+    setTimeout(() => {
+      btnEl.classList.remove('wrong-pick');
+      state.inputLocked = false;
+    }, 600);
+  }
+}
+
+function handleCorrectRule() {
+  playCorrectSound();
+  const firstTry = state.attemptsOnCurrent === 0;
+  let points = state.bossRound ? 20 : 10;
+  if (firstTry) points += 5;
+  points += state.streak * 5;
+  state.score += points;
+  state.streak++;
+  if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+  state.roundResults.push({ correct: true, firstTry, pattern: state.patternType });
+  recordPatternStat(state.patternType, firstTry);
+  updateHUD();
+
+  setTimeout(() => {
+    state.questionIndex++;
+    nextQuestion();
+  }, 1000);
+}
+
 function handleOptionPick(value, btnEl) {
   if (state.inputLocked) return;
   playClickSound();
@@ -1605,21 +2586,37 @@ function handleKeyPress(key) {
     if (state.typedValue === '') return;
     playClickSound();
 
-    const currentGapIdx = state.missingIndices[state.activeGapIdx];
-    const correct = state.currentSequence[currentGapIdx];
-    const answer = parseInt(state.typedValue, 10);
+    const isBuild = state.level7Mode === 'build_sequence';
+    let currentGapIdx, correct;
 
+    if (isBuild) {
+      currentGapIdx = state.missingIndices[state.level7BuildIdx];
+      correct = state.currentSequence[currentGapIdx];
+    } else {
+      currentGapIdx = state.missingIndices[state.activeGapIdx];
+      correct = state.currentSequence[currentGapIdx];
+    }
+
+    const answer = parseInt(state.typedValue, 10);
     state.inputLocked = true;
 
     if (answer === correct) {
-      handleCorrect(currentGapIdx, correct);
+      if (isBuild) {
+        handleBuildCorrect(currentGapIdx, correct);
+      } else {
+        handleCorrect(currentGapIdx, correct);
+      }
     } else {
-      handleWrong(currentGapIdx);
-      setTimeout(() => {
-        state.typedValue = '';
-        state.inputLocked = false;
-        renderPipeline();
-      }, 700);
+      if (isBuild) {
+        handleBuildWrong(currentGapIdx);
+      } else {
+        handleWrong(currentGapIdx);
+        setTimeout(() => {
+          state.typedValue = '';
+          state.inputLocked = false;
+          renderPipeline();
+        }, 700);
+      }
     }
     return;
   }
@@ -1632,12 +2629,81 @@ function handleKeyPress(key) {
   }
 }
 
+function handleBuildCorrect(gapIdx, correct) {
+  playCorrectSound();
+  state.solvedGaps[gapIdx] = correct;
+
+  const seg = document.querySelector(`.pipe-segment[data-idx="${gapIdx}"]`);
+  if (seg) {
+    seg.classList.remove('gap');
+    seg.classList.add('welding', 'flowing');
+    seg.innerHTML = `<div class="flow-dots"></div><div class="weld-sparks"></div>${correct}`;
+    createWeldSparks(seg);
+  }
+
+  state.level7BuildIdx++;
+  state.typedValue = '';
+
+  if (state.level7BuildIdx >= state.missingIndices.length) {
+    // All segments filled
+    state.inputLocked = true;
+    const firstTry = state.attemptsOnCurrent === 0;
+    let points = 10;
+    if (firstTry) points += 5;
+    points += state.streak * 5;
+    state.score += points;
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+    state.roundResults.push({ correct: true, firstTry, pattern: state.patternType });
+    recordPatternStat(state.patternType, firstTry);
+    updateHUD();
+
+    setTimeout(() => {
+      renderPipeline();
+      setTimeout(() => {
+        state.questionIndex++;
+        nextQuestion();
+      }, 1000);
+    }, 800);
+  } else {
+    state.inputLocked = false;
+    setTimeout(() => renderPipeline(), 800);
+  }
+}
+
+function handleBuildWrong(gapIdx) {
+  playWrongSound();
+  state.attemptsOnCurrent++;
+  state.streak = 0;
+  updateHUD();
+
+  const seg = document.querySelector(`.pipe-segment[data-idx="${gapIdx}"]`);
+  if (seg) {
+    seg.classList.add('wrong-flash');
+    const leak = document.createElement('div');
+    leak.className = 'leak';
+    leak.innerHTML = '<div class="leak-drop"></div><div class="leak-drop"></div><div class="leak-drop"></div>';
+    seg.appendChild(leak);
+    setTimeout(() => {
+      seg.classList.remove('wrong-flash');
+      const leakEl = seg.querySelector('.leak');
+      if (leakEl) leakEl.remove();
+    }, 800);
+  }
+
+  setTimeout(() => {
+    state.typedValue = '';
+    state.inputLocked = false;
+    renderPipeline();
+  }, 700);
+}
+
 function handleCorrect(gapIdx, correct) {
   playCorrectSound();
 
   state.solvedGaps[gapIdx] = correct;
 
-  // Welding animation on the gap segment
   const seg = document.querySelector(`.pipe-segment[data-idx="${gapIdx}"]`);
   if (seg) {
     seg.classList.remove('gap');
@@ -1660,7 +2726,7 @@ function handleCorrect(gapIdx, correct) {
 
   // All gaps solved
   const firstTry = state.attemptsOnCurrent === 0;
-  let points = 10;
+  let points = state.bossRound ? 20 : 10;
   if (firstTry) points += 5;
   points += state.streak * 5;
   state.score += points;
@@ -1668,8 +2734,8 @@ function handleCorrect(gapIdx, correct) {
   if (state.streak > state.bestStreak) state.bestStreak = state.streak;
 
   state.roundResults.push({ correct: true, firstTry, pattern: state.patternType });
+  recordPatternStat(state.patternType, firstTry);
 
-  // Streak milestones
   if (state.streak === 3) {
     playStreakSound();
     highlightPipelineGlow('blue');
@@ -1683,9 +2749,8 @@ function handleCorrect(gapIdx, correct) {
 
   updateHUD();
 
-  // Animate full flow
   setTimeout(() => {
-    renderPipeline(); // Re-render with all flowing
+    renderPipeline();
     setTimeout(() => {
       state.questionIndex++;
       nextQuestion();
@@ -1702,7 +2767,6 @@ function handleWrong(gapIdx) {
   const seg = document.querySelector(`.pipe-segment[data-idx="${gapIdx}"]`);
   if (seg) {
     seg.classList.add('wrong-flash');
-    // Leak animation
     const leak = document.createElement('div');
     leak.className = 'leak';
     leak.innerHTML = '<div class="leak-drop"></div><div class="leak-drop"></div><div class="leak-drop"></div>';
@@ -1719,6 +2783,15 @@ function handleWrong(gapIdx) {
   if (state.attemptsOnCurrent >= 2 && state.hintsUsedOnCurrent === 0 && state.hintsRemaining > 0) {
     setTimeout(() => useHint(), 900);
   }
+}
+
+function recordPatternStat(patternType, firstTry) {
+  if (!state.patternStats[patternType]) {
+    state.patternStats[patternType] = { attempts: 0, firstTry: 0 };
+  }
+  state.patternStats[patternType].attempts++;
+  if (firstTry) state.patternStats[patternType].firstTry++;
+  saveState();
 }
 
 function createWeldSparks(seg) {
@@ -1766,20 +2839,34 @@ function showMasterBanner() {
 // ── Hints ──────────────────────────────────────────────
 function useHint() {
   if (state.hintsRemaining <= 0 || state.inputLocked) return;
+  if (state.level7Mode === 'whats_the_rule') return; // No hints for rule mode
 
   state.hintsRemaining--;
   state.hintsUsedOnCurrent++;
   updateHUD();
   playClickSound();
 
-  const currentGapIdx = state.missingIndices[state.activeGapIdx];
-  const correct = state.currentSequence[currentGapIdx];
+  const isBuild = state.level7Mode === 'build_sequence';
+  let currentGapIdx, correct;
+
+  if (isBuild) {
+    currentGapIdx = state.missingIndices[state.level7BuildIdx];
+    correct = state.currentSequence[currentGapIdx];
+  } else {
+    currentGapIdx = state.missingIndices[state.activeGapIdx];
+    correct = state.currentSequence[currentGapIdx];
+  }
 
   if (state.hintsUsedOnCurrent === 1) {
-    showDifferenceArrows();
+    if (!isBuild) {
+      showDifferenceArrows();
+    } else {
+      const low = Math.max(0, correct - randInt(1, 3));
+      const high = correct + randInt(1, 3);
+      document.getElementById('hintDisplay').textContent = `Between ${low} and ${high}`;
+    }
   } else if (state.hintsUsedOnCurrent === 2) {
     if (state.currentLevel <= 1) {
-      // Eliminate one wrong option
       const btns = document.querySelectorAll('.option-btn');
       for (const btn of btns) {
         if (parseInt(btn.textContent) !== correct && !btn.disabled) {
@@ -1795,7 +2882,6 @@ function useHint() {
       document.getElementById('hintDisplay').textContent = `Between ${low} and ${high}`;
     }
   } else {
-    // Flash correct answer
     document.getElementById('hintDisplay').textContent = `The answer is ${correct}!`;
     const seg = document.querySelector(`.pipe-segment[data-idx="${currentGapIdx}"]`);
     if (seg) {
@@ -1849,14 +2935,17 @@ function endRound() {
 
   state.levelStars[state.currentLevel].push(stars);
 
+  // Track round count
+  if (!state.roundCount[state.currentLevel]) state.roundCount[state.currentLevel] = 0;
+  state.roundCount[state.currentLevel]++;
+
   // Unlock next level if >= 70%
-  if (accuracy >= 0.7 && state.currentLevel < 3) {
+  if (accuracy >= 0.7 && state.currentLevel < 6) {
     state.unlockedLevels[state.currentLevel + 1] = true;
   }
 
   saveState();
 
-  // Render
   document.getElementById('roundStarsDisplay').textContent =
     '\u2B50'.repeat(stars) + '\u2606'.repeat(3 - stars);
 
@@ -1905,6 +2994,71 @@ function buildCitySkyline(stars) {
   }
 }
 
+// ── Pattern Log ───────────────────────────────────────
+function openPatternLog() {
+  const content = document.getElementById('patternLogContent');
+  content.innerHTML = '';
+
+  const catOrder = ['counting', 'skip_counting', 'arithmetic', 'multiplicative', 'special'];
+  const catNames = {
+    counting: 'Counting',
+    skip_counting: 'Skip Counting',
+    arithmetic: 'Arithmetic',
+    multiplicative: 'Multiplicative',
+    special: 'Special',
+  };
+
+  for (const cat of catOrder) {
+    const patterns = PATTERN_CATEGORIES[cat];
+    // Only show patterns the player has seen or that are in unlocked levels
+    const relevantPatterns = patterns.filter(p => {
+      return state.patternStats[p] || getAllPatternsForLevel(state.unlockedLevels.lastIndexOf(true)).includes(p);
+    });
+    if (relevantPatterns.length === 0) continue;
+
+    const title = document.createElement('div');
+    title.className = 'pattern-cat-title';
+    title.textContent = catNames[cat];
+    content.appendChild(title);
+
+    for (const p of relevantPatterns) {
+      const stats = state.patternStats[p];
+      const item = document.createElement('div');
+      item.className = 'pattern-log-item';
+
+      const dot = document.createElement('div');
+      dot.className = 'pattern-dot';
+      if (!stats || stats.attempts === 0) {
+        dot.classList.add('gray');
+      } else {
+        const acc = stats.firstTry / stats.attempts;
+        if (acc >= 0.8) dot.classList.add('green');
+        else if (acc >= 0.5) dot.classList.add('yellow');
+        else dot.classList.add('red');
+      }
+
+      const name = document.createElement('span');
+      name.className = 'pattern-log-name';
+      name.textContent = PATTERN_READABLE_NAMES[p] || p;
+
+      const count = document.createElement('span');
+      count.className = 'pattern-log-count';
+      count.textContent = stats ? `${stats.attempts}x` : '';
+
+      item.appendChild(dot);
+      item.appendChild(name);
+      item.appendChild(count);
+      content.appendChild(item);
+    }
+  }
+
+  document.getElementById('patternLogOverlay').classList.add('active');
+}
+
+function closePatternLog() {
+  document.getElementById('patternLogOverlay').classList.remove('active');
+}
+
 // ── Confetti ───────────────────────────────────────────
 function launchConfetti() {
   const container = document.getElementById('confettiContainer');
@@ -1928,6 +3082,7 @@ function launchConfetti() {
 
 // ── Init ───────────────────────────────────────────────
 loadState();
+buildLevelSelectMonitors();
 goToLevelSelect();
 
 </script>
