@@ -582,7 +582,7 @@
     .keypad-area {
       padding: 8px 12px 16px;
       width: 100%;
-      max-width: 320px;
+      max-width: 460px;
     }
 
     .keypad {
@@ -1316,12 +1316,7 @@ const PATTERN_INTROS = {
 };
 
 function shouldShowIntro(patternType, level) {
-  if (level === 0) return false; // Level 1 patterns are obvious
-  const key = patternType + '_' + level;
-  if (state.shownPatternIntros[key]) return false;
-  if (!PATTERN_INTROS[patternType]) return false;
-  // Only show for first 3 questions of new pattern type at this level
-  return state.questionIndex < 3;
+  return false; // Let the player discover patterns on their own
 }
 
 function showPatternIntro(patternType, level, callback) {
