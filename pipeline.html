@@ -588,7 +588,7 @@
     .keypad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 10px;
     }
 
     .key-btn {
@@ -596,10 +596,11 @@
       border: 2px solid rgba(74,144,217,0.4);
       border-radius: 14px;
       color: white;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       font-weight: 800;
       font-family: 'Courier New', Courier, monospace;
-      min-height: 60px;
+      min-height: 72px;
+      min-width: 72px;
       cursor: pointer;
       touch-action: manipulation;
       transition: transform 0.1s, background 0.1s;
@@ -867,7 +868,10 @@
         <div class="monitor-stars" id="stars3"></div>
       </div>
     </div>
-    <button class="level-back-btn" onclick="location.href='index.html'">Back to Games</button>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
+      <button class="level-back-btn" onclick="location.href='index.html'">Back to Games</button>
+      <button class="level-back-btn" onclick="confirmReset()" style="background:rgba(231,76,60,0.15);border-color:rgba(231,76,60,0.4);color:#e74c3c;">Reset Progress</button>
+    </div>
   </div>
 
   <!-- ── SCREEN: Playing ───────────────────────────────── -->
@@ -1347,6 +1351,17 @@ function dismissIntro() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+}
+
+function confirmReset() {
+  if (confirm('Reset all progress? This will lock all levels and clear stars.')) {
+    localStorage.removeItem('pipelineState');
+    state.unlockedLevels = [true, false, false, false];
+    state.levelStars = [[], [], [], []];
+    state.score = 0;
+    state.bestStreak = 0;
+    goToLevelSelect();
+  }
 }
 
 function goToLevelSelect() {
