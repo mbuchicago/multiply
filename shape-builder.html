@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Shape Builder">
+  <title>Shape Builder!</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #e74c3c;
+      --blue: #3498db;
+      --yellow: #f1c40f;
+      --green: #2ecc71;
+      --orange: #e67e22;
+      --purple: #9b59b6;
+      --wood-dark: #5d4037;
+      --wood-light: #8d6e63;
+      --wood-bg: #4e342e;
+      --blueprint-bg: #1a2744;
+      --blueprint-line: rgba(100,160,255,0.15);
+      --bp-ghost: rgba(120,170,255,0.25);
+    }
+
+    body {
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      background: linear-gradient(160deg, #3e2723 0%, #5d4037 40%, #4e342e 100%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-x: hidden;
+      color: #fff;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    /* ── Top Bar ─────────────────────────────────────── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: rgba(0,0,0,0.3);
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .top-bar .back-btn {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border-radius: 14px;
+      padding: 8px 14px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .top-bar .back-btn:active { transform: scale(0.94); }
+
+    .top-bar .title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-align: center;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-bar .progress {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.8);
+      white-space: nowrap;
+    }
+
+    .top-bar .mute-btn {
+      background: none;
+      color: #fff;
+      font-size: 1.4rem;
+      padding: 4px;
+    }
+
+    /* ── Screens ──────────────────────────────────────── */
+    .screen { display: none; flex-direction: column; flex: 1; }
+    .screen.active { display: flex; }
+
+    /* ── Level Select ─────────────────────────────────── */
+    .level-select {
+      padding: 20px 16px;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .level-select h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      text-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .city-skyline {
+      width: 100%;
+      max-width: 500px;
+      height: 80px;
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .city-skyline svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .level-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .level-card {
+      background: rgba(255,255,255,0.12);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #fff;
+      transition: transform 0.12s;
+    }
+
+    .level-card:active { transform: scale(0.97); }
+
+    .level-card.locked {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .level-card .lc-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    .level-card .lc-info { flex: 1; }
+    .level-card .lc-name { font-size: 1.2rem; font-weight: 800; }
+    .level-card .lc-desc { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; }
+    .level-card .lc-stars { font-size: 0.9rem; margin-top: 4px; color: #f1c40f; }
+    .level-card .lc-lock { font-size: 1.4rem; opacity: 0.6; }
+
+    /* ── Blueprint Select ─────────────────────────────── */
+    .blueprint-select {
+      padding: 16px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .blueprint-select h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .bp-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 400px;
+      overflow-y: auto;
+      flex: 1;
+      padding-bottom: 16px;
+    }
+
+    .bp-card {
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 18px;
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: #fff;
+      min-height: 110px;
+      transition: transform 0.12s;
+    }
+
+    .bp-card:active { transform: scale(0.96); }
+
+    .bp-card .bp-preview {
+      width: 70px;
+      height: 60px;
+    }
+
+    .bp-card .bp-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .bp-card .bp-stars {
+      font-size: 0.85rem;
+      color: #f1c40f;
+    }
+
+    .bp-card.completed {
+      border-color: var(--green);
+      background: rgba(46,204,113,0.15);
+    }
+
+    /* ── Game Screen ──────────────────────────────────── */
+    .game-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .game-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 12px;
+      gap: 8px;
+      min-height: 0;
+    }
+
+    /* Reference card */
+    .ref-card {
+      position: absolute;
+      top: 54px;
+      right: 8px;
+      width: 70px;
+      height: 60px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      z-index: 10;
+      padding: 4px;
+    }
+
+    .ref-card svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Build canvas */
+    .build-canvas {
+      flex: 1;
+      width: 100%;
+      max-width: 500px;
+      background: var(--blueprint-bg);
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      border: 3px solid rgba(100,160,255,0.3);
+      min-height: 200px;
+    }
+
+    .build-canvas .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--blueprint-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--blueprint-line) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+    }
+
+    .build-zone {
+      position: absolute;
+      border: 2px dashed rgba(120,170,255,0.4);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .build-zone:active { background: rgba(120,170,255,0.1); }
+
+    .build-zone.filled {
+      border-color: transparent;
+      background: transparent;
+    }
+
+    .build-zone.filled:active { background: rgba(255,100,100,0.1); }
+
+    .build-zone .ghost-shape {
+      opacity: 0.2;
+      pointer-events: none;
+    }
+
+    .build-zone .placed-shape {
+      pointer-events: none;
+    }
+
+    .build-zone.correct-flash {
+      animation: correctGlow 0.5s ease;
+    }
+
+    @keyframes correctGlow {
+      0% { box-shadow: 0 0 0 0 rgba(46,204,113,0.6); }
+      50% { box-shadow: 0 0 20px 8px rgba(46,204,113,0.4); }
+      100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
+    }
+
+    .build-zone.wrong-flash {
+      animation: wrongShake 0.4s ease;
+    }
+
+    @keyframes wrongShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    /* Shape info popup */
+    .shape-info {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .shape-info.visible {
+      opacity: 1;
+    }
+
+    /* ── Toolbox ──────────────────────────────────────── */
+    .toolbox-area {
+      flex-shrink: 0;
+      padding: 8px 12px 16px;
+    }
+
+    .toolbox-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.6;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .toolbox {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 8px 4px;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .tool-item {
+      flex-shrink: 0;
+      width: 72px;
+      height: 72px;
+      background: rgba(255,255,255,0.1);
+      border: 3px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      scroll-snap-align: center;
+      transition: transform 0.15s, border-color 0.15s, background 0.15s;
+      position: relative;
+    }
+
+    .tool-item:active { transform: scale(0.94); }
+
+    .tool-item.selected {
+      border-color: #f1c40f;
+      background: rgba(241,196,15,0.2);
+      transform: scale(1.08);
+      box-shadow: 0 0 16px rgba(241,196,15,0.3);
+    }
+
+    .tool-item.used {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .tool-item .tool-label {
+      position: absolute;
+      bottom: -18px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+      opacity: 0.7;
+    }
+
+    .rotate-btn {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border-radius: 14px;
+      padding: 10px 18px;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .rotate-btn:active { transform: scale(0.94); }
+
+    /* ── Celebration Overlay ──────────────────────────── */
+    .celebration-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      gap: 16px;
+    }
+
+    .celebration-overlay.active {
+      display: flex;
+    }
+
+    .stamp {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--green);
+      border: 5px solid var(--green);
+      border-radius: 16px;
+      padding: 12px 28px;
+      transform: rotate(-12deg);
+      animation: stampIn 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    @keyframes stampIn {
+      0% { transform: rotate(-12deg) scale(3); opacity: 0; }
+      100% { transform: rotate(-12deg) scale(1); opacity: 1; }
+    }
+
+    .stars-display {
+      font-size: 2.8rem;
+      animation: starsIn 0.5s ease 0.3s both;
+    }
+
+    @keyframes starsIn {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .summary-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      opacity: 0.9;
+      max-width: 300px;
+      animation: fadeUp 0.4s ease 0.5s both;
+    }
+
+    @keyframes fadeUp {
+      0% { transform: translateY(10px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    .cel-btn {
+      background: var(--green);
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 800;
+      padding: 14px 32px;
+      border-radius: 18px;
+      margin-top: 8px;
+      animation: fadeUp 0.4s ease 0.7s both;
+    }
+
+    .cel-btn:active { transform: scale(0.95); }
+
+    /* ── Confetti ─────────────────────────────────────── */
+    .confetti {
+      position: fixed;
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: confettiFall linear forwards;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(900deg); opacity: 0; }
+    }
+
+    /* ── Hint ─────────────────────────────────────────── */
+    .hint-bar {
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      padding: 4px 8px;
+      min-height: 24px;
+    }
+
+    /* ── Home link ────────────────────────────────────── */
+    .home-link {
+      display: inline-block;
+      margin-top: 12px;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="shape-info" id="shapeInfo"></div>
+
+<!-- ── Level Select Screen ──────────────────────────── -->
+<div class="screen level-select active" id="levelSelectScreen">
+  <h1>Shape Builder</h1>
+  <div class="city-skyline" id="citySkyline"></div>
+  <div class="level-cards" id="levelCards"></div>
+  <a href="index.html" class="home-link">Home</a>
+</div>
+
+<!-- ── Blueprint Select Screen ──────────────────────── -->
+<div class="screen blueprint-select" id="blueprintSelectScreen">
+  <div class="top-bar">
+    <button class="back-btn" id="bpBackBtn">Back</button>
+    <div class="title" id="bpTitle">Level 1</div>
+    <div class="progress" id="bpProgress"></div>
+  </div>
+  <h2 id="bpHeading">Choose a Blueprint</h2>
+  <div class="bp-grid" id="bpGrid"></div>
+</div>
+
+<!-- ── Game Screen ──────────────────────────────────── -->
+<div class="screen game-screen" id="gameScreen">
+  <div class="top-bar">
+    <button class="back-btn" id="gameBackBtn">Back</button>
+    <div class="title" id="gameTitle">Build: House</div>
+    <div class="progress" id="gameProgress">0 / 2</div>
+    <button class="mute-btn" id="muteBtn">&#128264;</button>
+  </div>
+  <div class="ref-card" id="refCard"></div>
+  <div class="game-area">
+    <div class="build-canvas" id="buildCanvas">
+      <div class="grid-bg"></div>
+    </div>
+    <div class="hint-bar" id="hintBar"></div>
+  </div>
+  <div class="toolbox-area">
+    <div class="toolbox-label">Shape Toolbox</div>
+    <div class="toolbox" id="toolbox"></div>
+  </div>
+</div>
+
+<!-- ── Celebration Overlay ───────────────────────────── -->
+<div class="celebration-overlay" id="celebrationOverlay">
+  <div class="stamp">Approved!</div>
+  <div class="stars-display" id="celStars"></div>
+  <div class="summary-text" id="celSummary"></div>
+  <button class="cel-btn" id="celNextBtn">Next</button>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── Audio ──────────────────────────────────────────
+  let audioCtx = null;
+  let muted = false;
+
+  function getAudio() {
+    if (muted) return null;
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) { return null; }
+    }
+    return audioCtx;
+  }
+
+  function playTone(freq, dur, type, vol) {
+    const ctx = getAudio();
+    if (!ctx) return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol || 0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + dur);
+    } catch (e) {}
+  }
+
+  function soundTap() { playTone(600, 0.08, 'sine', 0.1); }
+  function soundCorrect() { playTone(523, 0.12, 'sine', 0.15); setTimeout(() => playTone(659, 0.12, 'sine', 0.15), 100); setTimeout(() => playTone(784, 0.2, 'sine', 0.15), 200); }
+  function soundWrong() { playTone(200, 0.25, 'square', 0.08); }
+  function soundFanfare() {
+    [523, 659, 784, 1047].forEach((f, i) => {
+      setTimeout(() => playTone(f, 0.3, 'sine', 0.12), i * 150);
+    });
+  }
+
+  // ── Shape Data ─────────────────────────────────────
+  const SHAPE_COLORS = {
+    red: '#e74c3c', blue: '#3498db', yellow: '#f1c40f',
+    green: '#2ecc71', orange: '#e67e22', purple: '#9b59b6',
+    pink: '#e84393', teal: '#00b894'
+  };
+
+  const SHAPE_INFO = {
+    circle:    { sides: 0, corners: 0, desc: '0 sides, 0 corners' },
+    square:    { sides: 4, corners: 4, desc: '4 equal sides, 4 corners' },
+    rectangle: { sides: 4, corners: 4, desc: '4 sides, 4 corners' },
+    triangle:  { sides: 3, corners: 3, desc: '3 sides, 3 corners' },
+    oval:      { sides: 0, corners: 0, desc: '0 sides, 0 corners' },
+    diamond:   { sides: 4, corners: 4, desc: '4 equal sides, 4 corners' },
+    hexagon:   { sides: 6, corners: 6, desc: '6 sides, 6 corners' },
+    pentagon:  { sides: 5, corners: 5, desc: '5 sides, 5 corners' },
+    octagon:   { sides: 8, corners: 8, desc: '8 sides, 8 corners' },
+    trapezoid: { sides: 4, corners: 4, desc: '4 sides, 4 corners' },
+    semicircle:{ sides: 1, corners: 0, desc: '1 curved side, flat bottom' }
+  };
+
+  function shapeSVG(type, w, h, fill, stroke, strokeW, rotation) {
+    const sw = strokeW || 3;
+    const s = stroke || '#fff';
+    const r = rotation || 0;
+    const cx = w / 2;
+    const cy = h / 2;
+    const pad = sw + 1;
+    let inner = '';
+
+    switch (type) {
+      case 'circle':
+        inner = `<circle cx="${cx}" cy="${cy}" r="${Math.min(cx, cy) - pad}" fill="${fill}" stroke="${s}" stroke-width="${sw}"/>`;
+        break;
+      case 'oval':
+        inner = `<ellipse cx="${cx}" cy="${cy}" rx="${cx - pad}" ry="${cy * 0.6}" fill="${fill}" stroke="${s}" stroke-width="${sw}"/>`;
+        break;
+      case 'square': {
+        const side = Math.min(w, h) - pad * 2;
+        inner = `<rect x="${(w - side) / 2}" y="${(h - side) / 2}" width="${side}" height="${side}" fill="${fill}" stroke="${s}" stroke-width="${sw}" rx="2"/>`;
+        break;
+      }
+      case 'rectangle':
+        inner = `<rect x="${pad}" y="${pad + (h - pad * 2) * 0.15}" width="${w - pad * 2}" height="${(h - pad * 2) * 0.7}" fill="${fill}" stroke="${s}" stroke-width="${sw}" rx="2"/>`;
+        break;
+      case 'triangle': {
+        const bx1 = pad, by1 = h - pad;
+        const bx2 = w - pad, by2 = h - pad;
+        const tx = cx, ty = pad;
+        inner = `<polygon points="${tx},${ty} ${bx1},${by1} ${bx2},${by2}" fill="${fill}" stroke="${s}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+        break;
+      }
+      case 'diamond': {
+        const dx = cx, dyt = pad, dyb = h - pad;
+        const dxl = pad, dxr = w - pad, dym = cy;
+        inner = `<polygon points="${dx},${dyt} ${dxr},${dym} ${dx},${dyb} ${dxl},${dym}" fill="${fill}" stroke="${s}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+        break;
+      }
+      case 'hexagon': {
+        const pts = polygon(6, cx, cy, Math.min(cx, cy) - pad);
+        inner = `<polygon points="${pts}" fill="${fill}" stroke="${s}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+        break;
+      }
+      case 'pentagon': {
+        const pts = polygon(5, cx, cy, Math.min(cx, cy) - pad);
+        inner = `<polygon points="${pts}" fill="${fill}" stroke="${s}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+        break;
+      }
+      case 'octagon': {
+        const pts = polygon(8, cx, cy, Math.min(cx, cy) - pad);
+        inner = `<polygon points="${pts}" fill="${fill}" stroke="${s}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+        break;
+      }
+      case 'trapezoid': {
+        const inset = (w - pad * 2) * 0.2;
+        inner = `<polygon points="${pad + inset},${pad} ${w - pad - inset},${pad} ${w - pad},${h - pad} ${pad},${h - pad}" fill="${fill}" stroke="${s}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+        break;
+      }
+      case 'semicircle': {
+        const sr = Math.min(cx, cy) - pad;
+        inner = `<path d="M ${cx - sr},${cy} A ${sr},${sr} 0 0 1 ${cx + sr},${cy} Z" fill="${fill}" stroke="${s}" stroke-width="${sw}"/>`;
+        break;
+      }
+    }
+
+    const transform = r ? ` transform="rotate(${r},${cx},${cy})"` : '';
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><g${transform}>${inner}</g></svg>`;
+  }
+
+  function polygon(n, cx, cy, r) {
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+      pts.push(`${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`);
+    }
+    return pts.join(' ');
+  }
+
+  // ── Blueprint Library ──────────────────────────────
+  const LEVELS = [
+    { name: 'Foundation', icon: '&#x1F3D7;', color: '#e67e22', desc: 'Basic shapes' },
+    { name: 'Framing', icon: '&#x1F528;', color: '#3498db', desc: 'Build structures' },
+    { name: 'Architect', icon: '&#x1F4D0;', color: '#9b59b6', desc: 'Complex builds' },
+    { name: 'Master Builder', icon: '&#x1F3C6;', color: '#e74c3c', desc: 'Expert mode' }
+  ];
+
+  // Canvas is percentage-based (0-100) for responsive layout.
+  // Each zone: { x, y, w, h } in percent of canvas.
+  const BLUEPRINTS = [
+    // ── Level 1: Foundation ──
+    [
+      {
+        name: 'Square',
+        pieces: [{ shape: 'square', color: 'red', zone: 0 }],
+        zones: [{ x: 25, y: 20, w: 50, h: 60 }],
+        distractors: ['circle', 'triangle']
+      },
+      {
+        name: 'Triangle',
+        pieces: [{ shape: 'triangle', color: 'blue', zone: 0 }],
+        zones: [{ x: 20, y: 15, w: 60, h: 70 }],
+        distractors: ['square', 'circle']
+      },
+      {
+        name: 'Circle',
+        pieces: [{ shape: 'circle', color: 'green', zone: 0 }],
+        zones: [{ x: 20, y: 15, w: 60, h: 70 }],
+        distractors: ['square', 'rectangle']
+      },
+      {
+        name: 'Rectangle',
+        pieces: [{ shape: 'rectangle', color: 'orange', zone: 0 }],
+        zones: [{ x: 15, y: 25, w: 70, h: 50 }],
+        distractors: ['square', 'triangle']
+      },
+      {
+        name: 'House',
+        pieces: [
+          { shape: 'square', color: 'red', zone: 0 },
+          { shape: 'triangle', color: 'blue', zone: 1 }
+        ],
+        zones: [
+          { x: 20, y: 45, w: 60, h: 50 },
+          { x: 20, y: 8, w: 60, h: 40 }
+        ],
+        distractors: ['circle']
+      },
+      {
+        name: 'Ice Cream',
+        pieces: [
+          { shape: 'triangle', color: 'orange', zone: 0, rotation: 180 },
+          { shape: 'circle', color: 'pink', zone: 1 }
+        ],
+        zones: [
+          { x: 25, y: 45, w: 50, h: 48 },
+          { x: 22, y: 10, w: 56, h: 42 }
+        ],
+        distractors: ['square']
+      },
+      {
+        name: 'Tree',
+        pieces: [
+          { shape: 'rectangle', color: 'orange', zone: 0 },
+          { shape: 'circle', color: 'green', zone: 1 }
+        ],
+        zones: [
+          { x: 38, y: 55, w: 24, h: 40 },
+          { x: 18, y: 5, w: 64, h: 55 }
+        ],
+        distractors: ['triangle']
+      },
+      {
+        name: 'Lollipop',
+        pieces: [
+          { shape: 'rectangle', color: 'orange', zone: 0 },
+          { shape: 'circle', color: 'red', zone: 1 }
+        ],
+        zones: [
+          { x: 42, y: 50, w: 16, h: 45 },
+          { x: 22, y: 5, w: 56, h: 50 }
+        ],
+        distractors: ['triangle', 'square']
+      }
+    ],
+    // ── Level 2: Framing ──
+    [
+      {
+        name: 'Truck',
+        pieces: [
+          { shape: 'rectangle', color: 'blue', zone: 0 },
+          { shape: 'square', color: 'blue', zone: 1 },
+          { shape: 'circle', color: 'red', zone: 2 },
+          { shape: 'circle', color: 'red', zone: 3 }
+        ],
+        zones: [
+          { x: 5, y: 25, w: 58, h: 40 },
+          { x: 63, y: 25, w: 32, h: 40 },
+          { x: 15, y: 62, w: 20, h: 28 },
+          { x: 65, y: 62, w: 20, h: 28 }
+        ],
+        distractors: ['triangle', 'diamond']
+      },
+      {
+        name: 'Castle',
+        pieces: [
+          { shape: 'rectangle', color: 'purple', zone: 0 },
+          { shape: 'rectangle', color: 'purple', zone: 1 },
+          { shape: 'rectangle', color: 'purple', zone: 2 },
+          { shape: 'triangle', color: 'red', zone: 3 },
+          { shape: 'triangle', color: 'red', zone: 4 },
+          { shape: 'triangle', color: 'red', zone: 5 }
+        ],
+        zones: [
+          { x: 5, y: 35, w: 25, h: 58 },
+          { x: 37, y: 35, w: 25, h: 58 },
+          { x: 70, y: 35, w: 25, h: 58 },
+          { x: 5, y: 8, w: 25, h: 30 },
+          { x: 37, y: 8, w: 25, h: 30 },
+          { x: 70, y: 8, w: 25, h: 30 }
+        ],
+        distractors: ['circle', 'hexagon']
+      },
+      {
+        name: 'Train',
+        pieces: [
+          { shape: 'rectangle', color: 'blue', zone: 0 },
+          { shape: 'square', color: 'red', zone: 1 },
+          { shape: 'circle', color: 'yellow', zone: 2 },
+          { shape: 'circle', color: 'yellow', zone: 3 },
+          { shape: 'circle', color: 'yellow', zone: 4 }
+        ],
+        zones: [
+          { x: 5, y: 18, w: 52, h: 42 },
+          { x: 57, y: 18, w: 38, h: 42 },
+          { x: 8, y: 62, w: 18, h: 26 },
+          { x: 38, y: 62, w: 18, h: 26 },
+          { x: 68, y: 62, w: 18, h: 26 }
+        ],
+        distractors: ['triangle', 'diamond']
+      },
+      {
+        name: 'Robot',
+        pieces: [
+          { shape: 'square', color: 'blue', zone: 0 },
+          { shape: 'rectangle', color: 'green', zone: 1 },
+          { shape: 'rectangle', color: 'orange', zone: 2 },
+          { shape: 'rectangle', color: 'orange', zone: 3 }
+        ],
+        zones: [
+          { x: 28, y: 3, w: 44, h: 30 },
+          { x: 22, y: 35, w: 56, h: 40 },
+          { x: 3, y: 38, w: 18, h: 34 },
+          { x: 79, y: 38, w: 18, h: 34 }
+        ],
+        distractors: ['triangle', 'circle']
+      },
+      {
+        name: 'Boat',
+        pieces: [
+          { shape: 'trapezoid', color: 'red', zone: 0 },
+          { shape: 'rectangle', color: 'blue', zone: 1 },
+          { shape: 'triangle', color: 'yellow', zone: 2 }
+        ],
+        zones: [
+          { x: 10, y: 55, w: 80, h: 35 },
+          { x: 35, y: 25, w: 30, h: 32 },
+          { x: 60, y: 3, w: 25, h: 30 }
+        ],
+        distractors: ['circle', 'hexagon', 'diamond']
+      },
+      {
+        name: 'Snowman',
+        pieces: [
+          { shape: 'circle', color: 'blue', zone: 0 },
+          { shape: 'circle', color: 'blue', zone: 1 },
+          { shape: 'circle', color: 'blue', zone: 2 }
+        ],
+        zones: [
+          { x: 18, y: 58, w: 64, h: 38 },
+          { x: 24, y: 30, w: 52, h: 32 },
+          { x: 30, y: 5, w: 40, h: 28 }
+        ],
+        distractors: ['square', 'triangle', 'diamond']
+      },
+      {
+        name: 'Caterpillar',
+        pieces: [
+          { shape: 'circle', color: 'green', zone: 0 },
+          { shape: 'circle', color: 'green', zone: 1 },
+          { shape: 'circle', color: 'green', zone: 2 },
+          { shape: 'circle', color: 'green', zone: 3 }
+        ],
+        zones: [
+          { x: 3, y: 30, w: 22, h: 40 },
+          { x: 27, y: 30, w: 22, h: 40 },
+          { x: 51, y: 30, w: 22, h: 40 },
+          { x: 75, y: 30, w: 22, h: 40 }
+        ],
+        distractors: ['square', 'triangle']
+      },
+      {
+        name: 'Lamp',
+        pieces: [
+          { shape: 'rectangle', color: 'orange', zone: 0 },
+          { shape: 'trapezoid', color: 'yellow', zone: 1 }
+        ],
+        zones: [
+          { x: 38, y: 50, w: 24, h: 45 },
+          { x: 18, y: 8, w: 64, h: 45 }
+        ],
+        distractors: ['circle', 'diamond', 'hexagon']
+      }
+    ],
+    // ── Level 3: Architect ──
+    [
+      {
+        name: 'Rocket',
+        pieces: [
+          { shape: 'rectangle', color: 'blue', zone: 0 },
+          { shape: 'triangle', color: 'red', zone: 1 },
+          { shape: 'triangle', color: 'orange', zone: 2, rotation: 90 },
+          { shape: 'triangle', color: 'orange', zone: 3, rotation: -90 },
+          { shape: 'circle', color: 'yellow', zone: 4 }
+        ],
+        zones: [
+          { x: 28, y: 25, w: 44, h: 50 },
+          { x: 28, y: 3, w: 44, h: 25 },
+          { x: 8, y: 70, w: 22, h: 25 },
+          { x: 70, y: 70, w: 22, h: 25 },
+          { x: 38, y: 42, w: 24, h: 18 }
+        ],
+        distractors: ['square', 'hexagon', 'diamond']
+      },
+      {
+        name: 'Bridge',
+        pieces: [
+          { shape: 'rectangle', color: 'green', zone: 0 },
+          { shape: 'rectangle', color: 'green', zone: 1 },
+          { shape: 'rectangle', color: 'blue', zone: 2 },
+          { shape: 'semicircle', color: 'purple', zone: 3 }
+        ],
+        zones: [
+          { x: 5, y: 8, w: 16, h: 75 },
+          { x: 79, y: 8, w: 16, h: 75 },
+          { x: 5, y: 8, w: 90, h: 20 },
+          { x: 28, y: 40, w: 44, h: 35 }
+        ],
+        distractors: ['triangle', 'diamond', 'octagon']
+      },
+      {
+        name: 'Crane',
+        pieces: [
+          { shape: 'rectangle', color: 'yellow', zone: 0 },
+          { shape: 'rectangle', color: 'yellow', zone: 1 },
+          { shape: 'triangle', color: 'orange', zone: 2, rotation: 90 },
+          { shape: 'square', color: 'red', zone: 3 }
+        ],
+        zones: [
+          { x: 20, y: 10, w: 14, h: 80 },
+          { x: 34, y: 10, w: 52, h: 14 },
+          { x: 80, y: 22, w: 16, h: 24 },
+          { x: 10, y: 78, w: 34, h: 18 }
+        ],
+        distractors: ['circle', 'pentagon', 'hexagon']
+      },
+      {
+        name: 'Pentagon House',
+        pieces: [
+          { shape: 'pentagon', color: 'purple', zone: 0 },
+          { shape: 'rectangle', color: 'orange', zone: 1 },
+          { shape: 'circle', color: 'yellow', zone: 2 },
+          { shape: 'circle', color: 'yellow', zone: 3 }
+        ],
+        zones: [
+          { x: 10, y: 5, w: 80, h: 60 },
+          { x: 38, y: 60, w: 24, h: 32 },
+          { x: 18, y: 30, w: 18, h: 18 },
+          { x: 64, y: 30, w: 18, h: 18 }
+        ],
+        distractors: ['triangle', 'diamond', 'octagon']
+      },
+      {
+        name: 'Fire Truck',
+        pieces: [
+          { shape: 'rectangle', color: 'red', zone: 0 },
+          { shape: 'square', color: 'red', zone: 1 },
+          { shape: 'circle', color: 'yellow', zone: 2 },
+          { shape: 'circle', color: 'yellow', zone: 3 },
+          { shape: 'rectangle', color: 'orange', zone: 4 }
+        ],
+        zones: [
+          { x: 5, y: 25, w: 55, h: 38 },
+          { x: 60, y: 25, w: 35, h: 38 },
+          { x: 15, y: 62, w: 18, h: 24 },
+          { x: 67, y: 62, w: 18, h: 24 },
+          { x: 10, y: 8, w: 48, h: 18 }
+        ],
+        distractors: ['hexagon', 'pentagon', 'diamond']
+      },
+      {
+        name: 'Crown',
+        pieces: [
+          { shape: 'rectangle', color: 'yellow', zone: 0 },
+          { shape: 'triangle', color: 'yellow', zone: 1 },
+          { shape: 'triangle', color: 'yellow', zone: 2 },
+          { shape: 'triangle', color: 'yellow', zone: 3 }
+        ],
+        zones: [
+          { x: 8, y: 50, w: 84, h: 40 },
+          { x: 8, y: 10, w: 26, h: 44 },
+          { x: 37, y: 10, w: 26, h: 44 },
+          { x: 66, y: 10, w: 26, h: 44 }
+        ],
+        distractors: ['circle', 'octagon', 'semicircle']
+      },
+      {
+        name: 'Castle Tower',
+        pieces: [
+          { shape: 'rectangle', color: 'purple', zone: 0 },
+          { shape: 'octagon', color: 'blue', zone: 1 },
+          { shape: 'triangle', color: 'red', zone: 2 },
+          { shape: 'rectangle', color: 'purple', zone: 3 },
+          { shape: 'square', color: 'yellow', zone: 4 }
+        ],
+        zones: [
+          { x: 25, y: 40, w: 50, h: 55 },
+          { x: 25, y: 18, w: 50, h: 25 },
+          { x: 30, y: 2, w: 40, h: 20 },
+          { x: 5, y: 60, w: 18, h: 35 },
+          { x: 77, y: 60, w: 18, h: 35 }
+        ],
+        distractors: ['diamond', 'semicircle']
+      },
+      {
+        name: 'Flower',
+        pieces: [
+          { shape: 'circle', color: 'red', zone: 0 },
+          { shape: 'circle', color: 'pink', zone: 1 },
+          { shape: 'circle', color: 'pink', zone: 2 },
+          { shape: 'circle', color: 'pink', zone: 3 },
+          { shape: 'circle', color: 'pink', zone: 4 },
+          { shape: 'rectangle', color: 'green', zone: 5 }
+        ],
+        zones: [
+          { x: 33, y: 22, w: 24, h: 22 },
+          { x: 33, y: 3, w: 24, h: 22 },
+          { x: 33, y: 41, w: 24, h: 22 },
+          { x: 14, y: 22, w: 24, h: 22 },
+          { x: 52, y: 22, w: 24, h: 22 },
+          { x: 42, y: 62, w: 10, h: 34 }
+        ],
+        distractors: ['triangle', 'hexagon']
+      }
+    ],
+    // ── Level 4: Master Builder ──
+    [
+      {
+        name: 'Tangram Cat',
+        tangram: true,
+        pieces: [
+          { shape: 'triangle', color: 'purple', zone: 0 },
+          { shape: 'triangle', color: 'blue', zone: 1, rotation: 180 },
+          { shape: 'square', color: 'red', zone: 2 },
+          { shape: 'triangle', color: 'green', zone: 3, rotation: 90 },
+          { shape: 'triangle', color: 'orange', zone: 4, rotation: -90 }
+        ],
+        zones: [
+          { x: 30, y: 2, w: 40, h: 28 },
+          { x: 30, y: 28, w: 40, h: 28 },
+          { x: 30, y: 54, w: 40, h: 30 },
+          { x: 5, y: 5, w: 28, h: 26 },
+          { x: 67, y: 5, w: 28, h: 26 }
+        ],
+        distractors: ['circle', 'hexagon']
+      },
+      {
+        name: 'Tangram Boat',
+        tangram: true,
+        pieces: [
+          { shape: 'trapezoid', color: 'blue', zone: 0 },
+          { shape: 'triangle', color: 'red', zone: 1 },
+          { shape: 'rectangle', color: 'yellow', zone: 2 },
+          { shape: 'triangle', color: 'green', zone: 3, rotation: 90 }
+        ],
+        zones: [
+          { x: 10, y: 55, w: 80, h: 35 },
+          { x: 55, y: 8, w: 30, h: 48 },
+          { x: 30, y: 28, w: 26, h: 30 },
+          { x: 8, y: 20, w: 26, h: 36 }
+        ],
+        distractors: ['circle', 'pentagon']
+      },
+      {
+        name: 'Tangram House',
+        tangram: true,
+        pieces: [
+          { shape: 'triangle', color: 'red', zone: 0 },
+          { shape: 'square', color: 'blue', zone: 1 },
+          { shape: 'rectangle', color: 'green', zone: 2 },
+          { shape: 'triangle', color: 'orange', zone: 3, rotation: 90 },
+          { shape: 'triangle', color: 'purple', zone: 4, rotation: -90 }
+        ],
+        zones: [
+          { x: 20, y: 3, w: 60, h: 32 },
+          { x: 20, y: 33, w: 60, h: 44 },
+          { x: 35, y: 56, w: 30, h: 20 },
+          { x: 3, y: 33, w: 20, h: 30 },
+          { x: 77, y: 33, w: 20, h: 30 }
+        ],
+        distractors: ['hexagon', 'diamond']
+      },
+      {
+        name: 'Tangram Rocket',
+        tangram: true,
+        pieces: [
+          { shape: 'triangle', color: 'red', zone: 0 },
+          { shape: 'rectangle', color: 'blue', zone: 1 },
+          { shape: 'triangle', color: 'orange', zone: 2, rotation: 90 },
+          { shape: 'triangle', color: 'orange', zone: 3, rotation: -90 },
+          { shape: 'circle', color: 'yellow', zone: 4 }
+        ],
+        zones: [
+          { x: 28, y: 2, w: 44, h: 22 },
+          { x: 28, y: 22, w: 44, h: 50 },
+          { x: 8, y: 68, w: 24, h: 28 },
+          { x: 68, y: 68, w: 24, h: 28 },
+          { x: 36, y: 36, w: 28, h: 20 }
+        ],
+        distractors: ['pentagon', 'hexagon']
+      },
+      {
+        name: 'Divide It',
+        decomposition: true,
+        question: 'How many squares fit in this rectangle?',
+        answer: 4,
+        pieces: [
+          { shape: 'square', color: 'green', zone: 0 },
+          { shape: 'square', color: 'blue', zone: 1 },
+          { shape: 'square', color: 'orange', zone: 2 },
+          { shape: 'square', color: 'red', zone: 3 }
+        ],
+        zones: [
+          { x: 5, y: 25, w: 22, h: 50 },
+          { x: 27, y: 25, w: 22, h: 50 },
+          { x: 51, y: 25, w: 22, h: 50 },
+          { x: 73, y: 25, w: 22, h: 50 }
+        ],
+        distractors: ['triangle', 'circle']
+      },
+      {
+        name: 'Free Build',
+        freeBuild: true,
+        pieces: [],
+        zones: [],
+        distractors: []
+      }
+    ]
+  ];
+
+  // ── State ──────────────────────────────────────────
+  let state = loadState();
+
+  function defaultState() {
+    return {
+      currentLevel: 0,
+      stars: {},
+      unlockedLevels: [true, false, false, false],
+      muted: false
+    };
+  }
+
+  function loadState() {
+    try {
+      const s = JSON.parse(localStorage.getItem('shapeBuilder'));
+      if (s && s.unlockedLevels) return s;
+    } catch (e) {}
+    return defaultState();
+  }
+
+  function saveState() {
+    localStorage.setItem('shapeBuilder', JSON.stringify(state));
+  }
+
+  // Game session (not persisted)
+  let session = {
+    levelIdx: 0,
+    bpIdx: 0,
+    selectedToolIdx: null,
+    placedPieces: {},
+    wrongAttempts: 0,
+    toolbox: [],
+    currentRotation: 0
+  };
+
+  // ── DOM refs ───────────────────────────────────────
+  const $ = id => document.getElementById(id);
+  const levelSelectScreen = $('levelSelectScreen');
+  const blueprintSelectScreen = $('blueprintSelectScreen');
+  const gameScreen = $('gameScreen');
+  const celebrationOverlay = $('celebrationOverlay');
+  const levelCardsEl = $('levelCards');
+  const bpGrid = $('bpGrid');
+  const buildCanvas = $('buildCanvas');
+  const toolboxEl = $('toolbox');
+  const shapeInfoEl = $('shapeInfo');
+
+  // ── Navigation ─────────────────────────────────────
+  function showScreen(screen) {
+    [levelSelectScreen, blueprintSelectScreen, gameScreen].forEach(s => s.classList.remove('active'));
+    screen.classList.add('active');
+  }
+
+  // ── Level Select ───────────────────────────────────
+  function renderLevelSelect() {
+    showScreen(levelSelectScreen);
+    checkUnlocks();
+    levelCardsEl.innerHTML = '';
+
+    LEVELS.forEach((lv, i) => {
+      const locked = !state.unlockedLevels[i];
+      const btn = document.createElement('button');
+      btn.className = 'level-card' + (locked ? ' locked' : '');
+      const bps = BLUEPRINTS[i];
+      const completedCount = bps.filter((_, bi) => state.stars[`${i}-${bi}`]).length;
+      const totalStars = bps.reduce((sum, _, bi) => sum + (state.stars[`${i}-${bi}`] || 0), 0);
+
+      btn.innerHTML = `
+        <div class="lc-icon" style="background:${lv.color}">${lv.icon}</div>
+        <div class="lc-info">
+          <div class="lc-name">${lv.name}</div>
+          <div class="lc-desc">${lv.desc}</div>
+          <div class="lc-stars">${completedCount > 0 ? '&#9733;'.repeat(Math.min(totalStars, 24)) + ` (${completedCount}/${bps.length})` : ''}</div>
+        </div>
+        ${locked ? '<div class="lc-lock">&#128274;</div>' : ''}
+      `;
+
+      if (!locked) {
+        btn.addEventListener('click', () => {
+          soundTap();
+          session.levelIdx = i;
+          renderBlueprintSelect(i);
+        });
+      }
+      levelCardsEl.appendChild(btn);
+    });
+
+    renderCitySkyline();
+  }
+
+  function checkUnlocks() {
+    for (let i = 0; i < LEVELS.length - 1; i++) {
+      if (state.unlockedLevels[i]) {
+        const bps = BLUEPRINTS[i];
+        let completed = 0;
+        let totalStars = 0;
+        bps.forEach((_, bi) => {
+          const s = state.stars[`${i}-${bi}`] || 0;
+          if (s > 0) { completed++; totalStars += s; }
+        });
+        const avgStars = completed > 0 ? totalStars / completed : 0;
+        if (completed >= 5 && avgStars >= 2) {
+          state.unlockedLevels[i + 1] = true;
+        }
+      }
+    }
+    saveState();
+  }
+
+  // ── City Skyline ───────────────────────────────────
+  function renderCitySkyline() {
+    const skyEl = $('citySkyline');
+    let buildings = [];
+    let x = 10;
+
+    for (let li = 0; li < BLUEPRINTS.length; li++) {
+      BLUEPRINTS[li].forEach((bp, bi) => {
+        if (state.stars[`${li}-${bi}`]) {
+          const h = 20 + Math.random() * 40;
+          const w = 15 + Math.random() * 15;
+          const color = SHAPE_COLORS[bp.pieces[0]?.color] || '#888';
+          buildings.push({ x, h, w, color, hasRoof: Math.random() > 0.4 });
+          x += w + 4;
+        }
+      });
+    }
+
+    if (buildings.length === 0) {
+      skyEl.innerHTML = '<svg viewBox="0 0 500 80"><line x1="0" y1="78" x2="500" y2="78" stroke="rgba(255,255,255,0.2)" stroke-width="2"/></svg>';
+      return;
+    }
+
+    const totalW = Math.max(x + 10, 500);
+    let svg = `<svg viewBox="0 0 ${totalW} 80" preserveAspectRatio="xMidYMax meet">`;
+    svg += `<line x1="0" y1="78" x2="${totalW}" y2="78" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>`;
+    buildings.forEach(b => {
+      const y = 78 - b.h;
+      svg += `<rect x="${b.x}" y="${y}" width="${b.w}" height="${b.h}" fill="${b.color}" rx="2" opacity="0.7"/>`;
+      if (b.hasRoof) {
+        svg += `<polygon points="${b.x},${y} ${b.x + b.w / 2},${y - 10} ${b.x + b.w},${y}" fill="${b.color}" opacity="0.5"/>`;
+      }
+      // window
+      const wy = y + b.h * 0.3;
+      svg += `<rect x="${b.x + b.w * 0.3}" y="${wy}" width="${b.w * 0.3}" height="${b.h * 0.15}" fill="rgba(255,255,200,0.6)" rx="1"/>`;
+    });
+    svg += '</svg>';
+    skyEl.innerHTML = svg;
+  }
+
+  // ── Blueprint Select ───────────────────────────────
+  function renderBlueprintSelect(levelIdx) {
+    showScreen(blueprintSelectScreen);
+    $('bpTitle').textContent = LEVELS[levelIdx].name;
+
+    const bps = BLUEPRINTS[levelIdx];
+    const completed = bps.filter((_, bi) => state.stars[`${levelIdx}-${bi}`]).length;
+    $('bpProgress').textContent = `${completed}/${bps.length}`;
+
+    bpGrid.innerHTML = '';
+    bps.forEach((bp, bi) => {
+      const card = document.createElement('button');
+      const s = state.stars[`${levelIdx}-${bi}`] || 0;
+      card.className = 'bp-card' + (s > 0 ? ' completed' : '');
+
+      // Mini preview
+      const previewSvg = buildMiniPreview(bp);
+
+      card.innerHTML = `
+        <div class="bp-preview">${previewSvg}</div>
+        <div class="bp-name">${bp.name}</div>
+        <div class="bp-stars">${s > 0 ? '&#9733;'.repeat(s) + '&#9734;'.repeat(3 - s) : '&#9734;&#9734;&#9734;'}</div>
+      `;
+
+      card.addEventListener('click', () => {
+        soundTap();
+        session.bpIdx = bi;
+        startGame(levelIdx, bi);
+      });
+
+      bpGrid.appendChild(card);
+    });
+  }
+
+  function buildMiniPreview(bp) {
+    if (bp.freeBuild) return '<svg viewBox="0 0 70 60"><text x="35" y="35" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10" font-weight="700">FREE</text></svg>';
+    let svg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">';
+    bp.pieces.forEach((p, i) => {
+      const z = bp.zones[i];
+      if (!z) return;
+      const color = SHAPE_COLORS[p.color] || '#888';
+      svg += miniShape(p.shape, z.x, z.y, z.w, z.h, color, p.rotation);
+    });
+    svg += '</svg>';
+    return svg;
+  }
+
+  function miniShape(type, x, y, w, h, fill, rotation) {
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+    const r = rotation || 0;
+    const transform = r ? ` transform="rotate(${r},${cx},${cy})"` : '';
+    const pad = 2;
+
+    switch (type) {
+      case 'circle':
+        return `<circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 2 - pad}" fill="${fill}" opacity="0.8"${transform}/>`;
+      case 'oval':
+        return `<ellipse cx="${cx}" cy="${cy}" rx="${w / 2 - pad}" ry="${h * 0.3}" fill="${fill}" opacity="0.8"${transform}/>`;
+      case 'square':
+      case 'rectangle':
+        return `<rect x="${x + pad}" y="${y + pad}" width="${w - pad * 2}" height="${h - pad * 2}" fill="${fill}" opacity="0.8" rx="1"${transform}/>`;
+      case 'triangle':
+        return `<polygon points="${cx},${y + pad} ${x + pad},${y + h - pad} ${x + w - pad},${y + h - pad}" fill="${fill}" opacity="0.8"${transform}/>`;
+      case 'diamond':
+        return `<polygon points="${cx},${y + pad} ${x + w - pad},${cy} ${cx},${y + h - pad} ${x + pad},${cy}" fill="${fill}" opacity="0.8"${transform}/>`;
+      case 'trapezoid': {
+        const inset = w * 0.2;
+        return `<polygon points="${x + pad + inset},${y + pad} ${x + w - pad - inset},${y + pad} ${x + w - pad},${y + h - pad} ${x + pad},${y + h - pad}" fill="${fill}" opacity="0.8"${transform}/>`;
+      }
+      case 'semicircle': {
+        const sr = Math.min(w, h) / 2 - pad;
+        return `<path d="M ${cx - sr},${cy} A ${sr},${sr} 0 0 1 ${cx + sr},${cy} Z" fill="${fill}" opacity="0.8"${transform}/>`;
+      }
+      case 'hexagon':
+      case 'pentagon':
+      case 'octagon': {
+        const n = type === 'hexagon' ? 6 : type === 'pentagon' ? 5 : 8;
+        const pr = Math.min(w, h) / 2 - pad;
+        const pts = [];
+        for (let i = 0; i < n; i++) {
+          const a = (Math.PI * 2 * i / n) - Math.PI / 2;
+          pts.push(`${cx + pr * Math.cos(a)},${cy + pr * Math.sin(a)}`);
+        }
+        return `<polygon points="${pts.join(' ')}" fill="${fill}" opacity="0.8"${transform}/>`;
+      }
+      default:
+        return `<rect x="${x + pad}" y="${y + pad}" width="${w - pad * 2}" height="${h - pad * 2}" fill="${fill}" opacity="0.5"/>`;
+    }
+  }
+
+  // ── Start Game ─────────────────────────────────────
+  function startGame(levelIdx, bpIdx) {
+    const bp = BLUEPRINTS[levelIdx][bpIdx];
+    session.levelIdx = levelIdx;
+    session.bpIdx = bpIdx;
+    session.selectedToolIdx = null;
+    session.placedPieces = {};
+    session.wrongAttempts = 0;
+    session.currentRotation = 0;
+
+    if (bp.freeBuild) {
+      startFreeBuild();
+      return;
+    }
+
+    if (bp.decomposition && bp.question) {
+      showDecompositionQuestion(bp, levelIdx, bpIdx);
+      return;
+    }
+
+    showScreen(gameScreen);
+    $('gameTitle').textContent = bp.name;
+    updateMuteBtn();
+
+    // Build toolbox: required pieces + distractors
+    const tools = [];
+    bp.pieces.forEach((p, i) => {
+      tools.push({
+        shape: p.shape,
+        color: p.color,
+        targetZone: i,
+        rotation: p.rotation || 0,
+        id: 'piece-' + i
+      });
+    });
+
+    // Add distractors
+    const dColors = ['red', 'blue', 'green', 'orange', 'purple', 'yellow'];
+    (bp.distractors || []).forEach((shape, i) => {
+      tools.push({
+        shape: shape,
+        color: dColors[i % dColors.length],
+        targetZone: -1,
+        rotation: 0,
+        id: 'dist-' + i
+      });
+    });
+
+    // Shuffle
+    for (let i = tools.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [tools[i], tools[j]] = [tools[j], tools[i]];
+    }
+
+    session.toolbox = tools;
+    renderBuildCanvas(bp);
+    renderToolbox();
+    renderRefCard(bp);
+    updateGameProgress(bp);
+    $('hintBar').textContent = 'Tap a shape, then tap where it goes!';
+  }
+
+  // ── Decomposition Question ─────────────────────────
+  function showDecompositionQuestion(bp, levelIdx, bpIdx) {
+    showScreen(gameScreen);
+    $('gameTitle').textContent = bp.name;
+    updateMuteBtn();
+
+    // Show a big rectangle outline and the question
+    buildCanvas.innerHTML = '';
+    const questionDiv = document.createElement('div');
+    questionDiv.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px;';
+
+    // Draw the rectangle being divided
+    const rectSVG = `<svg viewBox="0 0 200 100" width="240" height="120" style="border:3px dashed rgba(100,160,255,0.5);border-radius:8px;">
+      <rect x="2" y="2" width="196" height="96" fill="rgba(100,160,255,0.1)" stroke="rgba(100,160,255,0.4)" stroke-width="2" rx="4"/>
+      ${Array.from({length: bp.answer - 1}, (_, i) => `<line x1="${(i+1) * 200/bp.answer}" y1="4" x2="${(i+1) * 200/bp.answer}" y2="96" stroke="rgba(100,160,255,0.2)" stroke-width="1" stroke-dasharray="4,3"/>`).join('')}
+    </svg>`;
+
+    const qText = document.createElement('div');
+    qText.style.cssText = 'font-size:1.3rem;font-weight:700;color:#fff;text-align:center;max-width:300px;';
+    qText.textContent = bp.question;
+
+    // Number buttons 1-6
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;justify-content:center;';
+    for (let n = 1; n <= 6; n++) {
+      const btn = document.createElement('button');
+      btn.textContent = n;
+      btn.style.cssText = 'width:64px;height:64px;border-radius:12px;border:3px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:#fff;font-size:1.6rem;font-weight:700;cursor:pointer;';
+      btn.onclick = () => {
+        if (n === bp.answer) {
+          soundCorrect();
+          btn.style.background = '#27ae60';
+          btn.style.borderColor = '#2ecc71';
+          qText.textContent = 'Correct! Now fill them in!';
+          setTimeout(() => {
+            // Proceed to normal build phase
+            session.selectedToolIdx = null;
+            session.placedPieces = {};
+            session.wrongAttempts = 0;
+            session.currentRotation = 0;
+            buildCanvas.innerHTML = '';
+            showBuildPhase(bp);
+          }, 1200);
+        } else {
+          soundWrong();
+          btn.style.background = 'rgba(231,76,60,0.4)';
+          setTimeout(() => { btn.style.background = 'rgba(255,255,255,0.1)'; }, 400);
+          session.wrongAttempts++;
+        }
+      };
+      btnRow.appendChild(btn);
+    }
+
+    questionDiv.innerHTML = rectSVG;
+    questionDiv.appendChild(qText);
+    questionDiv.appendChild(btnRow);
+    buildCanvas.appendChild(questionDiv);
+
+    // Hide toolbox during question phase
+    toolboxEl.innerHTML = '<div style="color:rgba(255,255,255,0.5);text-align:center;padding:10px;">Answer the question first!</div>';
+    $('refCard').innerHTML = '';
+    $('gameProgress').textContent = '';
+    $('hintBar').textContent = 'Count the squares!';
+  }
+
+  function showBuildPhase(bp) {
+    const tools = [];
+    bp.pieces.forEach((p, i) => {
+      tools.push({ shape: p.shape, color: p.color, targetZone: i, rotation: p.rotation || 0, id: 'piece-' + i });
+    });
+    const dColors = ['red', 'blue', 'green', 'orange', 'purple', 'yellow'];
+    (bp.distractors || []).forEach((shape, i) => {
+      tools.push({ shape, color: dColors[i % dColors.length], targetZone: -1, rotation: 0, id: 'dist-' + i });
+    });
+    for (let i = tools.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [tools[i], tools[j]] = [tools[j], tools[i]];
+    }
+    session.toolbox = tools;
+    renderBuildCanvas(bp);
+    renderToolbox();
+    renderRefCard(bp);
+    updateGameProgress(bp);
+    $('hintBar').textContent = 'Fill the rectangle with squares!';
+  }
+
+  // ── Free Build ─────────────────────────────────────
+  function startFreeBuild() {
+    showScreen(gameScreen);
+    $('gameTitle').textContent = 'Free Build';
+    updateMuteBtn();
+
+    const allShapes = ['circle', 'square', 'triangle', 'rectangle', 'oval', 'diamond', 'hexagon', 'pentagon', 'octagon', 'trapezoid', 'semicircle'];
+    const colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'teal'];
+
+    session.toolbox = allShapes.map((s, i) => ({
+      shape: s,
+      color: colors[i % colors.length],
+      targetZone: -1,
+      rotation: 0,
+      id: 'free-' + i,
+      unlimited: true
+    }));
+
+    session.placedPieces = {};
+    session.freeBuildPieces = [];
+
+    // Render empty canvas with grid
+    buildCanvas.querySelectorAll('.build-zone').forEach(z => z.remove());
+
+    // Create a grid of zones for free placement
+    const gridSize = 4;
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        const zone = document.createElement('div');
+        zone.className = 'build-zone';
+        const zw = 100 / gridSize;
+        zone.style.cssText = `left:${col * zw + 1}%;top:${row * zw + 1}%;width:${zw - 2}%;height:${zw - 2}%;`;
+        zone.dataset.zoneIdx = row * gridSize + col;
+        zone.addEventListener('click', () => handleFreeBuildPlace(zone, row * gridSize + col));
+        buildCanvas.appendChild(zone);
+      }
+    }
+
+    renderToolbox();
+    $('refCard').innerHTML = '';
+    $('gameProgress').textContent = '';
+    $('hintBar').textContent = 'Tap a shape and place it anywhere!';
+  }
+
+  function handleFreeBuildPlace(zoneEl, idx) {
+    if (session.selectedToolIdx === null) return;
+
+    const tool = session.toolbox[session.selectedToolIdx];
+    const color = SHAPE_COLORS[tool.color] || '#888';
+    const zoneRect = zoneEl.getBoundingClientRect();
+    const w = zoneRect.width;
+    const h = zoneRect.height;
+
+    if (session.placedPieces[idx]) {
+      // Remove existing
+      session.placedPieces[idx] = null;
+      zoneEl.innerHTML = '';
+      zoneEl.classList.remove('filled');
+      return;
+    }
+
+    const svg = shapeSVG(tool.shape, w - 4, h - 4, color, 'rgba(255,255,255,0.5)', 2, session.currentRotation);
+    zoneEl.innerHTML = `<div class="placed-shape">${svg}</div>`;
+    zoneEl.classList.add('filled');
+    session.placedPieces[idx] = { shape: tool.shape, color: tool.color };
+    soundCorrect();
+  }
+
+  // ── Render Build Canvas ────────────────────────────
+  function renderBuildCanvas(bp) {
+    // Clear existing zones
+    buildCanvas.querySelectorAll('.build-zone').forEach(z => z.remove());
+
+    bp.zones.forEach((z, i) => {
+      const zone = document.createElement('div');
+      zone.className = 'build-zone';
+      zone.style.cssText = `left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%;`;
+      zone.dataset.zoneIdx = i;
+
+      // Ghost shape
+      const piece = bp.pieces[i];
+      if (piece && !bp.tangram) {
+        const ghostColor = 'rgba(100,160,255,0.15)';
+        const ghostStroke = 'rgba(100,160,255,0.3)';
+        // We'll render the ghost at approximate size; actual size computed on place
+        zone.innerHTML = `<div class="ghost-shape" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">${shapeSVG(piece.shape, 60, 50, ghostColor, ghostStroke, 2, piece.rotation || 0)}</div>`;
+      }
+
+      zone.addEventListener('click', () => handleZoneTap(zone, i, bp));
+      buildCanvas.appendChild(zone);
+    });
+  }
+
+  // ── Render Toolbox ─────────────────────────────────
+  function renderToolbox() {
+    toolboxEl.innerHTML = '';
+    const levelIdx = session.levelIdx;
+    const showRotate = levelIdx >= 2;
+
+    session.toolbox.forEach((tool, i) => {
+      const item = document.createElement('button');
+      const used = !tool.unlimited && Object.values(session.placedPieces).some(p => p && p.toolIdx === i);
+      item.className = 'tool-item' + (used ? ' used' : '') + (session.selectedToolIdx === i ? ' selected' : '');
+      item.dataset.toolIdx = i;
+
+      const color = SHAPE_COLORS[tool.color] || '#888';
+      item.innerHTML = shapeSVG(tool.shape, 44, 38, color, 'rgba(255,255,255,0.5)', 2, 0);
+
+      if (state.unlockedLevels[0]) {
+        const label = document.createElement('div');
+        label.className = 'tool-label';
+        label.textContent = tool.shape;
+        item.appendChild(label);
+      }
+
+      item.addEventListener('click', () => {
+        soundTap();
+        if (session.selectedToolIdx === i) {
+          session.selectedToolIdx = null;
+          session.currentRotation = 0;
+        } else {
+          session.selectedToolIdx = i;
+          session.currentRotation = tool.rotation || 0;
+          showShapeInfo(tool.shape);
+        }
+        renderToolbox();
+      });
+
+      toolboxEl.appendChild(item);
+    });
+
+    // Rotate button for level 3+
+    if (showRotate) {
+      const rotBtn = document.createElement('button');
+      rotBtn.className = 'rotate-btn';
+      rotBtn.textContent = '↻ Rotate';
+      rotBtn.addEventListener('click', () => {
+        if (session.selectedToolIdx !== null) {
+          session.currentRotation = (session.currentRotation + 90) % 360;
+          soundTap();
+        }
+      });
+      toolboxEl.appendChild(rotBtn);
+    }
+  }
+
+  // ── Shape Info Popup ───────────────────────────────
+  let infoTimeout = null;
+  function showShapeInfo(shape) {
+    const info = SHAPE_INFO[shape];
+    if (!info) return;
+    const name = shape.charAt(0).toUpperCase() + shape.slice(1);
+    shapeInfoEl.textContent = `${name} — ${info.desc}`;
+    shapeInfoEl.classList.add('visible');
+    clearTimeout(infoTimeout);
+    infoTimeout = setTimeout(() => shapeInfoEl.classList.remove('visible'), 1800);
+  }
+
+  // ── Handle Zone Tap ────────────────────────────────
+  function handleZoneTap(zoneEl, zoneIdx, bp) {
+    // If zone is already filled, remove the piece
+    if (session.placedPieces[zoneIdx]) {
+      const removed = session.placedPieces[zoneIdx];
+      delete session.placedPieces[zoneIdx];
+      // Re-enable toolbox item
+      zoneEl.classList.remove('filled');
+      // Re-render ghost
+      const piece = bp.pieces[zoneIdx];
+      if (piece && !bp.tangram) {
+        const ghostColor = 'rgba(100,160,255,0.15)';
+        const ghostStroke = 'rgba(100,160,255,0.3)';
+        zoneEl.innerHTML = `<div class="ghost-shape" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">${shapeSVG(piece.shape, 60, 50, ghostColor, ghostStroke, 2, piece.rotation || 0)}</div>`;
+      } else {
+        zoneEl.innerHTML = '';
+      }
+      soundTap();
+      renderToolbox();
+      updateGameProgress(bp);
+      return;
+    }
+
+    if (session.selectedToolIdx === null) {
+      $('hintBar').textContent = 'Pick a shape first!';
+      return;
+    }
+
+    const tool = session.toolbox[session.selectedToolIdx];
+    const expectedPiece = bp.pieces[zoneIdx];
+
+    // Check if this is the correct shape for this zone
+    const shapeMatch = tool.shape === expectedPiece.shape;
+
+    // For Level 3+, also check rotation if specified
+    let rotationMatch = true;
+    if (session.levelIdx >= 2 && expectedPiece.rotation) {
+      const normalizeRot = r => ((r % 360) + 360) % 360;
+      rotationMatch = normalizeRot(session.currentRotation) === normalizeRot(expectedPiece.rotation);
+    }
+
+    if (shapeMatch && rotationMatch) {
+      // Correct placement
+      const color = SHAPE_COLORS[expectedPiece.color] || SHAPE_COLORS[tool.color] || '#888';
+      const zoneRect = zoneEl.getBoundingClientRect();
+      const w = zoneRect.width;
+      const h = zoneRect.height;
+      const rotation = expectedPiece.rotation || 0;
+
+      zoneEl.innerHTML = `<div class="placed-shape" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">${shapeSVG(expectedPiece.shape, Math.max(w - 6, 40), Math.max(h - 6, 34), color, 'rgba(255,255,255,0.5)', 3, rotation)}</div>`;
+      zoneEl.classList.add('filled');
+      zoneEl.classList.add('correct-flash');
+      setTimeout(() => zoneEl.classList.remove('correct-flash'), 500);
+
+      session.placedPieces[zoneIdx] = { shape: tool.shape, color: tool.color, toolIdx: session.selectedToolIdx };
+      session.selectedToolIdx = null;
+      session.currentRotation = 0;
+
+      soundCorrect();
+      renderToolbox();
+      updateGameProgress(bp);
+
+      // Check completion
+      if (Object.keys(session.placedPieces).length === bp.pieces.length) {
+        setTimeout(() => completeBuild(bp), 600);
+      } else {
+        $('hintBar').textContent = 'Great! Keep going!';
+      }
+    } else {
+      // Wrong placement
+      session.wrongAttempts++;
+      soundWrong();
+      zoneEl.classList.add('wrong-flash');
+      setTimeout(() => zoneEl.classList.remove('wrong-flash'), 400);
+
+      const spatialHints = ['Try a different spot!', 'That shape goes somewhere else!', 'Look at the outline!', 'Almost! Try again!'];
+      $('hintBar').textContent = spatialHints[Math.floor(Math.random() * spatialHints.length)];
+    }
+  }
+
+  // ── Update Progress ────────────────────────────────
+  function updateGameProgress(bp) {
+    const placed = Object.keys(session.placedPieces).length;
+    $('gameProgress').textContent = `${placed} / ${bp.pieces.length}`;
+  }
+
+  // ── Reference Card ─────────────────────────────────
+  function renderRefCard(bp) {
+    $('refCard').innerHTML = buildMiniPreview(bp);
+  }
+
+  // ── Complete Build ─────────────────────────────────
+  function completeBuild(bp) {
+    soundFanfare();
+    spawnConfetti();
+
+    const stars = session.wrongAttempts === 0 ? 3 : session.wrongAttempts <= 2 ? 2 : 1;
+    const key = `${session.levelIdx}-${session.bpIdx}`;
+    const prev = state.stars[key] || 0;
+    state.stars[key] = Math.max(prev, stars);
+    saveState();
+
+    $('celStars').innerHTML = '&#9733;'.repeat(stars) + '&#9734;'.repeat(3 - stars);
+
+    // Summary
+    const shapeCounts = {};
+    bp.pieces.forEach(p => {
+      shapeCounts[p.shape] = (shapeCounts[p.shape] || 0) + 1;
+    });
+    const parts = Object.entries(shapeCounts).map(([s, c]) => `${c} ${s}${c > 1 ? 's' : ''}`);
+    $('celSummary').textContent = `You used: ${parts.join(', ')}. That's ${bp.pieces.length} shape${bp.pieces.length > 1 ? 's' : ''}!`;
+
+    celebrationOverlay.classList.add('active');
+  }
+
+  // ── Confetti ───────────────────────────────────────
+  function spawnConfetti() {
+    const colors = ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#e67e22', '#9b59b6', '#e84393'];
+    for (let i = 0; i < 30; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        width: ${8 + Math.random() * 8}px;
+        height: ${8 + Math.random() * 8}px;
+        animation-duration: ${1.5 + Math.random() * 2}s;
+        animation-delay: ${Math.random() * 0.5}s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+  }
+
+  // ── Mute ───────────────────────────────────────────
+  function updateMuteBtn() {
+    $('muteBtn').innerHTML = state.muted ? '&#128263;' : '&#128264;';
+    muted = state.muted;
+  }
+
+  $('muteBtn').addEventListener('click', () => {
+    state.muted = !state.muted;
+    muted = state.muted;
+    updateMuteBtn();
+    saveState();
+  });
+
+  // ── Navigation buttons ─────────────────────────────
+  $('bpBackBtn').addEventListener('click', () => { soundTap(); renderLevelSelect(); });
+  $('gameBackBtn').addEventListener('click', () => { soundTap(); renderBlueprintSelect(session.levelIdx); });
+
+  $('celNextBtn').addEventListener('click', () => {
+    soundTap();
+    celebrationOverlay.classList.remove('active');
+
+    const bps = BLUEPRINTS[session.levelIdx];
+    if (session.bpIdx < bps.length - 1) {
+      startGame(session.levelIdx, session.bpIdx + 1);
+    } else {
+      renderBlueprintSelect(session.levelIdx);
+    }
+  });
+
+  // ── Init ───────────────────────────────────────────
+  renderLevelSelect();
+
+  // Resume audio context on first touch (iOS requirement)
+  document.addEventListener('touchstart', function resumeAudio() {
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    document.removeEventListener('touchstart', resumeAudio);
+  }, { once: true });
+
+})();
+</script>
+</body>
+</html>
