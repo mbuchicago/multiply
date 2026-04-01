@@ -1,11 +1,12 @@
-const CACHE = 'learning-games-v3';
+const CACHE = 'learning-games-v4';
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll([
     './index.html',
     './multiply.html',
     './red-words.html',
-    './place-value.html'
+    './place-value.html',
+    './pipeline.html'
   ])));
   self.skipWaiting();
 });
