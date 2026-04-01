@@ -78,6 +78,7 @@
     .card:nth-child(1) { animation-delay: 0s; }
     .card:nth-child(2) { animation-delay: 0.4s; }
     .card:nth-child(3) { animation-delay: 0.8s; }
+    .card:nth-child(4) { animation-delay: 1.2s; }
 
     .card:active {
       transform: scale(0.97);
@@ -105,6 +106,10 @@
     /* Place Value */
     .card--blocks { border-top-color: #f97316; }
     .card--blocks .card__icon { background: linear-gradient(135deg, #f97316, #4ade80); }
+
+    /* Pipeline */
+    .card--pipeline { border-top-color: #4a90d9; }
+    .card--pipeline .card__icon { background: linear-gradient(135deg, #4a90d9, #1a2332); }
 
     .card__icon {
       width: 80px;
@@ -202,6 +207,12 @@
       <div class="card__icon">&#129521;</div>
       <div class="card__name">Place Value</div>
       <div class="card__desc">Build with blocks!</div>
+    </a>
+
+    <a href="pipeline.html" class="card card--pipeline">
+      <div class="card__icon"><span>&#128295;</span></div>
+      <div class="card__name">Pipeline</div>
+      <div class="card__desc">Fix number sequences!</div>
     </a>
   </div>
 
