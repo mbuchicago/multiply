@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Word Builder">
+  <title>Word Builder!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --yellow: #F59E0B;
+      --orange: #F97316;
+      --blue: #3B82F6;
+      --gray: #6B7280;
+      --green: #22C55E;
+      --red: #EF4444;
+      --dark: #1e293b;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #F59E0B 0%, #F97316 50%, #EF4444 100%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-x: hidden;
+      color: #fff;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ── Top Bar ─────────────────────────────────── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: rgba(0,0,0,0.25);
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .top-bar .back-btn {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border-radius: 14px;
+      padding: 8px 14px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .top-bar .back-btn:active { transform: scale(0.94); }
+
+    .top-bar .title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-align: center;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-bar .progress {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.8);
+      white-space: nowrap;
+    }
+
+    .top-bar .mute-btn {
+      background: none;
+      color: #fff;
+      font-size: 1.4rem;
+      padding: 4px;
+    }
+
+    /* ── Screens ──────────────────────────────────── */
+    .screen { display: none; flex-direction: column; flex: 1; }
+    .screen.active { display: flex; }
+
+    /* ── Mode Select ──────────────────────────────── */
+    .mode-select {
+      padding: 24px 16px;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .mode-select h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.6rem;
+      text-shadow: 3px 4px 0 rgba(0,0,0,0.18);
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    .mode-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .mode-card {
+      background: rgba(255,255,255,0.15);
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 22px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #fff;
+      transition: transform 0.12s;
+      text-align: left;
+    }
+
+    .mode-card:active { transform: scale(0.97); }
+
+    .mode-card.locked {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .mode-card .mc-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      flex-shrink: 0;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .mode-card .mc-info { flex: 1; }
+    .mode-card .mc-name { font-family: 'Fredoka One', cursive; font-size: 1.25rem; }
+    .mode-card .mc-desc { font-size: 0.85rem; opacity: 0.85; margin-top: 2px; }
+
+    .building-btn {
+      margin-top: 8px;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 18px;
+      padding: 14px 24px;
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.1rem;
+      width: 100%;
+      max-width: 420px;
+    }
+    .building-btn:active { transform: scale(0.97); }
+
+    /* ── Level Select ─────────────────────────────── */
+    .level-select {
+      padding: 20px 16px;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .level-select h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      text-shadow: 2px 3px 0 rgba(0,0,0,0.15);
+      text-align: center;
+    }
+
+    .level-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .level-card {
+      background: rgba(255,255,255,0.12);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #fff;
+      transition: transform 0.12s;
+    }
+
+    .level-card:active { transform: scale(0.97); }
+
+    .level-card.locked {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .level-card .lc-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .level-card .lc-info { flex: 1; }
+    .level-card .lc-name { font-size: 1.2rem; font-weight: 800; }
+    .level-card .lc-desc { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; }
+    .level-card .lc-stars { font-size: 0.95rem; margin-top: 4px; color: #fbbf24; }
+    .level-card .lc-lock { font-size: 1.4rem; opacity: 0.6; }
+
+    /* ── Game Area ─────────────────────────────────── */
+    .game-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      gap: 16px;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    /* ── Wrecking Ball ────────────────────────────── */
+    .wb-word-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 12px 0;
+    }
+
+    .wb-letter {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.6rem;
+      background: #fff;
+      color: var(--dark);
+      width: 52px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(0,0,0,0.1);
+      transition: transform 0.4s, opacity 0.4s;
+    }
+
+    .wb-letter:first-child { border-radius: 14px 0 0 14px; }
+    .wb-letter:last-child { border-radius: 0 14px 14px 0; }
+
+    .wb-crack {
+      width: 12px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+    }
+
+    .wb-crack-line {
+      width: 4px;
+      height: 50px;
+      background: rgba(0,0,0,0.15);
+      border-radius: 2px;
+      transition: background 0.2s, box-shadow 0.2s, width 0.2s;
+    }
+
+    .wb-crack:active .wb-crack-line,
+    .wb-crack.hint .wb-crack-line {
+      background: var(--yellow);
+      box-shadow: 0 0 12px var(--yellow), 0 0 24px var(--yellow);
+      width: 6px;
+    }
+
+    .wb-emoji {
+      font-size: 3rem;
+      margin-bottom: 4px;
+    }
+
+    .wb-split-left {
+      animation: splitLeft 0.6s ease forwards;
+    }
+    .wb-split-right {
+      animation: splitRight 0.6s ease forwards;
+    }
+
+    @keyframes splitLeft {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-30px) rotate(-3deg); }
+    }
+    @keyframes splitRight {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(30px) rotate(3deg); }
+    }
+
+    .wb-result-halves {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      font-family: 'Fredoka One', cursive;
+      font-size: 2rem;
+      color: #fff;
+      opacity: 0;
+      animation: fadeUp 0.5s 0.4s ease forwards;
+    }
+
+    .wb-result-halves span {
+      background: var(--green);
+      padding: 8px 18px;
+      border-radius: 14px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* wrecking ball animation */
+    .wrecking-ball-anim {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .wrecking-ball-anim .wb-chain {
+      width: 4px;
+      height: 120px;
+      background: #6B7280;
+      margin: 0 auto;
+      transform-origin: top center;
+      animation: swingBall 0.8s ease-in-out;
+    }
+
+    .wrecking-ball-anim .wb-ball {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #9CA3AF, #4B5563);
+      margin: -4px auto 0;
+      transform-origin: top center;
+      animation: swingBall 0.8s ease-in-out;
+    }
+
+    @keyframes swingBall {
+      0% { transform: rotate(-40deg); }
+      50% { transform: rotate(5deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* dust particles */
+    .dust {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(200,180,150,0.7);
+      pointer-events: none;
+      z-index: 99;
+      animation: dustFloat 0.8s ease-out forwards;
+    }
+
+    @keyframes dustFloat {
+      from { opacity: 1; transform: translate(0,0) scale(1); }
+      to { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); }
+    }
+
+    /* ── Crane Combine ────────────────────────────── */
+    .cc-foundation {
+      background: #fff;
+      color: var(--dark);
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.4rem;
+      padding: 14px 28px;
+      border-radius: 18px;
+      border-bottom: 6px solid var(--gray);
+      position: relative;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .cc-blank {
+      display: inline-block;
+      min-width: 60px;
+      border-bottom: 4px dashed rgba(0,0,0,0.3);
+      margin: 0 4px;
+    }
+
+    .cc-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .cc-option {
+      background: #fff;
+      color: var(--dark);
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.6rem;
+      padding: 14px 24px;
+      border-radius: 16px;
+      border: 3px solid var(--blue);
+      transition: transform 0.15s;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .cc-option:active { transform: scale(0.95); }
+
+    .cc-option.correct {
+      animation: dropIn 0.5s ease forwards;
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
+    .cc-option.wrong {
+      animation: shatterOut 0.5s ease forwards;
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+
+    .cc-option.dimmed {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    @keyframes dropIn {
+      0% { transform: translateY(-40px); opacity: 0.6; }
+      60% { transform: translateY(5px); }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes shatterOut {
+      0% { transform: scale(1) rotate(0); opacity: 1; }
+      100% { transform: scale(0.3) rotate(15deg) translateY(40px); opacity: 0; }
+    }
+
+    /* crane arm */
+    .crane-arm {
+      position: relative;
+      width: 100%;
+      max-width: 300px;
+      height: 20px;
+      margin-bottom: 8px;
+    }
+
+    .crane-arm::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 10%;
+      right: 10%;
+      height: 6px;
+      background: var(--gray);
+      border-radius: 3px;
+    }
+
+    .crane-arm::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 20px;
+      background: var(--gray);
+    }
+
+    /* ── Blueprint Match ──────────────────────────── */
+    .bp-area {
+      background: #1a2744;
+      border-radius: 20px;
+      padding: 20px;
+      width: 100%;
+      max-width: 440px;
+      border: 3px solid rgba(100,160,255,0.3);
+      background-image:
+        linear-gradient(rgba(100,160,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(100,160,255,0.08) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    .bp-columns {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .bp-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .bp-tile {
+      background: rgba(100,160,255,0.15);
+      border: 2px solid rgba(100,160,255,0.4);
+      border-radius: 14px;
+      padding: 14px 10px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      color: #93c5fd;
+      text-align: center;
+      transition: transform 0.12s, background 0.2s, border-color 0.2s;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bp-tile:active { transform: scale(0.96); }
+
+    .bp-tile.selected {
+      background: rgba(100,160,255,0.35);
+      border-color: #60a5fa;
+      box-shadow: 0 0 12px rgba(96,165,250,0.4);
+    }
+
+    .bp-tile.matched {
+      background: rgba(34,197,94,0.25);
+      border-color: var(--green);
+      color: var(--green);
+      pointer-events: none;
+    }
+
+    .bp-tile.wrong-flash {
+      animation: bpFlashRed 0.5s ease;
+    }
+
+    @keyframes bpFlashRed {
+      0%, 100% { background: rgba(100,160,255,0.15); border-color: rgba(100,160,255,0.4); }
+      50% { background: rgba(239,68,68,0.3); border-color: var(--red); }
+    }
+
+    .bp-match-line {
+      position: absolute;
+      height: 3px;
+      background: var(--green);
+      transform-origin: left center;
+      border-radius: 2px;
+      z-index: 5;
+    }
+
+    /* ── Word Architect ───────────────────────────── */
+    .wa-root {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.4rem;
+      background: var(--yellow);
+      color: var(--dark);
+      padding: 14px 32px;
+      border-radius: 18px;
+      border-bottom: 5px solid #d97706;
+      text-align: center;
+    }
+
+    .wa-parts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .wa-part {
+      background: #fff;
+      color: var(--dark);
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem;
+      padding: 12px 20px;
+      border-radius: 14px;
+      border: 3px solid var(--blue);
+      transition: transform 0.15s, opacity 0.3s;
+    }
+
+    .wa-part:active { transform: scale(0.95); }
+    .wa-part.used {
+      opacity: 0.3;
+      pointer-events: none;
+      border-color: var(--green);
+      background: #dcfce7;
+    }
+
+    .wa-found-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .wa-found-word {
+      background: var(--green);
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.1rem;
+      padding: 8px 16px;
+      border-radius: 12px;
+      animation: popIn 0.3s ease;
+    }
+
+    .wa-goal {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.9);
+      text-align: center;
+    }
+
+    /* building vis for architect */
+    .wa-building {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: 2px;
+      margin-top: 8px;
+    }
+
+    .wa-floor {
+      height: 18px;
+      border-radius: 4px;
+      animation: floorGrow 0.4s ease;
+    }
+
+    @keyframes floorGrow {
+      from { transform: scaleY(0); }
+      to { transform: scaleY(1); }
+    }
+
+    /* ── Round Complete ────────────────────────────── */
+    .round-complete {
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      gap: 18px;
+      text-align: center;
+    }
+
+    .round-complete h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.2rem;
+      text-shadow: 2px 3px 0 rgba(0,0,0,0.15);
+    }
+
+    .rc-stars {
+      font-size: 3rem;
+    }
+
+    .rc-score {
+      font-size: 1.2rem;
+      font-weight: 700;
+      opacity: 0.9;
+    }
+
+    .rc-building {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: 2px;
+      margin: 8px 0;
+    }
+
+    .rc-floor {
+      height: 14px;
+      border-radius: 3px;
+      animation: floorGrow 0.4s ease;
+    }
+
+    .rc-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .rc-btn {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.2rem;
+      padding: 16px 24px;
+      border-radius: 18px;
+      color: #fff;
+      transition: transform 0.12s;
+    }
+    .rc-btn:active { transform: scale(0.96); }
+    .rc-btn.primary { background: var(--green); }
+    .rc-btn.secondary { background: rgba(255,255,255,0.2); }
+
+    /* ── Collection Screen ────────────────────────── */
+    .collection {
+      padding: 20px 16px;
+      align-items: center;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .collection h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      text-shadow: 2px 3px 0 rgba(0,0,0,0.15);
+    }
+
+    .col-building {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      gap: 2px;
+      padding: 16px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 340px;
+      min-height: 200px;
+    }
+
+    .col-floor {
+      height: 22px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .col-floor-label {
+      position: absolute;
+      right: calc(100% + 8px);
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.6);
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .col-stats {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .col-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .col-badge {
+      background: rgba(255,255,255,0.15);
+      border-radius: 14px;
+      padding: 10px 14px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .col-badge .badge-icon { font-size: 1.6rem; }
+
+    /* ── Feedback overlay ─────────────────────────── */
+    .feedback-msg {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.6rem;
+      text-align: center;
+      min-height: 48px;
+      transition: opacity 0.3s;
+    }
+
+    .feedback-msg.correct { color: #bbf7d0; }
+    .feedback-msg.wrong { color: #fecaca; }
+
+    /* ── Shake animation ──────────────────────────── */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+    .shake { animation: shake 0.4s ease; }
+
+    /* ── Pop in ────────────────────────────────────── */
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── Bounce ────────────────────────────────────── */
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      40% { transform: scale(1.15); }
+      60% { transform: scale(0.95); }
+    }
+    .bounce { animation: bounce 0.5s ease; }
+
+    /* ── Confetti ──────────────────────────────────── */
+    .confetti {
+      position: fixed;
+      top: -12px;
+      border-radius: 3px;
+      z-index: 200;
+      animation: confettiFall linear forwards;
+      pointer-events: none;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ── Caution stripe accent ────────────────────── */
+    .caution-stripe {
+      background: repeating-linear-gradient(45deg, #F59E0B, #F59E0B 10px, #1e293b 10px, #1e293b 20px);
+      height: 8px;
+      border-radius: 4px;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    /* ── Intro overlay ────────────────────────────── */
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 150;
+      padding: 24px;
+    }
+
+    .intro-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 28px 24px;
+      text-align: center;
+      max-width: 360px;
+      color: var(--dark);
+    }
+
+    .intro-card h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      color: var(--orange);
+      margin-bottom: 8px;
+    }
+
+    .intro-card p {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .intro-card .intro-go {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      background: var(--green);
+      color: #fff;
+      padding: 14px 40px;
+      border-radius: 18px;
+    }
+    .intro-card .intro-go:active { transform: scale(0.96); }
+
+    /* ── Streak badge ─────────────────────────────── */
+    .streak-badge {
+      position: fixed;
+      top: 80px;
+      right: 16px;
+      background: var(--orange);
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.1rem;
+      padding: 8px 14px;
+      border-radius: 14px;
+      z-index: 50;
+      animation: popIn 0.3s ease;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ MODE SELECT ═══════════ -->
+<div class="screen active" id="screenModeSelect">
+  <div class="mode-select">
+    <h1>Word Builder 🏗️</h1>
+    <div class="caution-stripe"></div>
+    <div class="mode-cards">
+      <button class="mode-card" onclick="selectMode('wreckingBall')">
+        <div class="mc-icon">🔨</div>
+        <div class="mc-info">
+          <div class="mc-name">Wrecking Ball</div>
+          <div class="mc-desc">Split words apart!</div>
+        </div>
+      </button>
+      <button class="mode-card" onclick="selectMode('craneCombine')">
+        <div class="mc-icon">🏗️</div>
+        <div class="mc-info">
+          <div class="mc-name">Crane Combine</div>
+          <div class="mc-desc">Build new words!</div>
+        </div>
+      </button>
+      <button class="mode-card" onclick="selectMode('blueprintMatch')">
+        <div class="mc-icon">📐</div>
+        <div class="mc-info">
+          <div class="mc-name">Blueprint Match</div>
+          <div class="mc-desc">Match the halves!</div>
+        </div>
+      </button>
+      <button class="mode-card" id="architectCard" onclick="selectMode('wordArchitect')">
+        <div class="mc-icon">🏛️</div>
+        <div class="mc-info">
+          <div class="mc-name">Word Architect</div>
+          <div class="mc-desc">Free build!</div>
+        </div>
+      </button>
+    </div>
+    <button class="building-btn" onclick="showCollection()">🏢 My Building</button>
+  </div>
+</div>
+
+<!-- ═══════════ LEVEL SELECT ═══════════ -->
+<div class="screen" id="screenLevelSelect">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goToModeSelect()">◀ Back</button>
+    <div class="title" id="levelTitle">Mode</div>
+    <div></div>
+  </div>
+  <div class="level-select">
+    <h2 id="levelSubtitle">Pick a Level</h2>
+    <div class="level-cards" id="levelCards"></div>
+  </div>
+</div>
+
+<!-- ═══════════ PLAYING ═══════════ -->
+<div class="screen" id="screenPlaying">
+  <div class="top-bar">
+    <button class="back-btn" onclick="exitGame()">◀</button>
+    <div class="title" id="playTitle">Playing</div>
+    <div class="progress" id="playProgress">1/8</div>
+    <button class="mute-btn" onclick="toggleMute()" id="muteBtn">🔊</button>
+  </div>
+  <div class="game-area" id="gameArea"></div>
+</div>
+
+<!-- ═══════════ ROUND COMPLETE ═══════════ -->
+<div class="screen" id="screenRoundComplete">
+  <div class="round-complete" id="roundCompleteContent"></div>
+</div>
+
+<!-- ═══════════ COLLECTION ═══════════ -->
+<div class="screen" id="screenCollection">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goToModeSelect()">◀ Back</button>
+    <div class="title">My Building</div>
+    <div></div>
+  </div>
+  <div class="collection" id="collectionContent"></div>
+</div>
+
+<!-- ═══════════ INTRO OVERLAY ═══════════ -->
+<div class="intro-overlay" id="introOverlay" style="display:none">
+  <div class="intro-card" id="introCard"></div>
+</div>
+
+<script>
+// ── Word Data ──────────────────────────────────────────────
+const WORDS = {
+  easy: [
+    { compound: 'sunset', part1: 'sun', part2: 'set', emoji: '🌅' },
+    { compound: 'rainbow', part1: 'rain', part2: 'bow', emoji: '🌈' },
+    { compound: 'cupcake', part1: 'cup', part2: 'cake', emoji: '🧁' },
+    { compound: 'hotdog', part1: 'hot', part2: 'dog', emoji: '🌭' },
+    { compound: 'pancake', part1: 'pan', part2: 'cake', emoji: '🥞' },
+    { compound: 'bedroom', part1: 'bed', part2: 'room', emoji: '🛏️' },
+    { compound: 'sunburn', part1: 'sun', part2: 'burn', emoji: '☀️' },
+    { compound: 'mailbox', part1: 'mail', part2: 'box', emoji: '📬' },
+    { compound: 'cowboy', part1: 'cow', part2: 'boy', emoji: '🤠' },
+    { compound: 'popcorn', part1: 'pop', part2: 'corn', emoji: '🍿' },
+    { compound: 'starfish', part1: 'star', part2: 'fish', emoji: '⭐' },
+    { compound: 'goldfish', part1: 'gold', part2: 'fish', emoji: '🐟' },
+    { compound: 'doghouse', part1: 'dog', part2: 'house', emoji: '🏠' },
+    { compound: 'snowman', part1: 'snow', part2: 'man', emoji: '⛄' },
+    { compound: 'snowball', part1: 'snow', part2: 'ball', emoji: '❄️' },
+    { compound: 'football', part1: 'foot', part2: 'ball', emoji: '🏈' },
+    { compound: 'baseball', part1: 'base', part2: 'ball', emoji: '⚾' },
+    { compound: 'sandbox', part1: 'sand', part2: 'box', emoji: '📦' },
+    { compound: 'bathtub', part1: 'bath', part2: 'tub', emoji: '🛁' },
+    { compound: 'sunlight', part1: 'sun', part2: 'light', emoji: '💡' },
+  ],
+  medium: [
+    { compound: 'butterfly', part1: 'butter', part2: 'fly', emoji: '🦋' },
+    { compound: 'airplane', part1: 'air', part2: 'plane', emoji: '✈️' },
+    { compound: 'birthday', part1: 'birth', part2: 'day', emoji: '🎂' },
+    { compound: 'moonlight', part1: 'moon', part2: 'light', emoji: '🌙' },
+    { compound: 'raindrop', part1: 'rain', part2: 'drop', emoji: '💧' },
+    { compound: 'raincoat', part1: 'rain', part2: 'coat', emoji: '🧥' },
+    { compound: 'backyard', part1: 'back', part2: 'yard', emoji: '🏡' },
+    { compound: 'daydream', part1: 'day', part2: 'dream', emoji: '💭' },
+    { compound: 'jellyfish', part1: 'jelly', part2: 'fish', emoji: '🪼' },
+    { compound: 'waterfall', part1: 'water', part2: 'fall', emoji: '💦' },
+    { compound: 'basketball', part1: 'basket', part2: 'ball', emoji: '🏀' },
+    { compound: 'playground', part1: 'play', part2: 'ground', emoji: '🛝' },
+    { compound: 'notebook', part1: 'note', part2: 'book', emoji: '📓' },
+    { compound: 'bookworm', part1: 'book', part2: 'worm', emoji: '🐛' },
+    { compound: 'skateboard', part1: 'skate', part2: 'board', emoji: '🛹' },
+    { compound: 'toothbrush', part1: 'tooth', part2: 'brush', emoji: '🪥' },
+    { compound: 'blueberry', part1: 'blue', part2: 'berry', emoji: '🫐' },
+    { compound: 'strawberry', part1: 'straw', part2: 'berry', emoji: '🍓' },
+    { compound: 'fireplace', part1: 'fire', part2: 'place', emoji: '🔥' },
+    { compound: 'dragonfly', part1: 'dragon', part2: 'fly', emoji: '🐉' },
+  ],
+  hard: [
+    { compound: 'watermelon', part1: 'water', part2: 'melon', emoji: '🍉' },
+    { compound: 'everything', part1: 'every', part2: 'thing', emoji: '🌍' },
+    { compound: 'something', part1: 'some', part2: 'thing', emoji: '🤔' },
+    { compound: 'sometimes', part1: 'some', part2: 'times', emoji: '⏰' },
+    { compound: 'grandmother', part1: 'grand', part2: 'mother', emoji: '👵' },
+    { compound: 'grandfather', part1: 'grand', part2: 'father', emoji: '👴' },
+    { compound: 'underground', part1: 'under', part2: 'ground', emoji: '🕳️' },
+    { compound: 'thunderstorm', part1: 'thunder', part2: 'storm', emoji: '⛈️' },
+    { compound: 'newspaper', part1: 'news', part2: 'paper', emoji: '📰' },
+    { compound: 'fingernail', part1: 'finger', part2: 'nail', emoji: '💅' },
+    { compound: 'keyboard', part1: 'key', part2: 'board', emoji: '⌨️' },
+    { compound: 'doorbell', part1: 'door', part2: 'bell', emoji: '🔔' },
+    { compound: 'eyelash', part1: 'eye', part2: 'lash', emoji: '👁️' },
+    { compound: 'footprint', part1: 'foot', part2: 'print', emoji: '🦶' },
+    { compound: 'armchair', part1: 'arm', part2: 'chair', emoji: '🪑' },
+    { compound: 'seashell', part1: 'sea', part2: 'shell', emoji: '🐚' },
+    { compound: 'lighthouse', part1: 'light', part2: 'house', emoji: '🏠' },
+    { compound: 'blackbird', part1: 'black', part2: 'bird', emoji: '🐦' },
+    { compound: 'sunflower', part1: 'sun', part2: 'flower', emoji: '🌻' },
+    { compound: 'homework', part1: 'home', part2: 'work', emoji: '📚' },
+  ]
+};
+
+const ARCHITECT_SETS = [
+  { root: 'sun', parts: ['set','burn','light','flower','rise'], distractors: ['cat','run'] },
+  { root: 'rain', parts: ['bow','drop','coat','fall'], distractors: ['dog','hat'] },
+  { root: 'snow', parts: ['man','ball','flake','fall'], distractors: ['cup','top'] },
+  { root: 'ball', parts: ['foot','base','basket','snow','fire'], isSecondHalf: true, distractors: ['cup','pen'] },
+  { root: 'book', parts: ['note','text','worm','cook','mark'], isSecondHalf: true, distractors: ['sun','rain'] },
+  { root: 'fire', parts: ['place','fly','man','work','truck','camp'], distractors: ['ball','rain'] },
+  { root: 'water', parts: ['fall','melon','proof','color'], distractors: ['ball','sun','cake'] },
+  { root: 'house', parts: ['dog','bird','tree','fire','light'], isSecondHalf: true, distractors: ['sun','ball'] },
+  { root: 'door', parts: ['bell','step','way','knob'], distractors: ['fish','cake'] },
+  { root: 'bed', parts: ['room','time','bug','side','spread'], distractors: ['fly','cake'] },
+];
+
+// ── Level configs ──────────────────────────────────────────
+const LEVEL_CONFIG = {
+  wreckingBall: [
+    { name: 'Level 1', desc: 'Easy words', difficulty: 'easy', count: 5, showEmoji: true, hintAfter: 2 },
+    { name: 'Level 2', desc: 'Medium words', difficulty: 'medium', count: 6, showEmoji: true, hintAfter: 2 },
+    { name: 'Level 3', desc: 'Harder words', difficulty: 'hard', count: 7, showEmoji: false, hintAfter: 2 },
+    { name: 'Level 4', desc: 'Expert words', difficulty: 'hard', count: 8, showEmoji: false, hintAfter: 3 },
+  ],
+  craneCombine: [
+    { name: 'Level 1', desc: '3 choices', difficulty: 'easy', count: 5, choices: 3, reverse: false },
+    { name: 'Level 2', desc: '4 choices', difficulty: 'medium', count: 6, choices: 4, reverse: false },
+    { name: 'Level 3', desc: 'Tricky!', difficulty: 'hard', count: 7, choices: 4, reverse: false },
+    { name: 'Level 4', desc: 'Reversed!', difficulty: 'hard', count: 8, choices: 4, reverse: true },
+  ],
+  blueprintMatch: [
+    { name: 'Level 1', desc: '3 pairs', difficulty: 'easy', pairs: 3, rounds: 1 },
+    { name: 'Level 2', desc: '4 pairs', difficulty: 'easy', pairs: 4, rounds: 2 },
+    { name: 'Level 3', desc: '5 pairs', difficulty: 'medium', pairs: 5, rounds: 2 },
+    { name: 'Level 4', desc: '6 pairs!', difficulty: 'hard', pairs: 6, rounds: 2 },
+  ],
+  wordArchitect: [
+    { name: 'Level 1', desc: 'Build 3', target: 3, setIndices: [0,1,2] },
+    { name: 'Level 2', desc: 'Build 4', target: 4, setIndices: [3,4,5] },
+    { name: 'Level 3', desc: 'Build 5', target: 5, setIndices: [6,7] },
+    { name: 'Level 4', desc: 'Build 6+', target: 6, setIndices: [8,9] },
+  ],
+};
+
+const MODE_NAMES = {
+  wreckingBall: '🔨 Wrecking Ball',
+  craneCombine: '🏗️ Crane Combine',
+  blueprintMatch: '📐 Blueprint Match',
+  wordArchitect: '🏛️ Word Architect',
+};
+
+const MODE_INTROS = {
+  wreckingBall: { icon: '🔨', title: 'Wrecking Ball!', text: 'Tap where the word splits in two!' },
+  craneCombine: { icon: '🏗️', title: 'Crane Combine!', text: 'Pick the piece that finishes the word!' },
+  blueprintMatch: { icon: '📐', title: 'Blueprint Match!', text: 'Match the left half to the right half!' },
+  wordArchitect: { icon: '🏛️', title: 'Word Architect!', text: 'Build as many words as you can!' },
+};
+
+// ── Audio ──────────────────────────────────────────────────
+let audioCtx = null;
+let muted = false;
+
+function getAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch (e) { return null; }
+  }
+  return audioCtx;
+}
+
+function playTone(freq, duration, type = 'sine', volume = 0.18, startDelay = 0) {
+  if (muted) return;
+  const ctx = getAudio();
+  if (!ctx) return;
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.value = volume;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime + startDelay);
+    osc.stop(ctx.currentTime + startDelay + duration);
+  } catch (e) {}
+}
+
+function playCorrect() {
+  playTone(523, 0.12, 'sine', 0.2);
+  playTone(659, 0.12, 'sine', 0.2, 0.1);
+  playTone(784, 0.2, 'sine', 0.2, 0.2);
+}
+
+function playWrong() {
+  playTone(220, 0.25, 'sawtooth', 0.12);
+}
+
+function playSplit() {
+  playTone(180, 0.15, 'square', 0.1);
+  playTone(120, 0.2, 'square', 0.08, 0.1);
+}
+
+function playClick() {
+  playTone(600, 0.06, 'sine', 0.1);
+}
+
+function playBuild() {
+  playTone(440, 0.1, 'sine', 0.15);
+  playTone(554, 0.1, 'sine', 0.15, 0.08);
+  playTone(659, 0.15, 'sine', 0.15, 0.16);
+}
+
+function toggleMute() {
+  muted = !muted;
+  document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+}
+
+// ── Confetti ───────────────────────────────────────────────
+function spawnConfetti() {
+  const colors = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
+  for (let i = 0; i < 22; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.cssText = `left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*1.5}s;width:${8+Math.random()*6}px;height:${8+Math.random()*6}px;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+}
+
+// ── Dust particles ─────────────────────────────────────────
+function spawnDust(x, y) {
+  for (let i = 0; i < 10; i++) {
+    const d = document.createElement('div');
+    d.className = 'dust';
+    const dx = (Math.random() - 0.5) * 80;
+    const dy = (Math.random() - 0.5) * 60 - 20;
+    d.style.cssText = `left:${x}px;top:${y}px;--dx:${dx}px;--dy:${dy}px;`;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 800);
+  }
+}
+
+// ── Streak badge ───────────────────────────────────────────
+function showStreakBadge(streak) {
+  if (streak < 3) return;
+  const old = document.querySelector('.streak-badge');
+  if (old) old.remove();
+  const el = document.createElement('div');
+  el.className = 'streak-badge';
+  el.textContent = `🔥 ${streak} in a row!`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1500);
+}
+
+// ── Persistence ────────────────────────────────────────────
+const STORAGE_KEY = 'wordBuilder';
+
+function loadData() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultData();
+  } catch { return defaultData(); }
+}
+
+function defaultData() {
+  return {
+    wordsLearned: [],
+    wordAccuracy: {},
+    badges: [],
+    unlockedLevels: {
+      wreckingBall: [true, false, false, false],
+      craneCombine: [true, false, false, false],
+      blueprintMatch: [true, false, false, false],
+      wordArchitect: [true, false, false, false],
+    },
+    stars: {
+      wreckingBall: [0, 0, 0, 0],
+      craneCombine: [0, 0, 0, 0],
+      blueprintMatch: [0, 0, 0, 0],
+      wordArchitect: [0, 0, 0, 0],
+    },
+    buildingFloors: [],
+  };
+}
+
+function saveData(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+}
+
+let persistent = loadData();
+
+// ── Screen Navigation ──────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── Game State ─────────────────────────────────────────────
+let state = {
+  currentMode: null,
+  currentLevel: 0,
+  questionIndex: 0,
+  questionsInRound: 0,
+  score: 0,
+  streak: 0,
+  attemptsOnCurrent: 0,
+  roundResults: [],
+  words: [],
+  // mode-specific fields added dynamically
+};
+
+// ── Utility ────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getWordsForDifficulty(difficulty, count) {
+  let pool;
+  if (difficulty === 'easy') pool = WORDS.easy;
+  else if (difficulty === 'medium') pool = [...WORDS.easy, ...WORDS.medium];
+  else pool = [...WORDS.medium, ...WORDS.hard];
+  return shuffle(pool).slice(0, count);
+}
+
+function isArchitectUnlocked() {
+  const d = persistent;
+  for (const mode of ['wreckingBall', 'craneCombine', 'blueprintMatch']) {
+    if (d.stars[mode][1] > 0) return true;
+  }
+  return false;
+}
+
+// ── Mode Select ────────────────────────────────────────────
+function goToModeSelect() {
+  showScreen('screenModeSelect');
+  const card = document.getElementById('architectCard');
+  if (isArchitectUnlocked()) {
+    card.classList.remove('locked');
+  } else {
+    card.classList.add('locked');
+  }
+}
+
+function selectMode(mode) {
+  playClick();
+  state.currentMode = mode;
+  showLevelSelect();
+}
+
+// ── Level Select ───────────────────────────────────────────
+function showLevelSelect() {
+  const mode = state.currentMode;
+  document.getElementById('levelTitle').textContent = MODE_NAMES[mode];
+  document.getElementById('levelSubtitle').textContent = 'Pick a Level';
+  showScreen('screenLevelSelect');
+
+  const container = document.getElementById('levelCards');
+  container.innerHTML = '';
+
+  const configs = LEVEL_CONFIG[mode];
+  const unlocked = persistent.unlockedLevels[mode];
+  const starData = persistent.stars[mode];
+  const levelEmojis = ['🔨', '⚡', '🔥', '💎'];
+
+  configs.forEach((cfg, i) => {
+    const card = document.createElement('button');
+    card.className = 'level-card' + (unlocked[i] ? '' : ' locked');
+    const starsStr = starData[i] > 0 ? '⭐'.repeat(starData[i]) + '☆'.repeat(3 - starData[i]) : '';
+    card.innerHTML = `
+      <div class="lc-icon">${unlocked[i] ? levelEmojis[i] : '🔒'}</div>
+      <div class="lc-info">
+        <div class="lc-name">${cfg.name}</div>
+        <div class="lc-desc">${cfg.desc}</div>
+        ${starsStr ? `<div class="lc-stars">${starsStr}</div>` : ''}
+      </div>
+    `;
+    if (unlocked[i]) {
+      card.onclick = () => startLevel(i);
+    }
+    container.appendChild(card);
+  });
+}
+
+// ── Start Level ────────────────────────────────────────────
+function startLevel(levelIdx) {
+  playClick();
+  state.currentLevel = levelIdx;
+  state.questionIndex = 0;
+  state.score = 0;
+  state.streak = 0;
+  state.roundResults = [];
+  state.attemptsOnCurrent = 0;
+
+  const mode = state.currentMode;
+  const cfg = LEVEL_CONFIG[mode][levelIdx];
+
+  // show intro
+  const intro = MODE_INTROS[mode];
+  const overlay = document.getElementById('introOverlay');
+  const card = document.getElementById('introCard');
+  card.innerHTML = `
+    <div style="font-size:3rem;margin-bottom:8px">${intro.icon}</div>
+    <h3>${intro.title}</h3>
+    <p>${intro.text}</p>
+    <button class="intro-go" onclick="dismissIntro()">Let's Go!</button>
+  `;
+  overlay.style.display = 'flex';
+}
+
+function dismissIntro() {
+  document.getElementById('introOverlay').style.display = 'none';
+  const mode = state.currentMode;
+  const cfg = LEVEL_CONFIG[mode][state.currentLevel];
+
+  document.getElementById('playTitle').textContent = MODE_NAMES[mode];
+  showScreen('screenPlaying');
+
+  if (mode === 'wreckingBall') initWreckingBall(cfg);
+  else if (mode === 'craneCombine') initCraneCombine(cfg);
+  else if (mode === 'blueprintMatch') initBlueprintMatch(cfg);
+  else if (mode === 'wordArchitect') initWordArchitect(cfg);
+}
+
+function exitGame() {
+  showLevelSelect();
+}
+
+// ── Progress display ───────────────────────────────────────
+function updateProgress(current, total) {
+  document.getElementById('playProgress').textContent = `${current}/${total}`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  WRECKING BALL
+// ══════════════════════════════════════════════════════════
+
+function initWreckingBall(cfg) {
+  state.words = getWordsForDifficulty(cfg.difficulty, cfg.count);
+  state.questionsInRound = cfg.count;
+  state.questionIndex = 0;
+  state.attemptsOnCurrent = 0;
+  showWBQuestion();
+}
+
+function showWBQuestion() {
+  if (state.questionIndex >= state.words.length) {
+    finishRound();
+    return;
+  }
+
+  const word = state.words[state.questionIndex];
+  const cfg = LEVEL_CONFIG.wreckingBall[state.currentLevel];
+  const area = document.getElementById('gameArea');
+  state.attemptsOnCurrent = 0;
+
+  updateProgress(state.questionIndex + 1, state.words.length);
+
+  let html = '';
+  if (cfg.showEmoji) {
+    html += `<div class="wb-emoji">${word.emoji}</div>`;
+  }
+
+  html += '<div class="feedback-msg" id="wbFeedback"></div>';
+  html += '<div class="wb-word-row" id="wbWordRow">';
+
+  const letters = word.compound.split('');
+  const splitIdx = word.part1.length;
+
+  letters.forEach((letter, i) => {
+    if (i > 0) {
+      html += `<div class="wb-crack" data-idx="${i}" onclick="wbTapCrack(${i})"><div class="wb-crack-line" id="crack${i}"></div></div>`;
+    }
+    html += `<div class="wb-letter" data-pos="${i}">${letter.toUpperCase()}</div>`;
+  });
+
+  html += '</div>';
+  html += '<div class="wb-result-halves" id="wbResult" style="display:none"></div>';
+
+  area.innerHTML = html;
+}
+
+function wbTapCrack(idx) {
+  const word = state.words[state.questionIndex];
+  const correctIdx = word.part1.length;
+
+  if (idx === correctIdx) {
+    wbCorrect(word);
+  } else {
+    wbWrong(idx);
+  }
+}
+
+function wbCorrect(word) {
+  playCorrect();
+  state.score++;
+  state.streak++;
+  state.roundResults.push(true);
+  showStreakBadge(state.streak);
+
+  const feedback = document.getElementById('wbFeedback');
+  feedback.textContent = '💥 SMASH!';
+  feedback.className = 'feedback-msg correct';
+
+  // wrecking ball animation
+  const row = document.getElementById('wbWordRow');
+  const rect = row.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  const wb = document.createElement('div');
+  wb.className = 'wrecking-ball-anim';
+  wb.innerHTML = '<div class="wb-chain"></div><div class="wb-ball"></div>';
+  document.body.appendChild(wb);
+  setTimeout(() => wb.remove(), 1000);
+
+  spawnDust(cx, cy);
+
+  // split the letters
+  const splitIdx = word.part1.length;
+  const letters = row.querySelectorAll('.wb-letter');
+  const cracks = row.querySelectorAll('.wb-crack');
+  cracks.forEach(c => c.style.display = 'none');
+
+  letters.forEach((el, i) => {
+    if (i < splitIdx) el.classList.add('wb-split-left');
+    else el.classList.add('wb-split-right');
+  });
+
+  // show halves
+  const result = document.getElementById('wbResult');
+  result.style.display = 'flex';
+  result.innerHTML = `<span>${word.part1}</span> + <span>${word.part2}</span>`;
+
+  addLearnedWord(word.compound);
+  spawnConfetti();
+
+  setTimeout(() => {
+    state.questionIndex++;
+    state.attemptsOnCurrent = 0;
+    showWBQuestion();
+  }, 1800);
+}
+
+function wbWrong(idx) {
+  playWrong();
+  state.streak = 0;
+  state.attemptsOnCurrent++;
+
+  const crack = document.getElementById('crack' + idx);
+  if (crack) {
+    crack.parentElement.classList.add('shake');
+    setTimeout(() => crack.parentElement.classList.remove('shake'), 400);
+  }
+
+  const feedback = document.getElementById('wbFeedback');
+  feedback.textContent = 'Try again!';
+  feedback.className = 'feedback-msg wrong';
+
+  const cfg = LEVEL_CONFIG.wreckingBall[state.currentLevel];
+
+  if (state.attemptsOnCurrent >= 3) {
+    // auto-reveal after 3 wrong
+    state.roundResults.push(false);
+    const word = state.words[state.questionIndex];
+    feedback.textContent = `It's ${word.part1} + ${word.part2}`;
+    const correctCrack = document.getElementById('crack' + word.part1.length);
+    if (correctCrack) {
+      correctCrack.style.background = 'var(--green)';
+      correctCrack.style.boxShadow = '0 0 12px var(--green)';
+      correctCrack.style.width = '6px';
+    }
+    setTimeout(() => {
+      state.questionIndex++;
+      state.attemptsOnCurrent = 0;
+      showWBQuestion();
+    }, 2000);
+  } else if (state.attemptsOnCurrent >= cfg.hintAfter) {
+    // hint: glow the correct crack
+    const word = state.words[state.questionIndex];
+    const correctCrack = document.getElementById('crack' + word.part1.length);
+    if (correctCrack) {
+      correctCrack.parentElement.classList.add('hint');
+    }
+    feedback.textContent = 'Tap the glowing line!';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  CRANE COMBINE
+// ══════════════════════════════════════════════════════════
+
+function initCraneCombine(cfg) {
+  state.words = getWordsForDifficulty(cfg.difficulty, cfg.count);
+  state.questionsInRound = cfg.count;
+  state.questionIndex = 0;
+  state.attemptsOnCurrent = 0;
+  showCCQuestion();
+}
+
+function showCCQuestion() {
+  if (state.questionIndex >= state.words.length) {
+    finishRound();
+    return;
+  }
+
+  const word = state.words[state.questionIndex];
+  const cfg = LEVEL_CONFIG.craneCombine[state.currentLevel];
+  const area = document.getElementById('gameArea');
+  state.attemptsOnCurrent = 0;
+
+  updateProgress(state.questionIndex + 1, state.words.length);
+
+  const reverse = cfg.reverse;
+  const givenPart = reverse ? word.part2 : word.part1;
+  const correctPart = reverse ? word.part1 : word.part2;
+
+  // generate distractors
+  const allWords = [...WORDS.easy, ...WORDS.medium, ...WORDS.hard];
+  let distractors = [];
+  const usedParts = new Set([correctPart]);
+
+  for (const w of shuffle(allWords)) {
+    const part = reverse ? w.part1 : w.part2;
+    if (!usedParts.has(part)) {
+      distractors.push(part);
+      usedParts.add(part);
+    }
+    if (distractors.length >= cfg.choices - 1) break;
+  }
+
+  const options = shuffle([correctPart, ...distractors]);
+
+  let html = '<div class="crane-arm"></div>';
+  html += '<div class="feedback-msg" id="ccFeedback"></div>';
+
+  if (reverse) {
+    html += `<div class="cc-foundation"><span class="cc-blank" id="ccBlank"></span>${givenPart}</div>`;
+  } else {
+    html += `<div class="cc-foundation">${givenPart}<span class="cc-blank" id="ccBlank"></span></div>`;
+  }
+
+  html += '<div class="cc-options" id="ccOptions">';
+  options.forEach((opt, i) => {
+    html += `<button class="cc-option" data-part="${opt}" onclick="ccTapOption(this, '${opt}')">${opt}</button>`;
+  });
+  html += '</div>';
+
+  area.innerHTML = html;
+  state._ccCorrect = correctPart;
+  state._ccReverse = reverse;
+  state._ccGiven = givenPart;
+}
+
+function ccTapOption(el, part) {
+  if (el.classList.contains('correct') || el.classList.contains('wrong') || el.classList.contains('dimmed')) return;
+
+  const correct = state._ccCorrect;
+  const feedback = document.getElementById('ccFeedback');
+
+  if (part === correct) {
+    playCorrect();
+    el.classList.add('correct');
+    state.score++;
+    state.streak++;
+    state.roundResults.push(true);
+    showStreakBadge(state.streak);
+
+    const blank = document.getElementById('ccBlank');
+    blank.textContent = correct;
+    blank.style.borderBottom = 'none';
+
+    const foundation = document.querySelector('.cc-foundation');
+    foundation.classList.add('bounce');
+
+    feedback.textContent = (state._ccReverse ? state._ccCorrect + state._ccGiven : state._ccGiven + correct) + '!';
+    feedback.className = 'feedback-msg correct';
+
+    addLearnedWord(state._ccReverse ? correct + state._ccGiven : state._ccGiven + correct);
+    spawnConfetti();
+
+    setTimeout(() => {
+      state.questionIndex++;
+      showCCQuestion();
+    }, 1500);
+  } else {
+    playWrong();
+    state.streak = 0;
+    state.attemptsOnCurrent++;
+    el.classList.add('wrong');
+
+    feedback.textContent = 'Not that one!';
+    feedback.className = 'feedback-msg wrong';
+
+    setTimeout(() => {
+      el.classList.remove('wrong');
+      el.classList.add('dimmed');
+    }, 500);
+
+    if (state.attemptsOnCurrent >= 3) {
+      state.roundResults.push(false);
+      // auto-reveal
+      const options = document.querySelectorAll('.cc-option');
+      options.forEach(o => {
+        if (o.dataset.part === correct) {
+          o.classList.add('correct');
+        }
+      });
+      const blank = document.getElementById('ccBlank');
+      blank.textContent = correct;
+      blank.style.borderBottom = 'none';
+      feedback.textContent = `It's ${state._ccReverse ? correct + state._ccGiven : state._ccGiven + correct}!`;
+      feedback.className = 'feedback-msg correct';
+      setTimeout(() => {
+        state.questionIndex++;
+        showCCQuestion();
+      }, 2000);
+    } else if (state.attemptsOnCurrent >= 2) {
+      // dim one wrong option as hint
+      const options = document.querySelectorAll('.cc-option:not(.dimmed)');
+      for (const o of options) {
+        if (o.dataset.part !== correct && !o.classList.contains('dimmed')) {
+          o.classList.add('dimmed');
+          break;
+        }
+      }
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  BLUEPRINT MATCH
+// ══════════════════════════════════════════════════════════
+
+function initBlueprintMatch(cfg) {
+  state.bpRound = 0;
+  state.bpTotalRounds = cfg.rounds;
+  state.bpPairsPerRound = cfg.pairs;
+  state.bpTotalCorrect = 0;
+  state.bpTotalAttempts = 0;
+  state.questionsInRound = cfg.pairs * cfg.rounds;
+  startBPRound(cfg);
+}
+
+function startBPRound(cfg) {
+  const difficulty = cfg.difficulty;
+  let pool;
+  if (difficulty === 'easy') pool = WORDS.easy;
+  else if (difficulty === 'medium') pool = [...WORDS.easy, ...WORDS.medium];
+  else pool = [...WORDS.medium, ...WORDS.hard];
+
+  const selected = shuffle(pool).slice(0, cfg.pairs);
+  state.bpPairs = selected;
+  state.bpMatched = new Set();
+  state.bpSelectedLeft = null;
+
+  updateProgress(state.bpRound * cfg.pairs + 1, state.questionsInRound);
+  renderBP();
+}
+
+function renderBP() {
+  const area = document.getElementById('gameArea');
+  const pairs = state.bpPairs;
+  const leftWords = shuffle(pairs.map((w, i) => ({ text: w.part1, idx: i })));
+  const rightWords = shuffle(pairs.map((w, i) => ({ text: w.part2, idx: i })));
+
+  state._bpLeftOrder = leftWords;
+  state._bpRightOrder = rightWords;
+
+  let html = '<div class="feedback-msg" id="bpFeedback"></div>';
+  html += '<div class="bp-area" style="position:relative">';
+  html += '<div class="bp-columns">';
+
+  html += '<div class="bp-column">';
+  leftWords.forEach(w => {
+    const matched = state.bpMatched.has(w.idx);
+    html += `<button class="bp-tile${matched ? ' matched' : ''}" data-side="left" data-idx="${w.idx}" onclick="bpTap(this,'left',${w.idx})">${w.text}</button>`;
+  });
+  html += '</div>';
+
+  html += '<div class="bp-column">';
+  rightWords.forEach(w => {
+    const matched = state.bpMatched.has(w.idx);
+    html += `<button class="bp-tile${matched ? ' matched' : ''}" data-side="right" data-idx="${w.idx}" onclick="bpTap(this,'right',${w.idx})">${w.text}</button>`;
+  });
+  html += '</div>';
+
+  html += '</div></div>';
+  area.innerHTML = html;
+}
+
+function bpTap(el, side, idx) {
+  if (state.bpMatched.has(idx) && el.classList.contains('matched')) return;
+  playClick();
+
+  const feedback = document.getElementById('bpFeedback');
+
+  if (side === 'left') {
+    // deselect previous
+    document.querySelectorAll('.bp-tile.selected').forEach(t => t.classList.remove('selected'));
+    el.classList.add('selected');
+    state.bpSelectedLeft = idx;
+    feedback.textContent = '';
+  } else if (side === 'right') {
+    if (state.bpSelectedLeft === null) {
+      // select left first
+      feedback.textContent = 'Tap a left word first!';
+      feedback.className = 'feedback-msg wrong';
+      return;
+    }
+
+    state.bpTotalAttempts++;
+
+    if (idx === state.bpSelectedLeft) {
+      // correct match
+      playCorrect();
+      state.bpMatched.add(idx);
+      state.bpTotalCorrect++;
+      state.streak++;
+      state.score++;
+      showStreakBadge(state.streak);
+
+      const word = state.bpPairs[idx];
+      feedback.textContent = `${word.part1}${word.part2}!`;
+      feedback.className = 'feedback-msg correct';
+
+      addLearnedWord(word.compound);
+
+      // mark both matched
+      document.querySelectorAll(`.bp-tile[data-idx="${idx}"]`).forEach(t => {
+        t.classList.remove('selected');
+        t.classList.add('matched');
+      });
+
+      state.bpSelectedLeft = null;
+      updateProgress(state.bpRound * state.bpPairsPerRound + state.bpMatched.size, state.questionsInRound);
+
+      if (state.bpMatched.size === state.bpPairs.length) {
+        spawnConfetti();
+        state.bpRound++;
+        if (state.bpRound < state.bpTotalRounds) {
+          setTimeout(() => {
+            const cfg = LEVEL_CONFIG.blueprintMatch[state.currentLevel];
+            startBPRound(cfg);
+          }, 1200);
+        } else {
+          // compute results
+          state.roundResults = [];
+          for (let i = 0; i < state.bpTotalCorrect; i++) state.roundResults.push(true);
+          const misses = state.bpTotalAttempts - state.bpTotalCorrect;
+          for (let i = 0; i < misses; i++) state.roundResults.push(false);
+          setTimeout(() => finishRound(), 1200);
+        }
+      }
+    } else {
+      // wrong
+      playWrong();
+      state.streak = 0;
+
+      const leftTile = document.querySelector(`.bp-tile.selected[data-side="left"]`);
+      if (leftTile) leftTile.classList.add('wrong-flash');
+      el.classList.add('wrong-flash');
+
+      feedback.textContent = 'Try again!';
+      feedback.className = 'feedback-msg wrong';
+
+      setTimeout(() => {
+        document.querySelectorAll('.bp-tile.selected').forEach(t => t.classList.remove('selected'));
+        document.querySelectorAll('.bp-tile.wrong-flash').forEach(t => t.classList.remove('wrong-flash'));
+        state.bpSelectedLeft = null;
+      }, 600);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  WORD ARCHITECT
+// ══════════════════════════════════════════════════════════
+
+function initWordArchitect(cfg) {
+  const setIdx = cfg.setIndices[Math.floor(Math.random() * cfg.setIndices.length)];
+  const set = ARCHITECT_SETS[setIdx];
+  state.waSet = set;
+  state.waTarget = Math.min(cfg.target, set.parts.length);
+  state.waFound = [];
+  state.questionsInRound = state.waTarget;
+
+  const allParts = shuffle([...set.parts, ...set.distractors]);
+  state.waParts = allParts;
+
+  updateProgress(0, state.waTarget);
+  renderWA();
+}
+
+function renderWA() {
+  const area = document.getElementById('gameArea');
+  const set = state.waSet;
+
+  let html = '';
+  html += `<div class="wa-goal">Build a ${state.waTarget}-story building!</div>`;
+  html += `<div class="wa-root">${set.root}</div>`;
+  html += '<div class="feedback-msg" id="waFeedback"></div>';
+
+  html += '<div class="wa-parts">';
+  state.waParts.forEach((part, i) => {
+    const used = state.waFound.some(f => f.part === part);
+    html += `<button class="wa-part${used ? ' used' : ''}" onclick="waTap('${part}', ${i})">${part}</button>`;
+  });
+  html += '</div>';
+
+  if (state.waFound.length > 0) {
+    html += '<div class="wa-found-list">';
+    state.waFound.forEach(f => {
+      html += `<div class="wa-found-word">${f.word}</div>`;
+    });
+    html += '</div>';
+  }
+
+  // building visualization
+  const floorColors = ['#F59E0B', '#F97316', '#3B82F6', '#22C55E', '#8B5CF6', '#EC4899', '#EF4444'];
+  html += '<div class="wa-building">';
+  state.waFound.forEach((f, i) => {
+    const w = 80 + Math.random() * 40;
+    html += `<div class="wa-floor" style="width:${w}px;background:${floorColors[i % floorColors.length]}"></div>`;
+  });
+  html += '</div>';
+
+  area.innerHTML = html;
+}
+
+function waTap(part, idx) {
+  if (state.waFound.some(f => f.part === part)) return;
+
+  const set = state.waSet;
+  const feedback = document.getElementById('waFeedback');
+
+  // check if this part creates a valid compound with root
+  let validWord = null;
+  if (set.isSecondHalf) {
+    // root is second half, part goes first
+    if (set.parts.includes(part)) {
+      validWord = part + set.root;
+    }
+  } else {
+    // root is first half, part goes after
+    if (set.parts.includes(part)) {
+      validWord = set.root + part;
+    }
+  }
+
+  if (validWord) {
+    playBuild();
+    state.score++;
+    state.streak++;
+    state.waFound.push({ word: validWord, part: part });
+    state.roundResults.push(true);
+    showStreakBadge(state.streak);
+    addLearnedWord(validWord);
+
+    feedback.textContent = `${validWord}!`;
+    feedback.className = 'feedback-msg correct';
+
+    updateProgress(state.waFound.length, state.waTarget);
+
+    if (state.waFound.length >= state.waTarget) {
+      spawnConfetti();
+      setTimeout(() => finishRound(), 1500);
+    } else {
+      renderWA();
+    }
+  } else {
+    playWrong();
+    state.streak = 0;
+
+    feedback.textContent = 'Hmm, not a word!';
+    feedback.className = 'feedback-msg wrong';
+
+    const btns = document.querySelectorAll('.wa-part');
+    if (btns[idx]) {
+      btns[idx].classList.add('shake');
+      setTimeout(() => btns[idx].classList.remove('shake'), 400);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  ROUND COMPLETE
+// ══════════════════════════════════════════════════════════
+
+function finishRound() {
+  const mode = state.currentMode;
+  const level = state.currentLevel;
+  const results = state.roundResults;
+  const total = results.length;
+  const correct = results.filter(r => r).length;
+  const pct = total > 0 ? correct / total : 0;
+
+  let stars = 1;
+  if (pct >= 1) stars = 3;
+  else if (pct >= 0.75) stars = 2;
+
+  // update persistent data
+  if (stars > persistent.stars[mode][level]) {
+    persistent.stars[mode][level] = stars;
+  }
+
+  // unlock next level
+  if (level < 3) {
+    persistent.unlockedLevels[mode][level + 1] = true;
+  }
+
+  // check badges
+  checkBadges();
+  saveData(persistent);
+
+  showScreen('screenRoundComplete');
+  const content = document.getElementById('roundCompleteContent');
+
+  const starsStr = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+  const floorColors = ['#F59E0B', '#F97316', '#3B82F6', '#22C55E', '#8B5CF6', '#EC4899', '#EF4444'];
+
+  let buildingHtml = '<div class="rc-building">';
+  const floors = persistent.buildingFloors.slice(-15);
+  floors.forEach((word, i) => {
+    const w = 60 + (word.length * 8);
+    buildingHtml += `<div class="rc-floor" style="width:${Math.min(w, 200)}px;background:${floorColors[i % floorColors.length]};animation-delay:${i * 0.1}s"></div>`;
+  });
+  buildingHtml += '</div>';
+
+  const hasNext = level < 3;
+
+  content.innerHTML = `
+    <h2>Round Complete!</h2>
+    <div class="rc-stars">${starsStr}</div>
+    <div class="rc-score">${correct} / ${total} correct</div>
+    ${buildingHtml}
+    <div class="rc-buttons">
+      ${hasNext ? `<button class="rc-btn primary" onclick="startNextLevel()">Next Level</button>` : ''}
+      <button class="rc-btn ${hasNext ? 'secondary' : 'primary'}" onclick="replayLevel()">Play Again</button>
+      <button class="rc-btn secondary" onclick="goToModeSelect()">Back to Menu</button>
+    </div>
+  `;
+
+  spawnConfetti();
+  playBuild();
+}
+
+function startNextLevel() {
+  playClick();
+  state.currentLevel++;
+  startLevel(state.currentLevel);
+}
+
+function replayLevel() {
+  playClick();
+  startLevel(state.currentLevel);
+}
+
+// ── Learned Words & Building ───────────────────────────────
+function addLearnedWord(word) {
+  if (!persistent.wordsLearned.includes(word)) {
+    persistent.wordsLearned.push(word);
+    persistent.buildingFloors.push(word);
+  }
+  // track accuracy
+  if (!persistent.wordAccuracy[word]) {
+    persistent.wordAccuracy[word] = { correct: 0, total: 0 };
+  }
+  persistent.wordAccuracy[word].correct++;
+  persistent.wordAccuracy[word].total++;
+  saveData(persistent);
+}
+
+// ── Badges ─────────────────────────────────────────────────
+function checkBadges() {
+  const b = persistent.badges;
+  const wl = persistent.wordsLearned.length;
+
+  const badgeDefs = [
+    { id: 'first_word', name: 'First Brick!', icon: '🧱', condition: () => wl >= 1 },
+    { id: 'ten_words', name: '10 Words!', icon: '🏗️', condition: () => wl >= 10 },
+    { id: 'twenty_words', name: '20 Words!', icon: '🏢', condition: () => wl >= 20 },
+    { id: 'fifty_words', name: '50 Words!', icon: '🏙️', condition: () => wl >= 50 },
+    { id: 'wb_master', name: 'Wrecker!', icon: '🔨', condition: () => persistent.stars.wreckingBall[3] > 0 },
+    { id: 'cc_master', name: 'Builder!', icon: '🏗️', condition: () => persistent.stars.craneCombine[3] > 0 },
+    { id: 'bp_master', name: 'Planner!', icon: '📐', condition: () => persistent.stars.blueprintMatch[3] > 0 },
+    { id: 'wa_master', name: 'Architect!', icon: '🏛️', condition: () => persistent.stars.wordArchitect[3] > 0 },
+    { id: 'all_stars', name: 'Superstar!', icon: '🌟', condition: () => {
+      return Object.values(persistent.stars).every(arr => arr.every(s => s === 3));
+    }},
+  ];
+
+  badgeDefs.forEach(def => {
+    if (!b.includes(def.id) && def.condition()) {
+      b.push(def.id);
+    }
+  });
+
+  persistent.badges = b;
+}
+
+function getBadgeDef(id) {
+  const defs = {
+    first_word: { name: 'First Brick!', icon: '🧱' },
+    ten_words: { name: '10 Words!', icon: '🏗️' },
+    twenty_words: { name: '20 Words!', icon: '🏢' },
+    fifty_words: { name: '50 Words!', icon: '🏙️' },
+    wb_master: { name: 'Wrecker!', icon: '🔨' },
+    cc_master: { name: 'Builder!', icon: '🏗️' },
+    bp_master: { name: 'Planner!', icon: '📐' },
+    wa_master: { name: 'Architect!', icon: '🏛️' },
+    all_stars: { name: 'Superstar!', icon: '🌟' },
+  };
+  return defs[id] || { name: id, icon: '🏅' };
+}
+
+// ── Collection Screen ──────────────────────────────────────
+function showCollection() {
+  playClick();
+  showScreen('screenCollection');
+
+  const content = document.getElementById('collectionContent');
+  const words = persistent.wordsLearned;
+  const floorColors = ['#F59E0B', '#F97316', '#3B82F6', '#22C55E', '#8B5CF6', '#EC4899', '#EF4444', '#14B8A6'];
+
+  let buildingHtml = '<div class="col-building">';
+  if (words.length === 0) {
+    buildingHtml += '<div style="opacity:0.6;padding:40px;text-align:center">Play games to build floors!</div>';
+  } else {
+    words.slice().reverse().forEach((word, ri) => {
+      const i = words.length - 1 - ri;
+      const w = 70 + (word.length * 9);
+      buildingHtml += `<div class="col-floor" style="width:${Math.min(w, 220)}px;background:${floorColors[i % floorColors.length]};animation-delay:${ri * 0.05}s">
+        <span class="col-floor-label">${word}</span>
+      </div>`;
+    });
+  }
+  buildingHtml += '</div>';
+
+  let badgeHtml = '';
+  if (persistent.badges.length > 0) {
+    badgeHtml = '<div class="col-badges">';
+    persistent.badges.forEach(id => {
+      const def = getBadgeDef(id);
+      badgeHtml += `<div class="col-badge"><div class="badge-icon">${def.icon}</div><div>${def.name}</div></div>`;
+    });
+    badgeHtml += '</div>';
+  }
+
+  content.innerHTML = `
+    <h2>🏢 My Building</h2>
+    <div class="col-stats">${words.length} words learned!</div>
+    ${buildingHtml}
+    ${badgeHtml}
+  `;
+}
+
+// ── Init ───────────────────────────────────────────────────
+goToModeSelect();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>

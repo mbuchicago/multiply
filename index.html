@@ -80,6 +80,7 @@
     .card:nth-child(3) { animation-delay: 0.8s; }
     .card:nth-child(4) { animation-delay: 1.2s; }
     .card:nth-child(5) { animation-delay: 1.6s; }
+    .card:nth-child(6) { animation-delay: 2.0s; }
 
     .card:active {
       transform: scale(0.97);
@@ -115,6 +116,10 @@
     /* Pipeline */
     .card--pipeline { border-top-color: #4a90d9; }
     .card--pipeline .card__icon { background: linear-gradient(135deg, #4a90d9, #1a2332); }
+
+    /* Word Builder */
+    .card--words2 { border-top-color: #F59E0B; }
+    .card--words2 .card__icon { background: linear-gradient(135deg, #F59E0B, #EF4444); }
 
     .card__icon {
       width: 80px;
@@ -224,6 +229,12 @@
       <div class="card__icon"><span>&#128295;</span></div>
       <div class="card__name">Pipeline</div>
       <div class="card__desc">Fix number sequences!</div>
+    </a>
+
+    <a href="word-builder.html" class="card card--words2">
+      <div class="card__icon">&#127959;</div>
+      <div class="card__name">Word Builder</div>
+      <div class="card__desc">Build compound words!</div>
     </a>
   </div>
 
