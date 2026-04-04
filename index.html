@@ -81,6 +81,7 @@
     .card:nth-child(4) { animation-delay: 1.2s; }
     .card:nth-child(5) { animation-delay: 1.6s; }
     .card:nth-child(6) { animation-delay: 2.0s; }
+    .card:nth-child(7) { animation-delay: 2.4s; }
 
     .card:active {
       transform: scale(0.97);
@@ -120,6 +121,10 @@
     /* Math Tricks */
     .card--tricks { border-top-color: #8b5cf6; }
     .card--tricks .card__icon { background: linear-gradient(135deg, #8b5cf6, #6366f1); }
+
+    /* Word Builder */
+    .card--words2 { border-top-color: #F59E0B; }
+    .card--words2 .card__icon { background: linear-gradient(135deg, #F59E0B, #EF4444); }
 
     .card__icon {
       width: 80px;
@@ -235,6 +240,12 @@
       <div class="card__icon"><span>&#129513;</span></div>
       <div class="card__name">Math Tricks</div>
       <div class="card__desc">Multiply like a wizard!</div>
+    </a>
+
+    <a href="word-builder.html" class="card card--words2">
+      <div class="card__icon">&#127959;</div>
+      <div class="card__name">Word Builder</div>
+      <div class="card__desc">Build compound words!</div>
     </a>
   </div>
 
