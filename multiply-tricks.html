@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Math Tricks!">
+  <title>Math Tricks!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 40%, #a78bfa 100%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 12px 24px;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-family: 'Fredoka One', cursive;
+      color: white;
+      font-size: clamp(2rem, 7vw, 3rem);
+      text-shadow: 3px 4px 0 rgba(0,0,0,0.18);
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .screen { display: none; width: 100%; max-width: 600px; }
+    .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+    /* --- World Select --- */
+    .worlds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 14px;
+      width: 100%;
+      max-width: 600px;
+      padding: 8px;
+    }
+
+    .world-card {
+      background: white;
+      border-radius: 20px;
+      padding: 18px 14px;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      border-top: 5px solid #a78bfa;
+      position: relative;
+      overflow: hidden;
+    }
+    .world-card:active { transform: scale(0.96); }
+    .world-card.locked { opacity: 0.5; pointer-events: none; filter: grayscale(0.5); }
+    .world-card.completed { border-top-color: #22c55e; }
+    .world-card .world-icon { font-size: 2.4rem; margin-bottom: 6px; }
+    .world-card .world-name {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      color: #1e293b;
+    }
+    .world-card .world-desc {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    .world-card .world-stars {
+      margin-top: 6px;
+      font-size: 1.1rem;
+    }
+    .world-card .lock-icon {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 1.2rem;
+    }
+
+    /* --- Game Screen --- */
+    .game-panel {
+      background: white;
+      border-radius: 28px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      text-align: center;
+      position: relative;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: #f1f5f9;
+      border: none;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .back-btn:active { transform: scale(0.9); }
+
+    .progress-dots {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .progress-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .progress-dot.done { background: #22c55e; }
+    .progress-dot.current { background: #eab308; transform: scale(1.3); }
+    .progress-dot.wrong { background: #ef4444; }
+
+    .strategy-label {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.1rem;
+      color: #8b5cf6;
+      margin-bottom: 8px;
+      padding: 6px 16px;
+      background: #f5f3ff;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .problem-text {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2.5rem, 10vw, 4rem);
+      color: #1e293b;
+      margin: 12px 0;
+      line-height: 1.2;
+    }
+
+    .step-area {
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .step-text {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      color: #4b5563;
+      animation: fadeSlideIn 0.3s ease;
+    }
+
+    .step-highlight {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.2rem;
+      color: #7c3aed;
+      animation: popBounce 0.4s ease;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popBounce {
+      0% { transform: scale(0.5); opacity: 0; }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Answer options */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .option-btn {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      padding: 16px;
+      border: 4px solid #e2e8f0;
+      border-radius: 18px;
+      background: #f8fafc;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.15s;
+      min-height: 64px;
+    }
+    .option-btn:active { transform: scale(0.95); }
+    .option-btn.correct {
+      background: #dcfce7;
+      border-color: #22c55e;
+      color: #16a34a;
+      animation: popBounce 0.3s ease;
+    }
+    .option-btn.wrong {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #dc2626;
+      animation: shake 0.4s ease;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+
+    /* Step-through buttons */
+    .action-btn {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: transform 0.1s;
+      margin: 6px;
+    }
+    .action-btn:active { transform: scale(0.94); }
+
+    .btn-next {
+      background: #8b5cf6;
+      color: white;
+      box-shadow: 0 4px 0 #6d28d9;
+    }
+    .btn-go {
+      background: #22c55e;
+      color: white;
+      box-shadow: 0 4px 0 #15803d;
+    }
+
+    /* Visual array */
+    .array-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: center;
+      margin: 10px auto;
+      max-width: 400px;
+    }
+    .array-row {
+      display: flex;
+      gap: 4px;
+    }
+    .array-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      animation: dropIn 0.25s both;
+    }
+    @keyframes dropIn {
+      from { transform: scale(0) rotate(-20deg); opacity: 0; }
+      to { transform: scale(1) rotate(0); opacity: 1; }
+    }
+
+    /* Finger display for 9s trick */
+    .fingers-row {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .finger {
+      width: 36px;
+      height: 52px;
+      border-radius: 18px 18px 8px 8px;
+      background: #fde68a;
+      border: 3px solid #f59e0b;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 4px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 0.85rem;
+      color: #92400e;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .finger.down {
+      height: 20px;
+      background: #d1d5db;
+      border-color: #9ca3af;
+      color: transparent;
+    }
+    .finger.left-group { background: #bfdbfe; border-color: #3b82f6; }
+    .finger.right-group { background: #bbf7d0; border-color: #22c55e; }
+
+    /* Feedback */
+    .feedback-area {
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .feedback-msg {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      animation: popBounce 0.3s ease;
+    }
+    .feedback-msg.correct { color: #16a34a; }
+    .feedback-msg.wrong { color: #dc2626; }
+
+    /* Round complete */
+    .complete-panel {
+      text-align: center;
+      padding: 20px;
+    }
+    .complete-panel .big-stars { font-size: 3rem; margin: 16px 0; }
+    .complete-panel .complete-msg {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      color: #7c3aed;
+      margin-bottom: 8px;
+    }
+    .complete-panel .unlock-msg {
+      font-size: 1.1rem;
+      color: #16a34a;
+      font-weight: 800;
+      margin: 12px 0;
+    }
+
+    /* Confetti */
+    .confetti {
+      position: fixed;
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(900deg); opacity: 0; }
+    }
+
+    /* Decomposition blocks */
+    .decomp-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+    .decomp-block {
+      background: #f5f3ff;
+      border: 3px solid #a78bfa;
+      border-radius: 14px;
+      padding: 10px 16px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      color: #6d28d9;
+      animation: fadeSlideIn 0.3s ease;
+    }
+    .decomp-block.alt {
+      background: #ecfdf5;
+      border-color: #34d399;
+      color: #059669;
+    }
+    .decomp-plus {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      color: #9ca3af;
+    }
+    .decomp-equals {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      color: #f59e0b;
+    }
+
+    /* Number input for typed answers */
+    .num-input {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.5rem;
+      width: 120px;
+      text-align: center;
+      border: 4px solid #c4b5fd;
+      border-radius: 18px;
+      padding: 8px;
+      color: #7c3aed;
+      outline: none;
+    }
+    .num-input:focus { border-color: #7c3aed; }
+  </style>
+</head>
+<body>
+
+<h1>Math Tricks!</h1>
+
+<!-- SCREEN: World Select -->
+<div class="screen active" id="screen-worlds">
+  <div class="worlds-grid" id="worlds-grid"></div>
+</div>
+
+<!-- SCREEN: Game -->
+<div class="screen" id="screen-game">
+  <div class="game-panel">
+    <button class="back-btn" onclick="goToWorlds()">&#9664;</button>
+    <div class="progress-dots" id="progress-dots"></div>
+    <div class="strategy-label" id="strategy-label"></div>
+    <div class="problem-text" id="problem-text"></div>
+    <div class="step-area" id="step-area"></div>
+    <div class="feedback-area" id="feedback-area"></div>
+    <div id="action-area"></div>
+  </div>
+</div>
+
+<!-- SCREEN: Round Complete -->
+<div class="screen" id="screen-complete">
+  <div class="game-panel">
+    <div class="complete-panel">
+      <div class="complete-msg" id="complete-msg"></div>
+      <div class="big-stars" id="complete-stars"></div>
+      <div class="unlock-msg" id="unlock-msg"></div>
+      <button class="action-btn btn-next" onclick="goToWorlds()" style="margin-top:16px;">Back to Map</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Audio ─────────────────────────────────────────────────────────
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e) { return null; }
+  }
+  return audioCtx;
+}
+
+function playCorrect() {
+  const ctx = getAudio(); if (!ctx) return;
+  try {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'triangle'; o.frequency.value = 523;
+    g.gain.value = 0.3;
+    o.start(); o.frequency.linearRampToValueAtTime(784, ctx.currentTime + 0.15);
+    g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+    o.stop(ctx.currentTime + 0.3);
+  } catch(e) {}
+}
+
+function playWrong() {
+  const ctx = getAudio(); if (!ctx) return;
+  try {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'square'; o.frequency.value = 200;
+    g.gain.value = 0.15;
+    o.start(); o.frequency.linearRampToValueAtTime(150, ctx.currentTime + 0.25);
+    g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+    o.stop(ctx.currentTime + 0.3);
+  } catch(e) {}
+}
+
+function playClick() {
+  const ctx = getAudio(); if (!ctx) return;
+  try {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine'; o.frequency.value = 600;
+    g.gain.value = 0.15;
+    o.start();
+    g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.1);
+    o.stop(ctx.currentTime + 0.1);
+  } catch(e) {}
+}
+
+function playFanfare() {
+  const ctx = getAudio(); if (!ctx) return;
+  try {
+    [523, 659, 784, 1047].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'triangle'; o.frequency.value = f;
+      g.gain.value = 0.2;
+      o.start(ctx.currentTime + i * 0.15);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + i * 0.15 + 0.4);
+      o.stop(ctx.currentTime + i * 0.15 + 0.4);
+    });
+  } catch(e) {}
+}
+
+// ── Confetti ──────────────────────────────────────────────────────
+function spawnConfetti() {
+  const colors = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
+  for (let i = 0; i < 22; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-15px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1+Math.random()*1.2}s;animation-delay:${Math.random()*0.4}s;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2200);
+  }
+}
+
+// ── Praise ────────────────────────────────────────────────────────
+const PRAISE = ['Amazing!','You got it!','Brilliant!','Super!','Awesome!','Yes!','Fantastic!','Wow!','Nailed it!'];
+function randomPraise() { return PRAISE[Math.floor(Math.random() * PRAISE.length)]; }
+
+const STRATEGY_PRAISE = [
+  'Great trick!', 'Smart thinking!', 'You used the trick!', 'Math wizard!',
+  'Big brain move!', 'Strategy master!'
+];
+function randomStratPraise() { return STRATEGY_PRAISE[Math.floor(Math.random() * STRATEGY_PRAISE.length)]; }
+
+// ── World Definitions ─────────────────────────────────────────────
+const WORLDS = [
+  {
+    id: 'zero-one', icon: '0️⃣', name: 'Zero & One', desc: 'The easy rules',
+    strategy: 'Zero & One Rules',
+    color: '#64748b',
+    generate() {
+      const facts = [];
+      for (let i = 0; i <= 10; i++) {
+        if (Math.random() < 0.5) facts.push({ a: i, b: 0 }); else facts.push({ a: 0, b: i });
+        if (Math.random() < 0.5) facts.push({ a: i, b: 1 }); else facts.push({ a: 1, b: i });
+      }
+      return shuffle(facts).slice(0, 8);
+    },
+    buildSteps(a, b) {
+      const answer = a * b;
+      if (a === 0 || b === 0) {
+        return {
+          steps: [
+            { text: `Anything times zero = zero!`, highlight: `${a} x ${b} = 0` }
+          ],
+          answer
+        };
+      }
+      return {
+        steps: [
+          { text: `Anything times one = itself!`, highlight: `${a} x ${b} = ${answer}` }
+        ],
+        answer
+      };
+    }
+  },
+  {
+    id: 'doubles', icon: '✌️', name: 'Doubles', desc: 'x2 is just doubling',
+    strategy: 'Double It!',
+    color: '#3b82f6',
+    generate() {
+      const facts = [];
+      for (let i = 2; i <= 10; i++) {
+        facts.push(Math.random() < 0.5 ? { a: 2, b: i } : { a: i, b: 2 });
+      }
+      return shuffle(facts).slice(0, 8);
+    },
+    buildSteps(a, b) {
+      const other = a === 2 ? b : a;
+      const answer = a * b;
+      return {
+        steps: [
+          { text: `2 x ${other} means double ${other}`, highlight: `${other} + ${other} = ${answer}` }
+        ],
+        answer
+      };
+    }
+  },
+  {
+    id: 'tens', icon: '🔟', name: 'Ten Tower', desc: 'x10 place value shift',
+    strategy: 'Add a Zero!',
+    color: '#f97316',
+    generate() {
+      const facts = [];
+      for (let i = 1; i <= 10; i++) {
+        facts.push(Math.random() < 0.5 ? { a: 10, b: i } : { a: i, b: 10 });
+      }
+      return shuffle(facts).slice(0, 8);
+    },
+    buildSteps(a, b) {
+      const other = a === 10 ? b : a;
+      const answer = a * b;
+      return {
+        steps: [
+          { text: `${other} tens = ${answer}`, highlight: `${other}0` }
+        ],
+        answer
+      };
+    }
+  },
+  {
+    id: 'fives', icon: '🖐️', name: 'High Fives', desc: 'x5 = half of x10',
+    strategy: 'Half of Ten!',
+    color: '#22c55e',
+    generate() {
+      const facts = [];
+      for (let i = 2; i <= 10; i++) {
+        facts.push(Math.random() < 0.5 ? { a: 5, b: i } : { a: i, b: 5 });
+      }
+      return shuffle(facts).slice(0, 8);
+    },
+    buildSteps(a, b) {
+      const other = a === 5 ? b : a;
+      const tenResult = other * 10;
+      const answer = a * b;
+      return {
+        steps: [
+          { text: `First: 10 x ${other} = ${tenResult}`, highlight: null },
+          { text: `Half of ${tenResult}?`, highlight: `${answer}` }
+        ],
+        answer
+      };
+    }
+  },
+  {
+    id: 'turnaround', icon: '🔄', name: 'Turn-Around', desc: '3x4 = 4x3',
+    strategy: 'Turn-Around Trick!',
+    color: '#ec4899',
+    generate() {
+      const pairs = [[3,4],[2,6],[3,5],[4,5],[2,7],[3,6],[4,6],[2,8],[3,7],[5,6]];
+      return shuffle(pairs).slice(0, 8).map(([a, b]) => ({ a, b }));
+    },
+    buildSteps(a, b) {
+      const answer = a * b;
+      return {
+        steps: [
+          { text: `${a} x ${b} is the same as ${b} x ${a}`, highlight: `Both = ${answer}` },
+        ],
+        answer,
+        showArray: true, arrayA: a, arrayB: b
+      };
+    }
+  },
+  {
+    id: 'nines', icon: '9️⃣', name: 'Nine Magic', desc: 'The finger trick!',
+    strategy: 'Nines Finger Trick!',
+    color: '#ef4444',
+    generate() {
+      const facts = [];
+      for (let i = 1; i <= 10; i++) {
+        facts.push(Math.random() < 0.5 ? { a: 9, b: i } : { a: i, b: 9 });
+      }
+      return shuffle(facts).slice(0, 8);
+    },
+    buildSteps(a, b) {
+      const other = a === 9 ? b : a;
+      const answer = a * b;
+      const tens = other - 1;
+      const ones = 9 - tens;
+      return {
+        steps: [
+          { text: `Put down finger #${other}`, highlight: null },
+          { text: `Left: ${tens} fingers = ${tens} tens`, highlight: null },
+          { text: `Right: ${ones} fingers = ${ones} ones`, highlight: `${tens}${ones} = ${answer}` }
+        ],
+        answer,
+        showFingers: true, fingerDown: other
+      };
+    }
+  },
+  {
+    id: 'double-double', icon: '4️⃣', name: 'Double Double', desc: 'x4 = double the double',
+    strategy: 'Double-Double!',
+    color: '#0891b2',
+    generate() {
+      const facts = [];
+      for (let i = 2; i <= 10; i++) {
+        facts.push(Math.random() < 0.5 ? { a: 4, b: i } : { a: i, b: 4 });
+      }
+      return shuffle(facts).slice(0, 8);
+    },
+    buildSteps(a, b) {
+      const other = a === 4 ? b : a;
+      const first = other * 2;
+      const answer = a * b;
+      return {
+        steps: [
+          { text: `Double ${other}`, highlight: `${first}` },
+          { text: `Double ${first}`, highlight: `${answer}` }
+        ],
+        answer
+      };
+    }
+  },
+  {
+    id: 'double-plus', icon: '3️⃣', name: 'Double + 1', desc: 'x3 = double + one more',
+    strategy: 'Double + One More!',
+    color: '#16a34a',
+    generate() {
+      const facts = [];
+      for (let i = 2; i <= 10; i++) {
+        facts.push(Math.random() < 0.5 ? { a: 3, b: i } : { a: i, b: 3 });
+      }
+      return shuffle(facts).slice(0, 8);
+    },
+    buildSteps(a, b) {
+      const other = a === 3 ? b : a;
+      const dbl = other * 2;
+      const answer = a * b;
+      return {
+        steps: [
+          { text: `Double ${other}`, highlight: `${dbl}` },
+          { text: `Plus one more ${other}`, highlight: `${dbl} + ${other} = ${answer}` }
+        ],
+        answer
+      };
+    }
+  },
+  {
+    id: 'break-apart', icon: '🧩', name: 'Break Apart', desc: 'Split hard facts!',
+    strategy: 'Break It Apart!',
+    color: '#7c3aed',
+    generate() {
+      const hardFacts = [[6,6],[6,7],[6,8],[7,7],[7,8],[8,8],[7,6],[8,6],[8,7],[6,9],[7,9],[8,9]];
+      return shuffle(hardFacts).slice(0, 8).map(([a, b]) => ({ a, b }));
+    },
+    buildSteps(a, b) {
+      const answer = a * b;
+      // Split the first factor into 5 + remainder
+      const split1 = 5, split2 = a - 5;
+      const part1 = split1 * b, part2 = split2 * b;
+      return {
+        steps: [
+          { text: `Break ${a} into ${split1} + ${split2}`, highlight: null },
+          { text: `${split1} x ${b} = ${part1}`, highlight: null },
+          { text: `${split2} x ${b} = ${part2}`, highlight: null },
+          { text: `${part1} + ${part2} = ?`, highlight: `${answer}` }
+        ],
+        answer,
+        showDecomp: true, decompA: a, decompB: b, split1, split2, part1, part2
+      };
+    }
+  }
+];
+
+// ── State ─────────────────────────────────────────────────────────
+let worldProgress = {};  // worldId -> { stars, completed }
+let currentWorldIdx = 0;
+let currentFacts = [];
+let currentFactIdx = 0;
+let currentStep = 0;
+let wrongCount = 0;
+let roundWrongCount = 0;
+let answered = false;
+let stepData = null;
+
+// Initialize progress - first world unlocked
+function initProgress() {
+  WORLDS.forEach((w, i) => {
+    if (!worldProgress[w.id]) {
+      worldProgress[w.id] = { stars: 0, completed: false, unlocked: i === 0 };
+    }
+  });
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── Screen Management ─────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+// ── World Select ──────────────────────────────────────────────────
+function renderWorlds() {
+  const grid = document.getElementById('worlds-grid');
+  let html = '';
+  WORLDS.forEach((w, i) => {
+    const prog = worldProgress[w.id];
+    const locked = !prog.unlocked;
+    const completed = prog.completed;
+    const starStr = completed ? '⭐'.repeat(prog.stars) + '☆'.repeat(3 - prog.stars) : '';
+    html += `<div class="world-card ${locked ? 'locked' : ''} ${completed ? 'completed' : ''}"
+                  onclick="${locked ? '' : `startWorld(${i})`}"
+                  style="border-top-color: ${completed ? '#22c55e' : w.color}">
+      ${locked ? '<div class="lock-icon">🔒</div>' : ''}
+      <div class="world-icon">${w.icon}</div>
+      <div class="world-name">${w.name}</div>
+      <div class="world-desc">${w.desc}</div>
+      <div class="world-stars">${starStr}</div>
+    </div>`;
+  });
+  grid.innerHTML = html;
+}
+
+function goToWorlds() {
+  showScreen('worlds');
+  renderWorlds();
+}
+
+// ── Start World ───────────────────────────────────────────────────
+function startWorld(idx) {
+  playClick();
+  currentWorldIdx = idx;
+  const world = WORLDS[idx];
+  currentFacts = world.generate();
+  currentFactIdx = 0;
+  roundWrongCount = 0;
+  showScreen('game');
+  renderProgressDots();
+  showFact();
+}
+
+function renderProgressDots() {
+  const container = document.getElementById('progress-dots');
+  let html = '';
+  for (let i = 0; i < currentFacts.length; i++) {
+    let cls = 'progress-dot';
+    if (i < currentFactIdx) cls += ' done';
+    if (i === currentFactIdx) cls += ' current';
+    html += `<div class="${cls}"></div>`;
+  }
+  container.innerHTML = html;
+}
+
+// ── Show a Fact ───────────────────────────────────────────────────
+function showFact() {
+  if (currentFactIdx >= currentFacts.length) {
+    finishRound();
+    return;
+  }
+
+  const world = WORLDS[currentWorldIdx];
+  const fact = currentFacts[currentFactIdx];
+  const { a, b } = fact;
+
+  document.getElementById('strategy-label').textContent = world.strategy;
+  document.getElementById('problem-text').textContent = `${a} x ${b} = ?`;
+  document.getElementById('feedback-area').innerHTML = '';
+
+  stepData = world.buildSteps(a, b);
+  currentStep = 0;
+  wrongCount = 0;
+  answered = false;
+
+  renderStep();
+}
+
+function renderStep() {
+  const world = WORLDS[currentWorldIdx];
+  const stepArea = document.getElementById('step-area');
+  const actionArea = document.getElementById('action-area');
+  const { steps, answer } = stepData;
+
+  // Show visual aids first if applicable
+  let visualHtml = '';
+
+  // Finger display for 9s
+  if (stepData.showFingers && currentStep >= 0) {
+    const down = stepData.fingerDown;
+    let fHtml = '<div class="fingers-row">';
+    for (let f = 1; f <= 10; f++) {
+      let cls = 'finger';
+      if (f === down) cls += ' down';
+      else if (f < down) cls += ' left-group';
+      else cls += ' right-group';
+      fHtml += `<div class="${cls}">${f}</div>`;
+    }
+    fHtml += '</div>';
+    visualHtml = fHtml;
+  }
+
+  // Array for turn-around
+  if (stepData.showArray) {
+    const { arrayA, arrayB } = stepData;
+    const DOT_COLORS = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#84cc16'];
+    let arrHtml = '<div class="array-container">';
+    for (let r = 0; r < arrayA; r++) {
+      arrHtml += '<div class="array-row">';
+      for (let c = 0; c < arrayB; c++) {
+        const delay = (r * 0.04 + c * 0.03).toFixed(3);
+        const color = DOT_COLORS[r % DOT_COLORS.length];
+        arrHtml += `<div class="array-dot" style="background:${color};animation-delay:${delay}s;box-shadow:0 2px 0 ${color}88">●</div>`;
+      }
+      arrHtml += '</div>';
+    }
+    arrHtml += '</div>';
+    visualHtml = arrHtml;
+  }
+
+  // Decomposition visual
+  if (stepData.showDecomp && currentStep >= 1) {
+    const { split1, split2, decompB, part1, part2 } = stepData;
+    let dHtml = '<div class="decomp-visual">';
+    if (currentStep >= 1) dHtml += `<div class="decomp-block">${split1} x ${decompB} = ${currentStep >= 2 ? part1 : '?'}</div>`;
+    if (currentStep >= 1) dHtml += `<div class="decomp-plus">+</div>`;
+    if (currentStep >= 1) dHtml += `<div class="decomp-block alt">${split2} x ${decompB} = ${currentStep >= 3 ? part2 : '?'}</div>`;
+    if (currentStep >= 3) {
+      dHtml += `<div class="decomp-equals">=</div>`;
+      dHtml += `<div class="decomp-block" style="background:#fef3c7;border-color:#f59e0b;color:#92400e">${currentStep >= 4 ? answer : '?'}</div>`;
+    }
+    dHtml += '</div>';
+    visualHtml = dHtml;
+  }
+
+  // If we haven't shown all steps yet, show current step + next button
+  if (currentStep < steps.length) {
+    const step = steps[currentStep];
+    let stHtml = visualHtml;
+    // Show all previous steps too
+    for (let i = 0; i < currentStep; i++) {
+      const prev = steps[i];
+      if (prev.text) stHtml += `<div class="step-text" style="opacity:0.5;animation:none">${prev.text}</div>`;
+      if (prev.highlight) stHtml += `<div class="step-highlight" style="opacity:0.5;animation:none">${prev.highlight}</div>`;
+    }
+    if (step.text) stHtml += `<div class="step-text">${step.text}</div>`;
+    if (step.highlight) stHtml += `<div class="step-highlight">${step.highlight}</div>`;
+    stepArea.innerHTML = stHtml;
+
+    // If this is the last step and it reveals the answer, go to answer phase
+    if (currentStep === steps.length - 1 && step.highlight && step.highlight.includes('=')) {
+      // Show the answer in the step, then present confirmation
+      actionArea.innerHTML = `<button class="action-btn btn-next" onclick="advanceStep()">Next Step</button>`;
+    } else if (currentStep < steps.length - 1) {
+      actionArea.innerHTML = `<button class="action-btn btn-next" onclick="advanceStep()">Next Step</button>`;
+    } else {
+      // Last step shown, now ask for the answer
+      showAnswerPhase();
+      return;
+    }
+  } else {
+    showAnswerPhase();
+  }
+}
+
+function advanceStep() {
+  playClick();
+  currentStep++;
+  const { steps } = stepData;
+  if (currentStep >= steps.length) {
+    showAnswerPhase();
+  } else {
+    renderStep();
+  }
+}
+
+// ── Answer Phase ──────────────────────────────────────────────────
+function showAnswerPhase() {
+  const { answer } = stepData;
+  const stepArea = document.getElementById('step-area');
+  const actionArea = document.getElementById('action-area');
+
+  // Show strategy summary
+  const world = WORLDS[currentWorldIdx];
+  const fact = currentFacts[currentFactIdx];
+
+  // Generate options
+  const opts = generateOptions(answer);
+
+  let html = '';
+  // Keep visual if exists
+  if (stepData.showFingers || stepData.showArray || stepData.showDecomp) {
+    // Rebuild visual at final state
+    currentStep = stepData.steps.length;
+    // Just show problem reminder
+    html += `<div class="step-text">What is ${fact.a} x ${fact.b}?</div>`;
+  } else {
+    // Show all steps as summary
+    stepData.steps.forEach(s => {
+      if (s.text) html += `<div class="step-text" style="opacity:0.6;font-size:1.1rem;animation:none">${s.text}</div>`;
+    });
+    html += `<div class="step-text" style="margin-top:8px">What is ${fact.a} x ${fact.b}?</div>`;
+  }
+  stepArea.innerHTML = html;
+
+  // Options
+  let optHtml = '<div class="options-grid">';
+  opts.forEach(o => {
+    optHtml += `<button class="option-btn" onclick="pickAnswer(this, ${o}, ${answer})">${o}</button>`;
+  });
+  optHtml += '</div>';
+  actionArea.innerHTML = optHtml;
+}
+
+function generateOptions(correct) {
+  const opts = new Set([correct]);
+  // Add nearby wrong answers
+  const offsets = [-2, -1, 1, 2, -10, 10, -5, 5, 3, -3];
+  const shuffledOffsets = shuffle(offsets);
+  for (const off of shuffledOffsets) {
+    if (opts.size >= 4) break;
+    const v = correct + off;
+    if (v > 0 && v !== correct) opts.add(v);
+  }
+  // Ensure we have 4
+  while (opts.size < 4) {
+    const v = Math.floor(Math.random() * 100) + 1;
+    if (v !== correct) opts.add(v);
+  }
+  return shuffle([...opts]);
+}
+
+function pickAnswer(btn, picked, correct) {
+  if (answered) return;
+
+  if (picked === correct) {
+    answered = true;
+    btn.classList.add('correct');
+    playCorrect();
+    spawnConfetti();
+
+    const fb = document.getElementById('feedback-area');
+    fb.innerHTML = `<div class="feedback-msg correct">${randomPraise()} ${randomStratPraise()}</div>`;
+
+    // Update problem text to show answer
+    const fact = currentFacts[currentFactIdx];
+    document.getElementById('problem-text').textContent = `${fact.a} x ${fact.b} = ${correct}`;
+
+    setTimeout(() => {
+      currentFactIdx++;
+      renderProgressDots();
+      showFact();
+    }, 1400);
+  } else {
+    btn.classList.add('wrong');
+    playWrong();
+    wrongCount++;
+    roundWrongCount++;
+
+    const fb = document.getElementById('feedback-area');
+    fb.innerHTML = `<div class="feedback-msg wrong">Try again!</div>`;
+
+    setTimeout(() => {
+      btn.classList.remove('wrong');
+      btn.style.opacity = '0.4';
+      btn.style.pointerEvents = 'none';
+      fb.innerHTML = '';
+    }, 600);
+
+    // After 2 wrong, highlight correct
+    if (wrongCount >= 2) {
+      setTimeout(() => {
+        document.querySelectorAll('.option-btn').forEach(b => {
+          if (parseInt(b.textContent) === correct) {
+            b.style.border = '4px solid #22c55e';
+            b.style.background = '#f0fdf4';
+          }
+        });
+      }, 700);
+    }
+  }
+}
+
+// ── Finish Round ──────────────────────────────────────────────────
+function finishRound() {
+  playFanfare();
+  for (let i = 0; i < 3; i++) setTimeout(spawnConfetti, i * 400);
+
+  const world = WORLDS[currentWorldIdx];
+  const stars = roundWrongCount === 0 ? 3 : roundWrongCount <= 2 ? 2 : 1;
+
+  // Update progress
+  const prog = worldProgress[world.id];
+  prog.completed = true;
+  prog.stars = Math.max(prog.stars, stars);
+
+  // Unlock next world
+  if (currentWorldIdx + 1 < WORLDS.length) {
+    worldProgress[WORLDS[currentWorldIdx + 1].id].unlocked = true;
+  }
+
+  showScreen('complete');
+  document.getElementById('complete-msg').textContent = `${world.name} Complete!`;
+  document.getElementById('complete-stars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+
+  let unlockText = '';
+  if (currentWorldIdx + 1 < WORLDS.length) {
+    unlockText = `🔓 ${WORLDS[currentWorldIdx + 1].name} unlocked!`;
+  } else {
+    unlockText = '🏆 All tricks mastered!';
+  }
+  document.getElementById('unlock-msg').textContent = unlockText;
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+initProgress();
+renderWorlds();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
