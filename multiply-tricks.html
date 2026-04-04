@@ -756,6 +756,7 @@ let wrongCount = 0;
 let roundWrongCount = 0;
 let answered = false;
 let stepData = null;
+let quizFact = null;  // different problem for the answer phase
 
 // LocalStorage persistence
 function saveProgress() {
@@ -847,6 +848,18 @@ function renderProgressDots() {
   container.innerHTML = html;
 }
 
+// ── Generate a different fact for the quiz (same world, different numbers) ──
+function pickQuizFact(world, demoFact) {
+  // Generate a pool and find one that differs from demo
+  const pool = world.generate();
+  const match = pool.find(f => f.a !== demoFact.a || f.b !== demoFact.b);
+  if (match) return match;
+  // Fallback: swap a and b if possible
+  if (demoFact.a !== demoFact.b) return { a: demoFact.b, b: demoFact.a };
+  // Last resort: shift one operand
+  return { a: demoFact.a, b: Math.max(2, demoFact.b + 1) };
+}
+
 // ── Show a Fact ───────────────────────────────────────────────────
 function showFact() {
   if (currentFactIdx >= currentFacts.length) {
@@ -855,14 +868,14 @@ function showFact() {
   }
 
   const world = WORLDS[currentWorldIdx];
-  const fact = currentFacts[currentFactIdx];
-  const { a, b } = fact;
+  const demoFact = currentFacts[currentFactIdx];
+  quizFact = pickQuizFact(world, demoFact);
 
   document.getElementById('strategy-label').textContent = world.strategy;
-  document.getElementById('problem-text').textContent = `${a} x ${b} = ?`;
+  document.getElementById('problem-text').textContent = `Example: ${demoFact.a} x ${demoFact.b}`;
   document.getElementById('feedback-area').innerHTML = '';
 
-  stepData = world.buildSteps(a, b);
+  stepData = world.buildSteps(demoFact.a, demoFact.b);
   currentStep = 0;
   wrongCount = 0;
   answered = false;
@@ -968,39 +981,27 @@ function advanceStep() {
   }
 }
 
-// ── Answer Phase ──────────────────────────────────────────────────
+// ── Answer Phase — uses quizFact (different from demo) ───────────
 function showAnswerPhase() {
-  const { answer } = stepData;
+  const world = WORLDS[currentWorldIdx];
+  const { a, b } = quizFact;
+  const quizAnswer = a * b;
   const stepArea = document.getElementById('step-area');
   const actionArea = document.getElementById('action-area');
 
-  // Show strategy summary
-  const world = WORLDS[currentWorldIdx];
-  const fact = currentFacts[currentFactIdx];
+  // Update problem text to the NEW quiz problem
+  document.getElementById('problem-text').textContent = `${a} x ${b} = ?`;
 
-  // Generate options
-  const opts = generateOptions(answer);
-
-  let html = '';
-  // Keep visual if exists
-  if (stepData.showFingers || stepData.showArray || stepData.showDecomp) {
-    // Rebuild visual at final state
-    currentStep = stepData.steps.length;
-    // Just show problem reminder
-    html += `<div class="step-text">What is ${fact.a} x ${fact.b}?</div>`;
-  } else {
-    // Show all steps as summary
-    stepData.steps.forEach(s => {
-      if (s.text) html += `<div class="step-text" style="opacity:0.6;font-size:1.1rem;animation:none">${s.text}</div>`;
-    });
-    html += `<div class="step-text" style="margin-top:8px">What is ${fact.a} x ${fact.b}?</div>`;
-  }
+  // Show a hint about what strategy to use
+  let html = `<div class="step-text">Now you try! Use the ${world.strategy.replace('!','').trim()} trick</div>`;
   stepArea.innerHTML = html;
 
-  // Options
+  // Generate options for the quiz problem
+  const opts = generateOptions(quizAnswer);
+
   let optHtml = '<div class="options-grid">';
   opts.forEach(o => {
-    optHtml += `<button class="option-btn" onclick="pickAnswer(this, ${o}, ${answer})">${o}</button>`;
+    optHtml += `<button class="option-btn" onclick="pickAnswer(this, ${o}, ${quizAnswer})">${o}</button>`;
   });
   optHtml += '</div>';
   actionArea.innerHTML = optHtml;
@@ -1037,8 +1038,7 @@ function pickAnswer(btn, picked, correct) {
     fb.innerHTML = `<div class="feedback-msg correct">${randomPraise()} ${randomStratPraise()}</div>`;
 
     // Update problem text to show answer
-    const fact = currentFacts[currentFactIdx];
-    document.getElementById('problem-text').textContent = `${fact.a} x ${fact.b} = ${correct}`;
+    document.getElementById('problem-text').textContent = `${quizFact.a} x ${quizFact.b} = ${correct}`;
 
     setTimeout(() => {
       currentFactIdx++;
