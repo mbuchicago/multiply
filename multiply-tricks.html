@@ -531,6 +531,8 @@ const WORLDS = [
     id: 'zero-one', icon: '0️⃣', name: 'Zero & One', desc: 'The easy rules',
     strategy: 'Zero & One Rules',
     color: '#64748b',
+    // Classify: is this a x0 fact or a x1 fact?
+    factType(f) { return (f.a === 0 || f.b === 0) ? 'zero' : 'one'; },
     generate() {
       const facts = [];
       for (let i = 0; i <= 10; i++) {
@@ -848,13 +850,17 @@ function renderProgressDots() {
   container.innerHTML = html;
 }
 
-// ── Generate a different fact for the quiz (same world, different numbers) ──
+// ── Generate a different fact for the quiz (same strategy subtype, different numbers) ──
 function pickQuizFact(world, demoFact) {
-  // Generate a pool and find one that differs from demo
   const pool = world.generate();
-  const match = pool.find(f => f.a !== demoFact.a || f.b !== demoFact.b);
+  // If the world has a factType classifier, quiz must match the demo's type
+  const demoType = world.factType ? world.factType(demoFact) : null;
+  const match = pool.find(f =>
+    (f.a !== demoFact.a || f.b !== demoFact.b) &&
+    (!world.factType || world.factType(f) === demoType)
+  );
   if (match) return match;
-  // Fallback: swap a and b if possible
+  // Fallback: swap a and b if possible (preserves type for most worlds)
   if (demoFact.a !== demoFact.b) return { a: demoFact.b, b: demoFact.a };
   // Last resort: shift one operand
   return { a: demoFact.a, b: Math.max(2, demoFact.b + 1) };
