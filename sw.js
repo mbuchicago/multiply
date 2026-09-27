@@ -9,7 +9,8 @@ self.addEventListener('install', e => {
     './pipeline.html',
     './pipeline-voice.js',
     './shape-builder.html',
-    './word-builder.html'
+    './word-builder.html',
+    './multiply-tricks.html'
   ])));
   self.skipWaiting();
 });
