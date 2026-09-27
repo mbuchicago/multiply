@@ -438,6 +438,8 @@
   </div>
 </div>
 
+<script src="voice-clips.js"></script>
+<script src="voice-bank.js"></script>
 <script>
 // ── Audio ─────────────────────────────────────────────────────────
 let audioCtx = null;
@@ -1039,6 +1041,7 @@ function pickAnswer(btn, picked, correct) {
     btn.classList.add('correct');
     playCorrect();
     spawnConfetti();
+    VoiceBank.play('correct', 300);
 
     const fb = document.getElementById('feedback-area');
     fb.innerHTML = `<div class="feedback-msg correct">${randomPraise()} ${randomStratPraise()}</div>`;
@@ -1056,6 +1059,7 @@ function pickAnswer(btn, picked, correct) {
     playWrong();
     wrongCount++;
     roundWrongCount++;
+    VoiceBank.play('encourage', 500);
 
     const fb = document.getElementById('feedback-area');
     fb.innerHTML = `<div class="feedback-msg wrong">Try again!</div>`;
@@ -1085,6 +1089,7 @@ function pickAnswer(btn, picked, correct) {
 function finishRound() {
   playFanfare();
   for (let i = 0; i < 3; i++) setTimeout(spawnConfetti, i * 400);
+  VoiceBank.play('win', 500);
 
   const world = WORLDS[currentWorldIdx];
   const stars = roundWrongCount === 0 ? 3 : roundWrongCount <= 2 ? 2 : 1;

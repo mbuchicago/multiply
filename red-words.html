@@ -470,6 +470,8 @@
 
   <div class="confetti" id="confetti"></div>
 
+  <script src="voice-clips.js"></script>
+  <script src="voice-bank.js"></script>
   <script>
     // ===== WORD LISTS — add more words here! =====
     const KDP_WORDS = [
@@ -622,6 +624,9 @@
 
       updateScoreBar();
 
+      if (level === 'known') VoiceBank.play('correct', 250);
+      else if (level === 'oops') VoiceBank.play('encourage', 400);
+
       // auto-advance after brief pause
       setTimeout(() => nextWord(), 350);
     }
@@ -669,6 +674,7 @@
     }
 
     function celebrate() {
+      VoiceBank.play('win', 400);
       const container = document.getElementById('confetti');
       const colors = ['#ff7eb3', '#7ed957', '#5bc0eb', '#ffe066', '#ff6b6b', '#c084fc'];
       for (let i = 0; i < 40; i++) {

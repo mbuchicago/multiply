@@ -990,6 +990,8 @@
   <div class="intro-card" id="introCard"></div>
 </div>
 
+<script src="voice-clips.js"></script>
+<script src="voice-bank.js"></script>
 <script>
 // ── Word Data ──────────────────────────────────────────────
 const WORDS = {
@@ -1119,6 +1121,7 @@ const MODE_INTROS = {
 // ── Audio ──────────────────────────────────────────────────
 let audioCtx = null;
 let muted = false;
+VoiceBank.configure({ isMuted: () => muted });
 
 function getAudio() {
   if (!audioCtx) {
@@ -1146,6 +1149,7 @@ function playTone(freq, duration, type = 'sine', volume = 0.18, startDelay = 0) 
 }
 
 function playCorrect() {
+  VoiceBank.play('correct', 300);
   playTone(523, 0.12, 'sine', 0.2);
   playTone(659, 0.12, 'sine', 0.2, 0.1);
   playTone(784, 0.2, 'sine', 0.2, 0.2);
@@ -1203,6 +1207,7 @@ function spawnDust(x, y) {
 // ── Streak badge ───────────────────────────────────────────
 function showStreakBadge(streak) {
   if (streak < 3) return;
+  VoiceBank.play('streak', 300);
   const old = document.querySelector('.streak-badge');
   if (old) old.remove();
   const el = document.createElement('div');

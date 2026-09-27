@@ -1,4 +1,4 @@
-const CACHE = 'learning-games-v10';
+const CACHE = 'learning-games-v11';
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll([
@@ -7,7 +7,8 @@ self.addEventListener('install', e => {
     './red-words.html',
     './place-value.html',
     './pipeline.html',
-    './pipeline-voice.js',
+    './voice-bank.js',
+    './voice-clips.js',
     './shape-builder.html',
     './word-builder.html',
     './multiply-tricks.html'
@@ -27,7 +28,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   // Voice clips are network-first so new recordings reach the iPad on the
   // next online launch without needing a cache version bump
-  if (new URL(e.request.url).pathname.endsWith('/pipeline-voice.js')) {
+  if (new URL(e.request.url).pathname.endsWith('/voice-clips.js')) {
     e.respondWith(
       fetch(e.request).then(res => {
         const copy = res.clone();

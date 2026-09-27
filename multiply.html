@@ -427,6 +427,8 @@
   </div>
 </div>
 
+<script src="voice-clips.js"></script>
+<script src="voice-bank.js"></script>
 <script>
   // ── State ──────────────────────────────────────────────────────────────────
   const correct = new Set();   // "AxB" keys that were answered correctly
@@ -495,9 +497,11 @@
       updateProgress();
       updateStars();
       spawnConfetti();
+      VoiceBank.play('correct', 300);
       setTimeout(nextQuestion, 1100);
     } else {
       setFeedback('Not quite — try again! 🤔', 'wrong');
+      VoiceBank.play('encourage', 500);
       const inp = document.getElementById('answer');
       inp.value = '';
       inp.focus();
@@ -508,6 +512,7 @@
     document.getElementById('question').textContent = '🎉 All done! 🎉';
     setFeedback('You are a superstar! 🌟', 'correct');
     for (let i = 0; i < 5; i++) setTimeout(spawnConfetti, i * 300);
+    VoiceBank.play('win', 400);
   }
 
   function clearCurrentHighlight() {

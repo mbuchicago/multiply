@@ -741,6 +741,8 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="voice-clips.js"></script>
+<script src="voice-bank.js"></script>
 <script>
   // ── Audio ──────────────────────────────────────────────────────────────────
   let audioCtx = null;
@@ -781,6 +783,7 @@
 
   function playBundleComplete() {
     [523, 659, 784].forEach(f => playTone(f, 0.3, 'sine', 0.14));
+    VoiceBank.play('correct', 300);
   }
 
   function playSplitReveal() {
@@ -1421,6 +1424,7 @@
     if (getValue() === 99) {
       spawnConfetti();
       playCorrect();
+      VoiceBank.play('win', 300);
     }
   }
 

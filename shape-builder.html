@@ -599,6 +599,8 @@
   <button class="cel-btn" id="celNextBtn">Next</button>
 </div>
 
+<script src="voice-clips.js"></script>
+<script src="voice-bank.js"></script>
 <script>
 (function() {
   'use strict';
@@ -606,6 +608,7 @@
   // ── Audio ──────────────────────────────────────────
   let audioCtx = null;
   let muted = false;
+  VoiceBank.configure({ isMuted: () => muted });
 
   function getAudio() {
     if (muted) return null;
@@ -635,7 +638,7 @@
   }
 
   function soundTap() { playTone(600, 0.08, 'sine', 0.1); }
-  function soundCorrect() { playTone(523, 0.12, 'sine', 0.15); setTimeout(() => playTone(659, 0.12, 'sine', 0.15), 100); setTimeout(() => playTone(784, 0.2, 'sine', 0.15), 200); }
+  function soundCorrect() { playTone(523, 0.12, 'sine', 0.15); setTimeout(() => playTone(659, 0.12, 'sine', 0.15), 100); setTimeout(() => playTone(784, 0.2, 'sine', 0.15), 200); VoiceBank.play('correct', 300); }
   function soundWrong() { playTone(200, 0.25, 'square', 0.08); }
   function soundFanfare() {
     [523, 659, 784, 1047].forEach((f, i) => {
@@ -1843,6 +1846,7 @@
   function completeBuild(bp) {
     soundFanfare();
     spawnConfetti();
+    VoiceBank.play('win', 400);
 
     const stars = session.wrongAttempts === 0 ? 3 : session.wrongAttempts <= 2 ? 2 : 1;
     const key = `${session.levelIdx}-${session.bpIdx}`;

@@ -249,6 +249,10 @@
     </a>
   </div>
 
+  <button onclick="VoiceBank.openGate()" style="margin:24px auto 8px;display:block;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.85);font-size:0.9rem;font-weight:700;padding:12px 24px;border-radius:14px;cursor:pointer;touch-action:manipulation;min-height:48px;">&#127908; My Voice</button>
+
+  <script src="voice-clips.js"></script>
+  <script src="voice-bank.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
