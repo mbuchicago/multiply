@@ -296,6 +296,132 @@
       color: var(--text-dim);
     }
 
+    /* ── Theme Picker ─────────────────────────────────────── */
+    .theme-picker-wrap {
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .theme-picker-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .theme-picker {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 6px 14px 12px;
+      width: 100%;
+      max-width: 460px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .theme-picker::-webkit-scrollbar { height: 4px; }
+    .theme-picker::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+    .theme-chip {
+      flex: 0 0 auto;
+      width: 64px;
+      height: 76px;
+      border-radius: 14px;
+      background: var(--bg-light);
+      border: 2px solid rgba(255,255,255,0.12);
+      cursor: pointer;
+      touch-action: manipulation;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 6px 4px;
+      gap: 4px;
+      scroll-snap-align: start;
+      transition: transform 0.15s, border-color 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .theme-chip:active { transform: scale(0.94); }
+
+    .theme-chip.selected {
+      border-color: var(--pipe-glow);
+      box-shadow: 0 0 0 2px rgba(107,181,255,0.3);
+    }
+
+    .theme-chip-swatch {
+      width: 100%;
+      height: 38px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .theme-chip-name {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text);
+      text-align: center;
+      line-height: 1;
+    }
+
+    /* Theme chip swatches preview each style */
+    .swatch-auto {
+      background: linear-gradient(135deg, #4a90d9 0%, #8e44ad 50%, #f1c40f 100%);
+    }
+    .swatch-copper {
+      background: linear-gradient(180deg, #f0a868 0%, #c87f3d 50%, #8b4513 100%);
+      box-shadow: inset 0 2px 3px rgba(255,220,180,0.4);
+    }
+    .swatch-steel {
+      background: linear-gradient(180deg, #f0f4f8 0%, #c0ccd8 35%, #5a6878 100%);
+      box-shadow: inset 0 2px 3px rgba(255,255,255,0.5);
+    }
+    .swatch-pvc {
+      background: linear-gradient(180deg, #ffffff 0%, #d8e0e8 100%);
+      box-shadow: inset 0 2px 3px rgba(255,255,255,0.6);
+      border: 1px solid #b8c8d8;
+    }
+    .swatch-sewer {
+      background: linear-gradient(180deg, #6b5840 0%, #2a1f14 100%);
+      box-shadow: inset 0 -3px 4px rgba(0,0,0,0.5);
+    }
+    .swatch-plasma {
+      background: linear-gradient(180deg, #c084fc 0%, #6366f1 100%);
+      box-shadow: 0 0 8px rgba(167,139,250,0.6);
+    }
+    .swatch-gold {
+      background: linear-gradient(180deg, #fde68a 0%, #fbbf24 50%, #b45309 100%);
+      box-shadow: 0 0 8px rgba(251,191,36,0.5);
+    }
+    .swatch-blocks {
+      background:
+        linear-gradient(90deg,
+          #ef4444 0%, #ef4444 25%,
+          #3b82f6 25%, #3b82f6 50%,
+          #fbbf24 50%, #fbbf24 75%,
+          #22c55e 75%, #22c55e 100%);
+    }
+    .swatch-space {
+      background:
+        radial-gradient(1.5px 1.5px at 25% 30%, #fff, transparent 60%),
+        radial-gradient(1px 1px at 65% 50%, #fff, transparent 60%),
+        radial-gradient(1px 1px at 40% 70%, #fff, transparent 60%),
+        linear-gradient(180deg, #1e1b4b 0%, #0c0a1e 100%);
+      box-shadow: 0 0 8px rgba(139,92,246,0.5);
+    }
+    .swatch-neon {
+      background: linear-gradient(180deg, #1f0d2e 0%, #0a0414 100%);
+      box-shadow: 0 0 10px #ec4899, inset 0 0 8px rgba(236,72,153,0.4);
+      border: 1px solid #ec4899;
+    }
+
     .level-back-btn {
       background: rgba(255,255,255,0.08);
       border: 2px solid rgba(255,255,255,0.15);
@@ -400,57 +526,221 @@
       overflow: hidden;
     }
 
-    /* ── Pipe tier styles ────────────────────────────────── */
+    /* ── Pipe theme styles ───────────────────────────────── */
+    /* Base segment polish — applied to every theme */
+    .pipe-segment {
+      border-width: 2px;
+    }
+
+    /* Copper — burnished, warm brass */
     .pipe-copper .pipe-segment {
-      background: linear-gradient(180deg, #4a90d9 0%, #2d6cb5 100%);
-      border-color: #6bb5ff;
+      background:
+        linear-gradient(180deg, #f0a868 0%, #c87f3d 35%, #8b4513 100%);
+      border-color: #f4c089;
+      box-shadow:
+        0 6px 14px rgba(0,0,0,0.4),
+        inset 0 3px 6px rgba(255,220,180,0.55),
+        inset 0 -3px 6px rgba(0,0,0,0.35);
     }
     .pipe-copper .pipe-joint {
-      background: linear-gradient(180deg, #7ab5e0 0%, #4a7aab 100%);
+      background: linear-gradient(180deg, #d49165 0%, #6b3a13 100%);
+      box-shadow: inset 0 1px 2px rgba(255,210,170,0.5), 0 2px 4px rgba(0,0,0,0.3);
     }
 
+    /* Steel — cool stainless with chrome highlight */
     .pipe-steel .pipe-segment {
-      background: linear-gradient(180deg, #8eafc4 0%, #5a7d9a 100%);
-      border-color: #b0d4ed;
+      background:
+        linear-gradient(180deg, #f0f4f8 0%, #c0ccd8 25%, #8090a0 65%, #5a6878 100%);
+      border-color: #f4f7fa;
+      box-shadow:
+        0 6px 14px rgba(0,0,0,0.4),
+        inset 0 3px 6px rgba(255,255,255,0.7),
+        inset 0 -3px 6px rgba(0,0,0,0.3);
     }
     .pipe-steel .pipe-joint {
-      background: linear-gradient(180deg, #a0c8e0 0%, #6a8daa 100%);
+      background: linear-gradient(180deg, #e0e8f0 0%, #6a7888 100%);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.3);
     }
 
+    /* PVC — clean white plastic with blue ring joints */
+    .pipe-pvc .pipe-segment {
+      background:
+        linear-gradient(180deg, #ffffff 0%, #e8eef5 50%, #b8c8d8 100%);
+      border-color: #ffffff;
+      color: #1a2332;
+      text-shadow: 0 1px 1px rgba(255,255,255,0.6);
+      box-shadow:
+        0 6px 14px rgba(0,0,0,0.35),
+        inset 0 3px 6px rgba(255,255,255,0.95),
+        inset 0 -3px 6px rgba(140,160,180,0.4);
+    }
+    .pipe-pvc .pipe-joint {
+      background: linear-gradient(180deg, #5fa8e8 0%, #2872c4 100%);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Sewer — cast iron with grime and rust */
+    .pipe-sewer .pipe-segment {
+      background:
+        radial-gradient(circle at 25% 30%, rgba(110,80,40,0.4), transparent 55%),
+        radial-gradient(circle at 75% 70%, rgba(60,40,20,0.5), transparent 50%),
+        linear-gradient(180deg, #6b5840 0%, #4a3a28 50%, #2a1f14 100%);
+      border-color: #3d2f1f;
+      color: #f4d99c;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+      box-shadow:
+        0 6px 14px rgba(0,0,0,0.55),
+        inset 0 2px 4px rgba(140,100,50,0.3),
+        inset 0 -3px 6px rgba(0,0,0,0.6);
+    }
+    .pipe-sewer .pipe-joint {
+      background: linear-gradient(180deg, #5a4830 0%, #1a1208 100%);
+      box-shadow: inset 0 1px 2px rgba(180,130,70,0.3), 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    /* Plasma — refined purple-blue glow */
     .pipe-plasma .pipe-segment {
-      background: linear-gradient(180deg, #8e44ad 0%, #2980b9 100%);
-      border-color: #bb6bd9;
-      animation: plasmaGlow 2s ease-in-out infinite;
+      background:
+        linear-gradient(180deg, #c084fc 0%, #8b5cf6 40%, #6366f1 100%);
+      border-color: #ddd6fe;
+      box-shadow:
+        0 4px 14px rgba(0,0,0,0.4),
+        inset 0 3px 6px rgba(255,255,255,0.4),
+        0 0 16px rgba(167,139,250,0.5);
+      animation: plasmaGlow 2.5s ease-in-out infinite;
     }
     .pipe-plasma .pipe-segment.gap { animation: gapPulse 1.5s ease-in-out infinite; }
     .pipe-plasma .pipe-segment.welding { animation: weldFlash 0.6s ease-out; }
     .pipe-plasma .pipe-segment.wrong-flash { animation: wrongShake 0.5s ease-out; }
     .pipe-plasma .pipe-joint {
-      background: linear-gradient(180deg, #a855c8 0%, #3498db 100%);
+      background: linear-gradient(180deg, #c084fc 0%, #4338ca 100%);
+      box-shadow: 0 0 6px rgba(167,139,250,0.6);
     }
 
     @keyframes plasmaGlow {
-      0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.15), 0 0 8px rgba(142,68,173,0.3); }
-      50% { box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.15), 0 0 20px rgba(142,68,173,0.6); }
+      0%, 100% { box-shadow: 0 4px 14px rgba(0,0,0,0.4), inset 0 3px 6px rgba(255,255,255,0.4), 0 0 16px rgba(167,139,250,0.5); }
+      50% { box-shadow: 0 4px 14px rgba(0,0,0,0.4), inset 0 3px 6px rgba(255,255,255,0.4), 0 0 28px rgba(192,132,252,0.8); }
     }
 
+    /* Gold — refined luxury */
     .pipe-gold .pipe-segment {
-      background: linear-gradient(180deg, #f1c40f 0%, #d4a00a 100%);
-      border-color: #fce373;
-      color: #1a2332;
-      text-shadow: 0 1px 2px rgba(255,255,255,0.3);
+      background:
+        linear-gradient(180deg, #fde68a 0%, #fbbf24 35%, #b45309 100%);
+      border-color: #fef3c7;
+      color: #422006;
+      text-shadow: 0 1px 1px rgba(255,255,200,0.5);
+      box-shadow:
+        0 4px 14px rgba(0,0,0,0.4),
+        inset 0 3px 6px rgba(255,255,255,0.6),
+        inset 0 -3px 6px rgba(120,53,15,0.4),
+        0 0 16px rgba(251,191,36,0.45);
       animation: goldShimmer 3s ease-in-out infinite;
     }
     .pipe-gold .pipe-segment.gap { animation: gapPulse 1.5s ease-in-out infinite; }
     .pipe-gold .pipe-segment.welding { animation: weldFlash 0.6s ease-out; }
     .pipe-gold .pipe-segment.wrong-flash { animation: wrongShake 0.5s ease-out; }
     .pipe-gold .pipe-joint {
-      background: linear-gradient(180deg, #f5d442 0%, #c89b0a 100%);
+      background: linear-gradient(180deg, #fde68a 0%, #92400e 100%);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.3);
     }
 
     @keyframes goldShimmer {
-      0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.3); }
-      50% { box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.3), 0 0 16px rgba(241,196,15,0.5); }
+      0%, 100% { box-shadow: 0 4px 14px rgba(0,0,0,0.4), inset 0 3px 6px rgba(255,255,255,0.6), inset 0 -3px 6px rgba(120,53,15,0.4), 0 0 16px rgba(251,191,36,0.45); }
+      50% { box-shadow: 0 4px 14px rgba(0,0,0,0.4), inset 0 3px 6px rgba(255,255,255,0.7), inset 0 -3px 6px rgba(120,53,15,0.4), 0 0 26px rgba(251,191,36,0.75); }
+    }
+
+    /* Blocks — Lego-style colorful blocks */
+    .pipe-blocks .pipe-segment {
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.25);
+      box-shadow:
+        0 5px 0 rgba(0,0,0,0.35),
+        0 8px 14px rgba(0,0,0,0.35),
+        inset 0 -4px 0 rgba(0,0,0,0.18),
+        inset 0 3px 0 rgba(255,255,255,0.25);
+      overflow: visible;
+    }
+    .pipe-blocks .pipe-segment::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 26px;
+      height: 10px;
+      background: inherit;
+      border: 2px solid rgba(255,255,255,0.25);
+      border-bottom: none;
+      border-radius: 6px 6px 2px 2px;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.3);
+      z-index: 2;
+    }
+    .pipe-blocks .pipe-segment:nth-child(8n+1) { background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); }
+    .pipe-blocks .pipe-segment:nth-child(8n+3) { background: linear-gradient(180deg, #3b82f6 0%, #1e40af 100%); }
+    .pipe-blocks .pipe-segment:nth-child(8n+5) { background: linear-gradient(180deg, #fbbf24 0%, #b45309 100%); }
+    .pipe-blocks .pipe-segment:nth-child(8n+7) { background: linear-gradient(180deg, #22c55e 0%, #15803d 100%); }
+    .pipe-blocks .pipe-segment.gap::after { display: none; }
+    .pipe-blocks .pipe-segment.welding::after { display: none; }
+    .pipe-blocks .pipe-joint {
+      background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
+      border-radius: 3px;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 2px 3px rgba(0,0,0,0.3);
+    }
+
+    /* Space — deep starfield with nebula glow */
+    .pipe-space .pipe-segment {
+      background:
+        radial-gradient(2px 2px at 20% 30%, #fff, transparent 60%),
+        radial-gradient(1.5px 1.5px at 70% 60%, #fff, transparent 60%),
+        radial-gradient(1px 1px at 45% 80%, #fff, transparent 60%),
+        radial-gradient(1px 1px at 85% 25%, #fff, transparent 60%),
+        radial-gradient(circle at 30% 40%, rgba(139,92,246,0.4), transparent 55%),
+        linear-gradient(180deg, #1e1b4b 0%, #0c0a1e 100%);
+      border-color: rgba(167,139,250,0.7);
+      color: #e0e7ff;
+      text-shadow: 0 0 8px rgba(192,132,252,0.9), 0 0 14px rgba(99,102,241,0.5);
+      box-shadow:
+        0 4px 14px rgba(0,0,0,0.6),
+        inset 0 0 14px rgba(99,102,241,0.4),
+        0 0 14px rgba(139,92,246,0.4);
+      animation: spaceGlow 3.2s ease-in-out infinite;
+    }
+    .pipe-space .pipe-segment.gap { animation: gapPulse 1.5s ease-in-out infinite; }
+    .pipe-space .pipe-segment.welding { animation: weldFlash 0.6s ease-out; }
+    .pipe-space .pipe-segment.wrong-flash { animation: wrongShake 0.5s ease-out; }
+    .pipe-space .pipe-joint {
+      background: linear-gradient(180deg, #8b5cf6 0%, #312e81 100%);
+      box-shadow: 0 0 8px rgba(139,92,246,0.7);
+    }
+
+    @keyframes spaceGlow {
+      0%, 100% { box-shadow: 0 4px 14px rgba(0,0,0,0.6), inset 0 0 14px rgba(99,102,241,0.4), 0 0 14px rgba(139,92,246,0.4); }
+      50% { box-shadow: 0 4px 14px rgba(0,0,0,0.6), inset 0 0 18px rgba(99,102,241,0.6), 0 0 24px rgba(192,132,252,0.7); }
+    }
+
+    /* Neon — cyberpunk hot pink + cyan */
+    .pipe-neon .pipe-segment {
+      background: linear-gradient(180deg, #1f0d2e 0%, #0a0414 100%);
+      border-color: #ec4899;
+      color: #fff;
+      text-shadow: 0 0 6px #ec4899, 0 0 14px #ec4899;
+      box-shadow:
+        0 0 12px #ec4899,
+        inset 0 0 14px rgba(236,72,153,0.4),
+        0 4px 12px rgba(0,0,0,0.6);
+      animation: neonFlicker 4s ease-in-out infinite;
+    }
+    .pipe-neon .pipe-segment.gap { animation: gapPulse 1.5s ease-in-out infinite; }
+    .pipe-neon .pipe-segment.welding { animation: weldFlash 0.6s ease-out; }
+    .pipe-neon .pipe-segment.wrong-flash { animation: wrongShake 0.5s ease-out; }
+    .pipe-neon .pipe-joint {
+      background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%);
+      box-shadow: 0 0 10px #06b6d4;
+    }
+
+    @keyframes neonFlicker {
+      0%, 100% { box-shadow: 0 0 12px #ec4899, inset 0 0 14px rgba(236,72,153,0.4), 0 4px 12px rgba(0,0,0,0.6); }
+      50% { box-shadow: 0 0 22px #ec4899, inset 0 0 18px rgba(236,72,153,0.55), 0 4px 12px rgba(0,0,0,0.6); }
     }
 
     .pipe-segment .flow-dots {
@@ -1097,6 +1387,187 @@
 
     .pattern-log-name { flex: 1; color: var(--text); }
     .pattern-log-count { color: var(--text-dim); font-size: 0.8rem; }
+
+    /* ── Guess Callout ───────────────────────────────────── */
+    .guess-banner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: linear-gradient(135deg, #e67e22, #d35400);
+      color: white;
+      padding: 20px 36px;
+      border-radius: 20px;
+      z-index: 100;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(230,126,34,0.6);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .guess-banner.show {
+      animation: guessPop 0.45s ease-out forwards;
+    }
+
+    @keyframes guessPop {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      60% { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .guess-title { font-size: 1.5rem; font-weight: 900; }
+    .guess-sub { font-size: 1rem; font-weight: 700; margin-top: 6px; opacity: 0.9; }
+    .guess-penalty { color: #ffd2b3; font-weight: 900; margin-top: 4px; font-size: 1.1rem; min-height: 1.2em; }
+
+    .guess-count {
+      margin: 10px auto 0;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      border: 3px solid rgba(255,255,255,0.7);
+      font-size: 1.6rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pipe-segment.scan-pulse {
+      animation: scanPulse 1.5s ease-in-out infinite;
+      animation-delay: var(--scan-delay, 0s);
+    }
+
+    @keyframes scanPulse {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      20% { transform: scale(1.12); filter: brightness(1.5); }
+    }
+
+    /* ── Voice Recording (grown-ups) ─────────────────────── */
+    .voice-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 60;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .voice-overlay.active { display: flex; }
+
+    .voice-card {
+      background: var(--bg-light);
+      border: 3px solid var(--pipe-color);
+      border-radius: 24px;
+      padding: 24px 20px;
+      max-width: 460px;
+      width: 100%;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .voice-card h2 {
+      font-size: 1.4rem;
+      color: var(--pipe-glow);
+      margin-bottom: 8px;
+    }
+
+    .voice-hint {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .voice-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      text-align: left;
+    }
+
+    .voice-row.recording {
+      background: rgba(231,76,60,0.12);
+      border-radius: 10px;
+    }
+
+    .voice-row-name { flex: 1; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .voice-row-name small { display: block; font-weight: 400; color: var(--text-dim); font-size: 0.75rem; }
+
+    .voice-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      touch-action: manipulation;
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .voice-btn:disabled { opacity: 0.25; }
+    .voice-btn.rec { background: rgba(231,76,60,0.25); }
+    .voice-btn.rec.on { background: #e74c3c; animation: recBlink 1s infinite; }
+
+    @keyframes recBlink { 50% { opacity: 0.6; } }
+
+    .voice-status {
+      min-height: 20px;
+      font-size: 0.85rem;
+      color: var(--gold);
+      margin-top: 10px;
+    }
+
+    .voice-export-btn {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      border: none;
+      color: white;
+      font-size: 1rem;
+      font-weight: 800;
+      padding: 14px 28px;
+      border-radius: 14px;
+      cursor: pointer;
+      touch-action: manipulation;
+      margin-top: 14px;
+      min-height: 52px;
+    }
+
+    .pattern-dot.blue { background: var(--pipe-glow); }
+
+    .voice-hold-btn {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--pipe-color), #3a7bd5);
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 900;
+      padding: 18px 48px;
+      border-radius: 18px;
+      cursor: pointer;
+      touch-action: manipulation;
+      margin: 8px 0;
+      min-height: 60px;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .voice-hold-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      background: rgba(255,255,255,0.35);
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -1106,6 +1577,14 @@
 
   <!-- Boss Pipe Banner -->
   <div class="boss-banner" id="bossBanner">BOSS PIPE!</div>
+
+  <!-- Guess Callout Banner -->
+  <div class="guess-banner" id="guessBanner">
+    <div class="guess-title">&#128373;&#65039; Just guessing?!</div>
+    <div class="guess-sub">Look at the numbers!</div>
+    <div class="guess-penalty" id="guessPenalty"></div>
+    <div class="guess-count" id="guessCount">3</div>
+  </div>
 
   <!-- Confetti container -->
   <div class="confetti-container" id="confettiContainer"></div>
@@ -1129,15 +1608,42 @@
     </div>
   </div>
 
+  <!-- Voice gate (grown-ups hold-to-open) -->
+  <div class="voice-overlay" id="voiceGateOverlay">
+    <div class="voice-card">
+      <h2>&#127908; Grown-Ups Only</h2>
+      <p class="voice-hint">Record your voice to cheer during the game.<br>Hold the button to open.</p>
+      <button class="voice-hold-btn" id="voiceHoldBtn">HOLD<div class="voice-hold-fill" id="voiceHoldFill"></div></button>
+      <button class="pattern-log-close" onclick="closeVoiceOverlays()">&#10005;</button>
+    </div>
+  </div>
+
+  <!-- Voice recording panel -->
+  <div class="voice-overlay" id="voicePanelOverlay">
+    <div class="voice-card">
+      <h2>&#127908; Your Voice</h2>
+      <p class="voice-hint">Short clips (a few seconds) work best. They play at big moments in the game.<br>Blue dot = clip that ships with the game. Green dot = recorded on this device.</p>
+      <div id="voiceRows"></div>
+      <button class="voice-export-btn" onclick="exportVoiceClips()">&#11015; Export for Game</button>
+      <div class="voice-status" id="voiceStatus"></div>
+      <button class="pattern-log-close" onclick="closeVoiceOverlays()">&#10005;</button>
+    </div>
+  </div>
+
   <!-- ── SCREEN: Level Select ──────────────────────────── -->
   <div class="screen level-select" id="screenLevelSelect">
     <h1>Pipeline Engineer</h1>
     <p class="subtitle">Fix the pipes!</p>
     <div class="monitors" id="monitorsRow1"></div>
     <div class="monitors-row2" id="monitorsRow2"></div>
+    <div class="theme-picker-wrap">
+      <div class="theme-picker-label">Pipe Style</div>
+      <div class="theme-picker" id="themePicker"></div>
+    </div>
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
       <button class="level-back-btn" onclick="location.href='index.html'">Back to Games</button>
       <button class="level-back-btn" onclick="openPatternLog()" style="background:rgba(74,144,217,0.15);border-color:rgba(74,144,217,0.4);color:var(--pipe-glow);">Pattern Log</button>
+      <button class="level-back-btn" onclick="openVoiceGate()" style="background:rgba(241,196,15,0.12);border-color:rgba(241,196,15,0.4);color:var(--gold);">&#127908; My Voice</button>
       <button class="level-back-btn" onclick="confirmReset()" style="background:rgba(231,76,60,0.15);border-color:rgba(231,76,60,0.4);color:#e74c3c;">Reset Progress</button>
     </div>
   </div>
@@ -1184,26 +1690,36 @@
     </div>
   </div>
 
+<script src="pipeline-voice.js"></script>
 <script>
 // ── Constants ─────────────────────────────────────────
 const TOTAL_QUESTIONS = 10;
-const LEVEL_NAMES = ['Pipe Fitter', 'Valve Tech', 'Flow Engineer', 'Master Engineer', 'Supervisor', 'Chief Engineer', 'Master Architect'];
-const LEVEL_ICONS = ['\u{1F527}', '\u2699\uFE0F', '\u{1F6E0}\uFE0F', '\u{1F3C6}', '\u{1F52D}', '\u26A1', '\u{1F3D7}\uFE0F'];
+const LEVEL_NAMES = ['Valve Tech', 'Flow Engineer', 'Master Engineer', 'Supervisor', 'Chief Engineer', 'Master Architect'];
+const LEVEL_ICONS = ['\u2699\uFE0F', '\u{1F6E0}\uFE0F', '\u{1F3C6}', '\u{1F52D}', '\u26A1', '\u{1F3D7}\uFE0F'];
+
+const THEMES = [
+  { id: 'auto',   name: 'Auto'    },
+  { id: 'copper', name: 'Copper'  },
+  { id: 'steel',  name: 'Steel'   },
+  { id: 'pvc',    name: 'PVC'     },
+  { id: 'sewer',  name: 'Sewer'   },
+  { id: 'plasma', name: 'Plasma'  },
+  { id: 'gold',   name: 'Gold'    },
+  { id: 'blocks', name: 'Blocks'  },
+  { id: 'space',  name: 'Space'   },
+  { id: 'neon',   name: 'Neon'    },
+];
 
 const PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
 
 const PATTERN_CATEGORIES = {
-  counting: ['count_by_1', 'count_back_1', 'neighbors'],
-  skip_counting: ['count_by_2', 'count_by_5', 'count_by_10', 'odds', 'evens', 'count_back_2', 'count_by_3', 'count_by_4', 'count_back_5', 'count_back_10'],
+  skip_counting: ['count_by_2', 'count_by_5', 'count_by_10', 'odds', 'evens', 'count_back_2', 'count_by_3', 'count_by_4', 'count_by_6', 'count_by_7', 'count_by_8', 'count_by_9', 'count_by_11', 'count_back_5', 'count_back_10'],
   arithmetic: ['add_constant', 'sub_constant', 'count_10s_offset', 'count_5s_offset', 'to_zero'],
   multiplicative: ['doubling', 'halving', 'powers_of_3', 'geometric_offset', 'two_step_rule'],
   special: ['fibonacci', 'alternating_ops', 'squares_intro', 'plus_n_more', 'triangular', 'primes_intro', 'second_order', 'multi_rule', 'interleaved'],
 };
 
 const PATTERN_READABLE_NAMES = {
-  count_by_1: 'Count by 1s',
-  count_back_1: 'Count Back by 1',
-  neighbors: 'Neighbors',
   count_by_2: 'Count by 2s',
   count_by_5: 'Count by 5s',
   count_by_10: 'Count by 10s',
@@ -1212,6 +1728,11 @@ const PATTERN_READABLE_NAMES = {
   count_back_2: 'Count Back by 2s',
   count_by_3: 'Count by 3s',
   count_by_4: 'Count by 4s',
+  count_by_6: 'Count by 6s',
+  count_by_7: 'Count by 7s',
+  count_by_8: 'Count by 8s',
+  count_by_9: 'Count by 9s',
+  count_by_11: 'Count by 11s',
   add_constant: 'Add a Number',
   sub_constant: 'Subtract a Number',
   count_10s_offset: 'Count by 10s (offset)',
@@ -1253,8 +1774,8 @@ let state = {
   attemptsOnCurrent: 0,
   hintsRemaining: 3,
   hintsUsedOnCurrent: 0,
-  unlockedLevels: [true, false, false, false, false, false, false],
-  levelStars: [[], [], [], [], [], [], []],
+  unlockedLevels: [true, false, false, false, false, false],
+  levelStars: [[], [], [], [], [], []],
   currentSequence: [],
   missingIndices: [],
   correctAnswers: [],
@@ -1279,6 +1800,12 @@ let state = {
   level7RuleDesc: '',
   bossRound: false,
   roundCount: {},
+  theme: 'auto',
+  questionShownAt: 0,
+  lastWrongAt: 0,
+  guessCalloutsOnCurrent: 0,
+  guessLockActive: false,
+  revealUsedOnCurrent: false,
 };
 
 function loadState() {
@@ -1286,16 +1813,32 @@ function loadState() {
     const saved = localStorage.getItem('pipeline_state');
     if (saved) {
       const parsed = JSON.parse(saved);
-      const defaults7 = [true, false, false, false, false, false, false];
-      state.unlockedLevels = parsed.unlockedLevels || defaults7;
-      // Pad to 7 if saved from old version
-      while (state.unlockedLevels.length < 7) state.unlockedLevels.push(false);
-      state.levelStars = parsed.levelStars || [[], [], [], [], [], [], []];
-      while (state.levelStars.length < 7) state.levelStars.push([]);
+      let unlocked = parsed.unlockedLevels || [];
+      let stars = parsed.levelStars || [];
+      let rounds = parsed.roundCount || {};
+      if (!parsed.version && unlocked.length === 7) {
+        // Migrate saves from when the Pipe Fitter (count by 1s) level existed:
+        // drop its slot and shift everything down one level
+        unlocked = unlocked.slice(1);
+        stars = stars.slice(1);
+        const shifted = {};
+        for (const k in rounds) {
+          const n = parseInt(k, 10);
+          if (n >= 1) shifted[n - 1] = rounds[k];
+        }
+        rounds = shifted;
+      }
+      while (unlocked.length < 6) unlocked.push(false);
+      while (stars.length < 6) stars.push([]);
+      state.unlockedLevels = unlocked.slice(0, 6);
+      state.levelStars = stars.slice(0, 6);
+      state.unlockedLevels[0] = true;
+      state.roundCount = rounds;
       state.muted = parsed.muted || false;
       state.shownPatternIntros = parsed.shownPatternIntros || {};
       state.patternStats = parsed.patternStats || {};
-      state.roundCount = parsed.roundCount || {};
+      const validThemeIds = THEMES.map(t => t.id);
+      state.theme = validThemeIds.includes(parsed.theme) ? parsed.theme : 'auto';
     }
   } catch (e) {}
 }
@@ -1303,12 +1846,14 @@ function loadState() {
 function saveState() {
   try {
     localStorage.setItem('pipeline_state', JSON.stringify({
+      version: 2,
       unlockedLevels: state.unlockedLevels,
       levelStars: state.levelStars,
       muted: state.muted,
       shownPatternIntros: state.shownPatternIntros,
       patternStats: state.patternStats,
       roundCount: state.roundCount,
+      theme: state.theme,
     }));
   } catch (e) {}
 }
@@ -1316,8 +1861,8 @@ function saveState() {
 // ── Audio ──────────────────────────────────────────────
 let audioCtx = null;
 
-function getAudio() {
-  if (state.muted) return null;
+function getAudio(ignoreMute) {
+  if (state.muted && !ignoreMute) return null;
   if (!audioCtx) {
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1371,18 +1916,366 @@ function playBossSound() {
   });
 }
 
+function playGuessSound() {
+  // Comedic descending "wah wah wah"
+  playTone(330, 0.18, 'square', 0.08);
+  setTimeout(() => playTone(277, 0.22, 'square', 0.08), 180);
+  setTimeout(() => playTone(220, 0.35, 'square', 0.08), 380);
+}
+
 function toggleMute() {
   state.muted = !state.muted;
   document.getElementById('muteBtn').textContent = state.muted ? '\u{1F507}' : '\u{1F50A}';
   saveState();
 }
 
+// ── Parent Voice Clips ─────────────────────────────────
+const VOICE_SLOTS = [
+  { id: 'roundstart', name: 'Round Start', emoji: '\u{1F680}', hint: '"Let\'s go!"' },
+  { id: 'correct', name: 'Great Answer', emoji: '⭐', hint: '"Nice work!"' },
+  { id: 'streak', name: 'On a Streak', emoji: '\u{1F525}', hint: '"You\'re on fire!"' },
+  { id: 'boss', name: 'Boss Pipe', emoji: '⚠️', hint: '"Uh oh... BOSS PIPE!"' },
+  { id: 'win', name: 'Round Won', emoji: '\u{1F3C6}', hint: '"You did it!"' },
+  { id: 'encourage', name: 'Keep Trying', emoji: '\u{1F4AA}', hint: '"Almost! Look again."' },
+  { id: 'guessing', name: 'Just Guessing?!', emoji: '\u{1F575}️', hint: '"Hey, are you just guessing?!"' },
+];
+
+// Cooldowns keep clips special instead of constant
+const VOICE_COOLDOWN_MS = { correct: 20000, streak: 8000, guessing: 6000, encourage: 12000 };
+
+let voiceDB = null;
+let voiceClips = {};      // slot -> { buf: ArrayBuffer, mime }
+let voiceDecoded = {};    // slot -> AudioBuffer
+let voiceLastPlayed = {}; // slot -> timestamp
+let recorder = null, recSlot = null, recChunks = [], recTimer = null, recStream = null;
+
+function openVoiceDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('pipeline_voice', 1);
+    req.onupgradeneeded = () => { req.result.createObjectStore('clips'); };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function bufToB64(buf) {
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  }
+  return btoa(bin);
+}
+
+function b64ToBuf(b64) {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes.buffer;
+}
+
+// Clips baked into the repo (pipeline-voice.js) are the defaults;
+// clips recorded on this device override them
+function applyBakedVoice() {
+  const baked = window.PIPELINE_BAKED_VOICE;
+  if (!baked) return;
+  for (const slot in baked) {
+    if (!voiceClips[slot] && baked[slot] && baked[slot].b64) {
+      try {
+        voiceClips[slot] = { buf: b64ToBuf(baked[slot].b64), mime: baked[slot].mime, baked: true };
+      } catch (e) {}
+    }
+  }
+}
+
+async function initVoice() {
+  try {
+    voiceDB = await openVoiceDB();
+    await new Promise((resolve) => {
+      const store = voiceDB.transaction('clips', 'readonly').objectStore('clips');
+      const req = store.openCursor();
+      req.onsuccess = () => {
+        const cur = req.result;
+        if (cur) { voiceClips[cur.key] = cur.value; cur.continue(); }
+        else resolve();
+      };
+      req.onerror = () => resolve();
+    });
+  } catch (e) { voiceDB = null; }
+  applyBakedVoice();
+}
+
+function exportVoiceClips() {
+  const slots = Object.keys(voiceClips);
+  if (slots.length === 0) { setVoiceStatus('Nothing to export yet — record a clip first.'); return; }
+  const out = {};
+  let hasWebm = false;
+  for (const slot of slots) {
+    const c = voiceClips[slot];
+    out[slot] = { mime: c.mime, b64: bufToB64(c.buf) };
+    if ((c.mime || '').indexOf('webm') !== -1) hasWebm = true;
+  }
+  const content = '// Baked-in voice clips for pipeline.html — generated by the My Voice panel Export button.\n' +
+    '// Replace the pipeline-voice.js next to pipeline.html with this file and commit.\n' +
+    'window.PIPELINE_BAKED_VOICE = ' + JSON.stringify(out, null, 1) + ';\n';
+  const blob = new Blob([content], { type: 'text/javascript' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pipeline-voice.js';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  setVoiceStatus(hasWebm
+    ? 'Exported, but some clips are webm and may not play on iPad — re-record those in Safari.'
+    : 'Exported! Replace pipeline-voice.js in the game folder and commit.');
+}
+
+function idbPut(slot, clip) {
+  if (!voiceDB) return;
+  try { voiceDB.transaction('clips', 'readwrite').objectStore('clips').put(clip, slot); } catch (e) {}
+}
+
+function idbDelete(slot) {
+  if (!voiceDB) return;
+  try { voiceDB.transaction('clips', 'readwrite').objectStore('clips').delete(slot); } catch (e) {}
+}
+
+function playClipBuffer(slot, ctx, volume) {
+  const clip = voiceClips[slot];
+  if (!clip || !ctx) return;
+  const doPlay = (audioBuf) => {
+    try {
+      const src = ctx.createBufferSource();
+      src.buffer = audioBuf;
+      const gain = ctx.createGain();
+      gain.gain.value = volume || 0.9;
+      src.connect(gain);
+      gain.connect(ctx.destination);
+      src.start();
+    } catch (e) {}
+  };
+  if (voiceDecoded[slot]) { doPlay(voiceDecoded[slot]); return; }
+  try {
+    // decodeAudioData detaches the buffer in some browsers — hand it a copy
+    ctx.decodeAudioData(clip.buf.slice(0), (audioBuf) => {
+      voiceDecoded[slot] = audioBuf;
+      doPlay(audioBuf);
+    }, () => {});
+  } catch (e) {}
+}
+
+// Returns true if a clip will play, so callers can skip fallback sounds
+function playVoice(slot, delayMs) {
+  if (state.muted || !voiceClips[slot]) return false;
+  const now = Date.now();
+  const cd = VOICE_COOLDOWN_MS[slot] || 0;
+  if (voiceLastPlayed[slot] && now - voiceLastPlayed[slot] < cd) return false;
+  voiceLastPlayed[slot] = now;
+  const go = () => playClipBuffer(slot, getAudio());
+  if (delayMs) setTimeout(go, delayMs);
+  else go();
+  return true;
+}
+
+function previewVoice(slot) {
+  playClipBuffer(slot, getAudio(true));
+}
+
+function blobToArrayBuffer(blob) {
+  if (blob.arrayBuffer) return blob.arrayBuffer();
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.onerror = reject;
+    fr.readAsArrayBuffer(blob);
+  });
+}
+
+async function toggleRecord(slot) {
+  if (recorder && recSlot === slot) { stopRecording(); return; }
+  if (recorder) stopRecording(true);
+
+  if (!window.isSecureContext) { setVoiceStatus('Recording needs HTTPS (or localhost).'); return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { setVoiceStatus('No microphone access in this browser.'); return; }
+  if (typeof MediaRecorder === 'undefined') { setVoiceStatus('Recording not supported in this browser.'); return; }
+
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) { setVoiceStatus('Microphone blocked — allow access in Settings.'); return; }
+  recStream = stream;
+
+  let mime = '';
+  if (MediaRecorder.isTypeSupported) {
+    mime = ['audio/mp4', 'audio/webm'].find(m => MediaRecorder.isTypeSupported(m)) || '';
+  }
+  try {
+    recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+  } catch (e) {
+    setVoiceStatus('Could not start the recorder.');
+    cleanupRec();
+    return;
+  }
+
+  recSlot = slot;
+  recChunks = [];
+  recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) recChunks.push(e.data); };
+  recorder.onstop = async () => {
+    const type = (recorder && recorder.mimeType) || mime || 'audio/mp4';
+    const blob = new Blob(recChunks, { type });
+    cleanupRec();
+    if (blob.size === 0) { setVoiceStatus('Nothing recorded — try again.'); buildVoicePanel(); return; }
+    const buf = await blobToArrayBuffer(blob);
+    voiceClips[slot] = { buf, mime: type };
+    delete voiceDecoded[slot];
+    idbPut(slot, voiceClips[slot]);
+    setVoiceStatus('Saved! Tap ▶ to hear it.');
+    buildVoicePanel();
+  };
+
+  recorder.start();
+  setVoiceStatus('Recording… speak now! (10s max)');
+  recTimer = setTimeout(() => stopRecording(), 10000);
+  buildVoicePanel();
+}
+
+function stopRecording(discard) {
+  if (recTimer) { clearTimeout(recTimer); recTimer = null; }
+  if (!recorder) return;
+  if (discard) recorder.onstop = null;
+  try { if (recorder.state !== 'inactive') recorder.stop(); } catch (e) {}
+  if (discard) { cleanupRec(); buildVoicePanel(); }
+}
+
+function cleanupRec() {
+  if (recStream) {
+    try { recStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+    recStream = null;
+  }
+  recorder = null;
+  recSlot = null;
+}
+
+function deleteVoiceClip(slot) {
+  if (!confirm('Delete this recording?')) return;
+  delete voiceClips[slot];
+  delete voiceDecoded[slot];
+  idbDelete(slot);
+  const baked = window.PIPELINE_BAKED_VOICE;
+  if (baked && baked[slot] && baked[slot].b64) {
+    try {
+      voiceClips[slot] = { buf: b64ToBuf(baked[slot].b64), mime: baked[slot].mime, baked: true };
+    } catch (e) {}
+    setVoiceStatus('Back to the clip that ships with the game.');
+  } else {
+    setVoiceStatus('Deleted.');
+  }
+  buildVoicePanel();
+}
+
+function setVoiceStatus(msg) {
+  const el = document.getElementById('voiceStatus');
+  if (el) el.textContent = msg || '';
+}
+
+function buildVoicePanel() {
+  const wrap = document.getElementById('voiceRows');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  VOICE_SLOTS.forEach(s => {
+    const isRec = recorder && recSlot === s.id;
+    const clip = voiceClips[s.id];
+    const row = document.createElement('div');
+    row.className = 'voice-row' + (isRec ? ' recording' : '');
+
+    const dot = document.createElement('div');
+    dot.className = 'pattern-dot ' + (clip ? (clip.baked ? 'blue' : 'green') : 'gray');
+
+    const name = document.createElement('div');
+    name.className = 'voice-row-name';
+    const marker = clip && clip.baked ? ' • in the game' : '';
+    name.innerHTML = `${s.emoji} ${s.name}<small>${s.hint}${marker}</small>`;
+
+    const recBtn = document.createElement('button');
+    recBtn.className = 'voice-btn rec' + (isRec ? ' on' : '');
+    recBtn.textContent = isRec ? '⏹' : '⏺';
+    recBtn.onclick = () => toggleRecord(s.id);
+
+    const playBtn = document.createElement('button');
+    playBtn.className = 'voice-btn';
+    playBtn.textContent = '▶';
+    playBtn.disabled = !clip;
+    playBtn.onclick = () => previewVoice(s.id);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'voice-btn';
+    delBtn.textContent = '\u{1F5D1}';
+    delBtn.disabled = !clip || !!clip.baked;
+    delBtn.onclick = () => deleteVoiceClip(s.id);
+
+    row.appendChild(dot);
+    row.appendChild(name);
+    row.appendChild(recBtn);
+    row.appendChild(playBtn);
+    row.appendChild(delBtn);
+    wrap.appendChild(row);
+  });
+}
+
+function openVoiceGate() {
+  playClickSound();
+  document.getElementById('voiceGateOverlay').classList.add('active');
+}
+
+function openVoicePanel() {
+  buildVoicePanel();
+  setVoiceStatus(voiceDB ? '' : 'Storage unavailable — clips won’t survive closing the app.');
+  document.getElementById('voicePanelOverlay').classList.add('active');
+}
+
+function closeVoiceOverlays() {
+  stopRecording(true);
+  document.getElementById('voiceGateOverlay').classList.remove('active');
+  document.getElementById('voicePanelOverlay').classList.remove('active');
+}
+
+function initVoiceGate() {
+  const btn = document.getElementById('voiceHoldBtn');
+  const fill = document.getElementById('voiceHoldFill');
+  if (!btn || !fill) return;
+  let holdStart = 0, holdIv = null;
+  const cancel = () => {
+    if (holdIv) clearInterval(holdIv);
+    holdIv = null;
+    fill.style.width = '0%';
+  };
+  const begin = (e) => {
+    e.preventDefault();
+    if (holdIv) return;
+    holdStart = Date.now();
+    holdIv = setInterval(() => {
+      const pct = Math.min(100, (Date.now() - holdStart) / 2000 * 100);
+      fill.style.width = pct + '%';
+      if (pct >= 100) {
+        cancel();
+        document.getElementById('voiceGateOverlay').classList.remove('active');
+        openVoicePanel();
+      }
+    }, 50);
+  };
+  btn.addEventListener('pointerdown', begin);
+  btn.addEventListener('pointerup', cancel);
+  btn.addEventListener('pointerleave', cancel);
+  btn.addEventListener('pointercancel', cancel);
+}
+
 // ── Pattern Generation ─────────────────────────────────
 const PATTERNS_BY_LEVEL = [
-  ['count_by_1', 'count_back_1', 'neighbors'],
   ['count_by_2', 'count_by_5', 'count_by_10', 'odds', 'evens', 'count_back_2'],
-  ['count_by_3', 'count_by_4', 'add_constant', 'sub_constant', 'doubling', 'plus_n_more', 'count_10s_offset', 'count_5s_offset'],
-  ['halving', 'fibonacci', 'alternating_ops', 'squares_intro', 'count_back_5', 'count_back_10', 'to_zero'],
+  ['count_by_3', 'count_by_4', 'count_by_6', 'add_constant', 'sub_constant', 'doubling', 'plus_n_more', 'count_10s_offset', 'count_5s_offset'],
+  ['halving', 'fibonacci', 'alternating_ops', 'squares_intro', 'count_back_5', 'count_back_10', 'to_zero', 'count_by_7', 'count_by_8', 'count_by_9', 'count_by_11'],
   ['two_step_rule', 'triangular', 'powers_of_3', 'primes_intro'],
   ['multi_rule', 'second_order', 'geometric_offset', 'interleaved'],
   [],
@@ -1406,7 +2299,10 @@ function pickPatternForQuestion(level, qIdx) {
 
   // Build candidate pool based on question position
   let pool;
-  if (qIdx < 3) {
+  if (qIdx === 0 && level > 0) {
+    // Warm-up: open each round with a familiar pattern from earlier levels
+    pool = getAllPatternsForLevel(level - 1);
+  } else if (qIdx < 3) {
     pool = newPatterns.length > 0 ? newPatterns.slice(0, Math.max(2, newPatterns.length)) : available;
   } else if (qIdx < 6) {
     pool = newPatterns.length > 1 ? newPatterns : available;
@@ -1483,15 +2379,23 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// Sequences grow as the round progresses, so each round ramps up
+function rampedLength(level, qIdx) {
+  if (level === 0) return 5;
+  if (level === 1) return qIdx < 4 ? 5 : 6;
+  if (level <= 4) return qIdx < 3 ? 6 : (qIdx < 7 ? 7 : 8);
+  return 7;
+}
+
 function generateSequence(patternType, level, overrideLen) {
   let seqLen;
   if (overrideLen) {
     seqLen = overrideLen;
-  } else if (level <= 1) {
+  } else if (level === 0) {
     seqLen = 5;
-  } else if (level === 2) {
+  } else if (level === 1) {
     seqLen = randInt(5, 6);
-  } else if (level <= 5) {
+  } else if (level <= 4) {
     seqLen = randInt(6, 8);
   } else {
     seqLen = 7;
@@ -1501,24 +2405,6 @@ function generateSequence(patternType, level, overrideLen) {
   let step = 0;
 
   switch (patternType) {
-    case 'count_by_1': {
-      const start = randInt(1, 15);
-      step = 1;
-      for (let i = 0; i < seqLen; i++) seq.push(start + i);
-      break;
-    }
-    case 'count_back_1': {
-      const start = randInt(seqLen, 20);
-      step = -1;
-      for (let i = 0; i < seqLen; i++) seq.push(start - i);
-      break;
-    }
-    case 'neighbors': {
-      const start = randInt(1, 16);
-      step = 1;
-      for (let i = 0; i < seqLen; i++) seq.push(start + i);
-      break;
-    }
     case 'count_by_2': {
       const start = randInt(0, 1) === 0 ? randInt(1, 10) * 2 : randInt(1, 9) * 2 + 1;
       step = 2;
@@ -1566,6 +2452,36 @@ function generateSequence(patternType, level, overrideLen) {
       const start = randInt(0, 8) * 4;
       step = 4;
       for (let i = 0; i < seqLen; i++) seq.push(start + i * 4);
+      break;
+    }
+    case 'count_by_6': {
+      const start = randInt(0, 6) * 6;
+      step = 6;
+      for (let i = 0; i < seqLen; i++) seq.push(start + i * 6);
+      break;
+    }
+    case 'count_by_7': {
+      const start = randInt(0, 5) * 7;
+      step = 7;
+      for (let i = 0; i < seqLen; i++) seq.push(start + i * 7);
+      break;
+    }
+    case 'count_by_8': {
+      const start = randInt(0, 5) * 8;
+      step = 8;
+      for (let i = 0; i < seqLen; i++) seq.push(start + i * 8);
+      break;
+    }
+    case 'count_by_9': {
+      const start = randInt(0, 5) * 9;
+      step = 9;
+      for (let i = 0; i < seqLen; i++) seq.push(start + i * 9);
+      break;
+    }
+    case 'count_by_11': {
+      const start = randInt(0, 5) * 11;
+      step = 11;
+      for (let i = 0; i < seqLen; i++) seq.push(start + i * 11);
       break;
     }
     case 'add_constant': {
@@ -1628,8 +2544,10 @@ function generateSequence(patternType, level, overrideLen) {
       break;
     }
     case 'alternating_ops': {
-      const addVal = randInt(2, 5);
-      const subVal = randInt(1, 3);
+      // Only add/sub pairs that never revisit a value within the window —
+      // e.g. +2/-1 yields 23,25,24,26,25... where 25 repeats and looks broken
+      const combos = [[3, 1], [4, 1], [5, 1], [5, 2], [5, 3]];
+      const [addVal, subVal] = combos[randInt(0, combos.length - 1)];
       const start = randInt(10, 30);
       seq.push(start);
       for (let i = 1; i < seqLen; i++) {
@@ -1665,7 +2583,7 @@ function generateSequence(patternType, level, overrideLen) {
       break;
     }
 
-    // ── Level 5 patterns ──────────────────────────────────
+    // ── Supervisor patterns ───────────────────────────────
     case 'two_step_rule': {
       const mult = [2, 3][randInt(0, 1)];
       const add = randInt(1, 3);
@@ -1706,7 +2624,7 @@ function generateSequence(patternType, level, overrideLen) {
       break;
     }
 
-    // ── Level 6 patterns ──────────────────────────────────
+    // ── Chief Engineer patterns ───────────────────────────
     case 'multi_rule': {
       const ops = [];
       const opChoices = [
@@ -1764,7 +2682,9 @@ function generateSequence(patternType, level, overrideLen) {
       const step1 = randInt(1, 5);
       const step2 = randInt(5, 15);
       const start1 = randInt(1, 10);
-      const start2 = randInt(10, 30);
+      // Keep the second thread strictly above the first so the two
+      // patterns never collide (e.g. 10, 10, ...) and read as low/high
+      const start2 = start1 + 2 * step1 + randInt(2, 12);
       seqLen = 6;
       seq = [];
       for (let i = 0; i < 3; i++) {
@@ -1812,21 +2732,17 @@ function chooseMissingPositions(seq, level, numGaps) {
     return picked.sort((a, b) => a - b);
   }
 
-  if (level === 3 && Math.random() < 0.15) {
+  // Two-gap chance ramps up later in the round
+  const qIdx = state.questionIndex;
+  let twoGapChance = 0;
+  if (level >= 4) twoGapChance = qIdx >= 6 ? 0.45 : 0.25;
+  else if (level >= 2) twoGapChance = qIdx >= 6 ? 0.3 : (qIdx >= 3 ? 0.15 : 0);
+  if (twoGapChance > 0 && len >= 4 && Math.random() < twoGapChance) {
     const idx1 = randInt(0, len - 3);
-    let idx2 = randInt(idx1 + 2, len - 1);
-    return [idx1, idx2];
-  }
-  if (level >= 5 && Math.random() < 0.3) {
-    // Levels 5+: sometimes 2 gaps
-    const idx1 = randInt(0, len - 3);
-    let idx2 = randInt(idx1 + 2, len - 1);
+    const idx2 = randInt(idx1 + 2, len - 1);
     return [idx1, idx2];
   }
   if (level === 0) {
-    return [randInt(1, len - 2)];
-  }
-  if (level === 1) {
     return [randInt(1, len - 2)];
   }
   return [randInt(0, len - 1)];
@@ -1874,6 +2790,11 @@ const PATTERN_INTROS = {
   count_back_2: { title: 'Count Back by 2!', desc: 'Each number goes down by 2.', example: '20, 18, 16, 14' },
   count_by_3: { title: 'Count by 3s!', desc: 'Each number goes up by 3.', example: '3, 6, 9, 12, 15' },
   count_by_4: { title: 'Count by 4s!', desc: 'Each number goes up by 4.', example: '4, 8, 12, 16, 20' },
+  count_by_6: { title: 'Count by 6s!', desc: 'Each number goes up by 6.', example: '6, 12, 18, 24, 30' },
+  count_by_7: { title: 'Count by 7s!', desc: 'Each number goes up by 7.', example: '7, 14, 21, 28, 35' },
+  count_by_8: { title: 'Count by 8s!', desc: 'Each number goes up by 8.', example: '8, 16, 24, 32, 40' },
+  count_by_9: { title: 'Count by 9s!', desc: 'Each number goes up by 9.', example: '9, 18, 27, 36, 45' },
+  count_by_11: { title: 'Count by 11s!', desc: 'Each number goes up by 11.', example: '11, 22, 33, 44, 55' },
   doubling: { title: 'Doubling!', desc: 'Each number is double the last.', example: '2, 4, 8, 16, 32' },
   fibonacci: { title: 'Add the Last Two!', desc: 'Each number = the two before it added.', example: '1, 1, 2, 3, 5, 8' },
   halving: { title: 'Halving!', desc: 'Each number is half the last.', example: '64, 32, 16, 8, 4' },
@@ -1881,15 +2802,14 @@ const PATTERN_INTROS = {
 };
 
 function shouldShowIntro(patternType, level) {
-  return false;
+  return !!PATTERN_INTROS[patternType] && !state.shownPatternIntros[patternType];
 }
 
 function showPatternIntro(patternType, level, callback) {
   const info = PATTERN_INTROS[patternType];
   if (!info) { callback(); return; }
 
-  const key = patternType + '_' + level;
-  state.shownPatternIntros[key] = true;
+  state.shownPatternIntros[patternType] = true;
   saveState();
 
   document.getElementById('introTitle').textContent = info.title;
@@ -1921,9 +2841,6 @@ function getLevel7Mode(qIdx) {
 function generateRuleDescription(patternType, sequence) {
   const diff = sequence.length >= 2 ? sequence[1] - sequence[0] : 0;
   switch (patternType) {
-    case 'count_by_1': return 'Adds 1 each time';
-    case 'count_back_1': return 'Subtracts 1 each time';
-    case 'neighbors': return 'Adds 1 each time';
     case 'count_by_2': return 'Adds 2 each time';
     case 'count_by_5': return 'Adds 5 each time';
     case 'count_by_10': return 'Adds 10 each time';
@@ -1932,6 +2849,11 @@ function generateRuleDescription(patternType, sequence) {
     case 'count_back_2': return 'Subtracts 2 each time';
     case 'count_by_3': return 'Adds 3 each time';
     case 'count_by_4': return 'Adds 4 each time';
+    case 'count_by_6': return 'Adds 6 each time';
+    case 'count_by_7': return 'Adds 7 each time';
+    case 'count_by_8': return 'Adds 8 each time';
+    case 'count_by_9': return 'Adds 9 each time';
+    case 'count_by_11': return 'Adds 11 each time';
     case 'add_constant': return `Adds ${diff} each time`;
     case 'sub_constant': return `Subtracts ${Math.abs(diff)} each time`;
     case 'doubling': return 'Doubles each time';
@@ -1996,13 +2918,13 @@ function generateWrongRules(patternType, sequence) {
 
 function generateBuildSequenceData(level) {
   // Pick a simple pattern and describe the rule
-  const simplePatterns = ['count_by_2', 'count_by_3', 'count_by_4', 'count_by_5', 'count_by_10', 'add_constant', 'doubling'];
+  const simplePatterns = ['count_by_2', 'count_by_3', 'count_by_4', 'count_by_5', 'count_by_6', 'count_by_7', 'count_by_8', 'count_by_9', 'count_by_10', 'count_by_11', 'add_constant', 'doubling'];
   const available = simplePatterns.filter(p => getAllPatternsForLevel(level).includes(p));
   const pick = available[randInt(0, available.length - 1)] || 'count_by_2';
   const { sequence, step } = generateSequence(pick, level, 5);
 
   let ruleDesc;
-  if (['count_by_2', 'count_by_3', 'count_by_4', 'count_by_5', 'count_by_10', 'add_constant'].includes(pick)) {
+  if (['count_by_2', 'count_by_3', 'count_by_4', 'count_by_5', 'count_by_6', 'count_by_7', 'count_by_8', 'count_by_9', 'count_by_10', 'count_by_11', 'add_constant'].includes(pick)) {
     const d = sequence[1] - sequence[0];
     ruleDesc = `Start at ${sequence[0]}, add ${d} each time`;
   } else if (pick === 'doubling') {
@@ -2017,7 +2939,7 @@ function generateBuildSequenceData(level) {
 
 // ── Fog Helpers ───────────────────────────────────────
 function chooseFoggedIndices(seq, missingIndices, level) {
-  if (level < 4) return [];
+  if (level < 3) return [];
   const available = [];
   for (let i = 0; i < seq.length; i++) {
     if (!missingIndices.includes(i)) available.push(i);
@@ -2028,7 +2950,7 @@ function chooseFoggedIndices(seq, missingIndices, level) {
     const j = randInt(0, i);
     [available[i], available[j]] = [available[j], available[i]];
   }
-  const numFog = level >= 6 ? 2 : 1;
+  const numFog = level >= 5 ? 2 : 1;
   return available.slice(0, Math.min(numFog, available.length));
 }
 
@@ -2044,7 +2966,7 @@ function handleFogPeek(idx) {
 
 // ── Boss Pipe Helpers ─────────────────────────────────
 function isBossQuestion(level, qIdx) {
-  if (level < 2) return false;
+  if (level < 1) return false;
   const roundNum = (state.roundCount[level] || 0) + 1;
   // Every 3rd round, question 10 (index 9) is boss
   return (roundNum % 3 === 0) && qIdx === TOTAL_QUESTIONS - 1;
@@ -2057,7 +2979,7 @@ function getHardestPattern(level) {
   for (let l = level - 1; l >= 0; l--) {
     if (PATTERNS_BY_LEVEL[l].length > 0) return PATTERNS_BY_LEVEL[l][PATTERNS_BY_LEVEL[l].length - 1];
   }
-  return 'count_by_1';
+  return 'count_by_2';
 }
 
 // ── Game Flow ──────────────────────────────────────────
@@ -2069,8 +2991,8 @@ function showScreen(id) {
 function confirmReset() {
   if (confirm('Reset all progress? This will lock all levels and clear stars.')) {
     localStorage.removeItem('pipeline_state');
-    state.unlockedLevels = [true, false, false, false, false, false, false];
-    state.levelStars = [[], [], [], [], [], [], []];
+    state.unlockedLevels = [true, false, false, false, false, false];
+    state.levelStars = [[], [], [], [], [], []];
     state.score = 0;
     state.bestStreak = 0;
     state.patternStats = {};
@@ -2086,13 +3008,45 @@ function goToLevelSelect() {
   updateLevelSelect();
 }
 
+function buildThemePicker() {
+  const picker = document.getElementById('themePicker');
+  if (!picker) return;
+  picker.innerHTML = '';
+  THEMES.forEach(t => {
+    const chip = document.createElement('div');
+    chip.className = 'theme-chip' + (state.theme === t.id ? ' selected' : '');
+    chip.dataset.themeId = t.id;
+    chip.onclick = () => selectTheme(t.id);
+
+    const swatch = document.createElement('div');
+    swatch.className = 'theme-chip-swatch swatch-' + t.id;
+
+    const name = document.createElement('div');
+    name.className = 'theme-chip-name';
+    name.textContent = t.name;
+
+    chip.appendChild(swatch);
+    chip.appendChild(name);
+    picker.appendChild(chip);
+  });
+}
+
+function selectTheme(id) {
+  state.theme = id;
+  playClickSound();
+  document.querySelectorAll('.theme-chip').forEach(c => {
+    c.classList.toggle('selected', c.dataset.themeId === id);
+  });
+  saveState();
+}
+
 function buildLevelSelectMonitors() {
   const row1 = document.getElementById('monitorsRow1');
   const row2 = document.getElementById('monitorsRow2');
   row1.innerHTML = '';
   row2.innerHTML = '';
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 6; i++) {
     const mon = document.createElement('div');
     mon.className = 'monitor';
     mon.id = 'mon' + i;
@@ -2114,7 +3068,7 @@ function buildLevelSelectMonitors() {
     mon.appendChild(titleDiv);
     mon.appendChild(starsDiv);
 
-    if (i < 4) {
+    if (i < 3) {
       row1.appendChild(mon);
     } else {
       row2.appendChild(mon);
@@ -2123,7 +3077,7 @@ function buildLevelSelectMonitors() {
 }
 
 function updateLevelSelect() {
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 6; i++) {
     const mon = document.getElementById('mon' + i);
     const starsEl = document.getElementById('stars' + i);
     if (!mon || !starsEl) continue;
@@ -2168,13 +3122,17 @@ function startRound() {
 
   document.getElementById('levelNameDisplay').textContent = LEVEL_NAMES[state.currentLevel];
   showScreen('screenPlaying');
+  playVoice('roundstart');
   nextQuestion();
 }
 
 function getPipeTierClass(level) {
-  if (level <= 1) return 'pipe-copper';
-  if (level <= 3) return 'pipe-steel';
-  if (level <= 5) return 'pipe-plasma';
+  if (state.theme && state.theme !== 'auto') {
+    return 'pipe-' + state.theme;
+  }
+  if (level === 0) return 'pipe-copper';
+  if (level <= 2) return 'pipe-steel';
+  if (level <= 4) return 'pipe-plasma';
   return 'pipe-gold';
 }
 
@@ -2198,6 +3156,11 @@ function nextQuestion() {
   state.level7RuleOptions = [];
   state.level7CorrectRuleIdx = 0;
   state.level7RuleDesc = '';
+  state.questionShownAt = Date.now();
+  state.lastWrongAt = 0;
+  state.guessCalloutsOnCurrent = 0;
+  state.guessLockActive = false;
+  state.revealUsedOnCurrent = false;
 
   document.getElementById('hintDisplay').textContent = '';
   document.getElementById('diffArrows').innerHTML = '';
@@ -2216,6 +3179,7 @@ function nextQuestion() {
 
 function showBossBanner(callback) {
   playBossSound();
+  playVoice('boss', 250);
   const banner = document.getElementById('bossBanner');
   banner.classList.remove('show');
   void banner.offsetWidth;
@@ -2227,8 +3191,8 @@ function setupQuestion() {
   const level = state.currentLevel;
   const qIdx = state.questionIndex;
 
-  // Level 7 special modes
-  if (level === 6) {
+  // Master Architect special modes
+  if (level === 5) {
     state.level7Mode = getLevel7Mode(qIdx);
 
     if (state.level7Mode === 'whats_the_rule') {
@@ -2252,6 +3216,7 @@ function setupQuestion() {
     numGaps = 3;
   } else {
     patternType = pickPatternForQuestion(level, qIdx);
+    seqOverride = rampedLength(level, qIdx);
   }
 
   const { sequence, step } = generateSequence(patternType, level, seqOverride);
@@ -2264,12 +3229,12 @@ function setupQuestion() {
   state.missingIndices = missingPos;
   state.correctAnswers = missingPos.map(idx => sequence[idx]);
 
-  // Fog for levels 5+
-  if (level >= 4) {
+  // Fog for Supervisor and up
+  if (level >= 3) {
     state.foggedIndices = chooseFoggedIndices(sequence, missingPos, level);
   }
 
-  if (level <= 1) {
+  if (level === 0) {
     state.options = generateDistractors(state.correctAnswers[0], patternType, step, level);
   } else {
     state.options = [];
@@ -2469,8 +3434,8 @@ function renderInputArea() {
     return;
   }
 
-  // Multiple choice for levels 0-1
-  if (state.currentLevel <= 1) {
+  // Multiple choice for the first level
+  if (state.currentLevel === 0) {
     const optDiv = document.createElement('div');
     optDiv.className = 'options-area';
 
@@ -2520,18 +3485,21 @@ function handleRulePick(idx, btnEl) {
     btnEl.classList.add('wrong-pick');
     state.attemptsOnCurrent++;
     state.streak = 0;
+    const mash = registerWrongAttempt();
     playWrongSound();
     updateHUD();
+    if (mash) setTimeout(() => showGuessCallout(), 350);
     setTimeout(() => {
       btnEl.classList.remove('wrong-pick');
-      state.inputLocked = false;
+      if (!state.guessLockActive) state.inputLocked = false;
     }, 600);
   }
 }
 
 function handleCorrectRule() {
   playCorrectSound();
-  const firstTry = state.attemptsOnCurrent === 0;
+  const firstTry = state.attemptsOnCurrent === 0 && !state.revealUsedOnCurrent;
+  if (firstTry) playVoice('correct', 350);
   let points = state.bossRound ? 20 : 10;
   if (firstTry) points += 5;
   points += state.streak * 5;
@@ -2567,7 +3535,7 @@ function handleOptionPick(value, btnEl) {
     handleWrong(currentGapIdx);
     setTimeout(() => {
       btnEl.classList.remove('wrong-pick');
-      state.inputLocked = false;
+      if (!state.guessLockActive) state.inputLocked = false;
     }, 600);
   }
 }
@@ -2612,6 +3580,7 @@ function handleKeyPress(key) {
       } else {
         handleWrong(currentGapIdx);
         setTimeout(() => {
+          if (state.guessLockActive) return;
           state.typedValue = '';
           state.inputLocked = false;
           renderPipeline();
@@ -2647,7 +3616,8 @@ function handleBuildCorrect(gapIdx, correct) {
   if (state.level7BuildIdx >= state.missingIndices.length) {
     // All segments filled
     state.inputLocked = true;
-    const firstTry = state.attemptsOnCurrent === 0;
+    const firstTry = state.attemptsOnCurrent === 0 && !state.revealUsedOnCurrent;
+    if (firstTry) playVoice('correct', 350);
     let points = 10;
     if (firstTry) points += 5;
     points += state.streak * 5;
@@ -2676,6 +3646,7 @@ function handleBuildWrong(gapIdx) {
   playWrongSound();
   state.attemptsOnCurrent++;
   state.streak = 0;
+  const mash = registerWrongAttempt();
   updateHUD();
 
   const seg = document.querySelector(`.pipe-segment[data-idx="${gapIdx}"]`);
@@ -2692,7 +3663,10 @@ function handleBuildWrong(gapIdx) {
     }, 800);
   }
 
+  if (mash) setTimeout(() => showGuessCallout(), 350);
+
   setTimeout(() => {
+    if (state.guessLockActive) return;
     state.typedValue = '';
     state.inputLocked = false;
     renderPipeline();
@@ -2725,7 +3699,7 @@ function handleCorrect(gapIdx, correct) {
   }
 
   // All gaps solved
-  const firstTry = state.attemptsOnCurrent === 0;
+  const firstTry = state.attemptsOnCurrent === 0 && !state.revealUsedOnCurrent;
   let points = state.bossRound ? 20 : 10;
   if (firstTry) points += 5;
   points += state.streak * 5;
@@ -2736,16 +3710,21 @@ function handleCorrect(gapIdx, correct) {
   state.roundResults.push({ correct: true, firstTry, pattern: state.patternType });
   recordPatternStat(state.patternType, firstTry);
 
+  let voicedMilestone = false;
   if (state.streak === 3) {
     playStreakSound();
     highlightPipelineGlow('blue');
+    voicedMilestone = playVoice('streak', 300);
   } else if (state.streak === 5) {
     playStreakSound();
     highlightPipelineGlow('green');
+    voicedMilestone = playVoice('streak', 300);
   } else if (state.streak === 10) {
     playStreakSound();
     showMasterBanner();
+    voicedMilestone = playVoice('streak', 300);
   }
+  if (!voicedMilestone && firstTry) playVoice('correct', 350);
 
   updateHUD();
 
@@ -2762,6 +3741,7 @@ function handleWrong(gapIdx) {
   playWrongSound();
   state.attemptsOnCurrent++;
   state.streak = 0;
+  const mash = registerWrongAttempt();
   updateHUD();
 
   const seg = document.querySelector(`.pipe-segment[data-idx="${gapIdx}"]`);
@@ -2779,10 +3759,71 @@ function handleWrong(gapIdx) {
     }, 800);
   }
 
+  if (mash) {
+    setTimeout(() => showGuessCallout(), 350);
+    return;
+  }
+
+  if (state.attemptsOnCurrent === 2) playVoice('encourage', 600);
+
   // Auto hint after 2 wrong
   if (state.attemptsOnCurrent >= 2 && state.hintsUsedOnCurrent === 0 && state.hintsRemaining > 0) {
     setTimeout(() => useHint(), 900);
   }
+}
+
+// ── Guess Detection ────────────────────────────────────
+// Two wrong answers in quick succession = mashing, not thinking.
+function registerWrongAttempt() {
+  const now = Date.now();
+  const sinceLast = now - (state.lastWrongAt || state.questionShownAt || now);
+  state.lastWrongAt = now;
+  return state.attemptsOnCurrent >= 2 && sinceLast < 3000;
+}
+
+function showGuessCallout() {
+  state.guessCalloutsOnCurrent++;
+  state.guessLockActive = true;
+  state.inputLocked = true;
+  const lockMs = state.guessCalloutsOnCurrent >= 2 ? 5000 : 3000;
+
+  // Small, visible cost so guessing is never the fast path
+  const penalty = Math.min(5, state.score);
+  state.score -= penalty;
+  document.getElementById('guessPenalty').textContent = penalty > 0 ? '-' + penalty : '';
+  updateHUD();
+
+  if (!playVoice('guessing')) playGuessSound();
+
+  const banner = document.getElementById('guessBanner');
+  banner.classList.remove('show');
+  void banner.offsetWidth;
+  banner.classList.add('show');
+
+  // Pulse the segments one by one — "read the pipes!"
+  const segs = document.querySelectorAll('.pipe-segment');
+  segs.forEach((s, i) => {
+    s.classList.add('scan-pulse');
+    s.style.setProperty('--scan-delay', (i * 0.22) + 's');
+  });
+
+  const countEl = document.getElementById('guessCount');
+  let remaining = Math.ceil(lockMs / 1000);
+  countEl.textContent = remaining;
+  const iv = setInterval(() => {
+    remaining--;
+    if (remaining > 0) countEl.textContent = remaining;
+  }, 1000);
+
+  setTimeout(() => {
+    clearInterval(iv);
+    banner.classList.remove('show');
+    state.guessLockActive = false;
+    state.inputLocked = false;
+    state.lastWrongAt = Date.now();
+    state.typedValue = '';
+    renderPipeline();
+  }, lockMs);
 }
 
 function recordPatternStat(patternType, firstTry) {
@@ -2866,7 +3907,7 @@ function useHint() {
       document.getElementById('hintDisplay').textContent = `Between ${low} and ${high}`;
     }
   } else if (state.hintsUsedOnCurrent === 2) {
-    if (state.currentLevel <= 1) {
+    if (state.currentLevel === 0) {
       const btns = document.querySelectorAll('.option-btn');
       for (const btn of btns) {
         if (parseInt(btn.textContent) !== correct && !btn.disabled) {
@@ -2882,6 +3923,7 @@ function useHint() {
       document.getElementById('hintDisplay').textContent = `Between ${low} and ${high}`;
     }
   } else {
+    state.revealUsedOnCurrent = true;
     document.getElementById('hintDisplay').textContent = `The answer is ${correct}!`;
     const seg = document.querySelector(`.pipe-segment[data-idx="${currentGapIdx}"]`);
     if (seg) {
@@ -2940,7 +3982,7 @@ function endRound() {
   state.roundCount[state.currentLevel]++;
 
   // Unlock next level if >= 70%
-  if (accuracy >= 0.7 && state.currentLevel < 6) {
+  if (accuracy >= 0.7 && state.currentLevel < 5) {
     state.unlockedLevels[state.currentLevel + 1] = true;
   }
 
@@ -2960,7 +4002,10 @@ function endRound() {
   buildCitySkyline(stars);
   showScreen('screenRoundComplete');
 
-  if (stars >= 2) launchConfetti();
+  if (stars >= 2) {
+    launchConfetti();
+    playVoice('win', 500);
+  }
 }
 
 function buildCitySkyline(stars) {
@@ -2999,9 +4044,8 @@ function openPatternLog() {
   const content = document.getElementById('patternLogContent');
   content.innerHTML = '';
 
-  const catOrder = ['counting', 'skip_counting', 'arithmetic', 'multiplicative', 'special'];
+  const catOrder = ['skip_counting', 'arithmetic', 'multiplicative', 'special'];
   const catNames = {
-    counting: 'Counting',
     skip_counting: 'Skip Counting',
     arithmetic: 'Arithmetic',
     multiplicative: 'Multiplicative',
@@ -3083,7 +4127,10 @@ function launchConfetti() {
 // ── Init ───────────────────────────────────────────────
 loadState();
 buildLevelSelectMonitors();
+buildThemePicker();
 goToLevelSelect();
+initVoice();
+initVoiceGate();
 
 </script>
 </body>
