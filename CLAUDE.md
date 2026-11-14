@@ -100,6 +100,9 @@ Established patterns already in this repo:
 | Grown-ups stats screen + "Tell Dad" share summary | `multiply.html` |
 | Guess-mash detection with playful think-lock | `pipeline.html` |
 | Adaptive pattern selection + per-pattern stats | `pipeline.html` |
+| Apple Pencil drawing canvas with palm rejection (pointer events, pressure) | `handwriting.html` |
+| Stroke templates (`GLYPHS`), animated stroke-order demo, handwriting scoring (`judge`) | `handwriting.html` |
+| Share a picture of his work via the iOS share sheet | `handwriting.html` |
 
 Always check existing files for reusable logic before writing from scratch.
 
@@ -121,8 +124,9 @@ Always check existing files for reusable logic before writing from scratch.
 | File | Description |
 |---|---|
 | `index.html` | Game launcher hub — links to all games |
-| `multiply.html` | Times Tables — 10-star rounds on a number pad; each table hides a picture (Dad's photo) uncovered as facts are remembered; dot-array hints, boss/mix rounds, fact chart, grown-ups stats, Dad's voice throughout |
+| `multiply.html` | Times Tables — 10-star rounds on a number pad; each table hides a picture (Dad's photo) uncovered as facts are remembered; dot-array hints, boss/mix rounds, full 12×12 grid mode (random unanswered squares), fact chart, grown-ups stats, Dad's voice throughout |
 | `red-words.html` | Red Words — sight word flashcards with spaced repetition |
+| `handwriting.html` | Write It! — Apple Pencil handwriting on sky/plane/grass/worm lines: letters, capitals, numbers and short words; each climbs trace → start dots → on his own; animated stroke demos; 0–3 stars from shape and stroke order, with ink turning green/orange as feedback |
 | `place-value.html` | Place Value — interactive base-10 blocks visualization with bundling animation |
 | `pipeline.html` | Pipeline Engineer — number sequence game: 6 levels (starts at skip counting), pattern intros, boss pipes, guess-mash detector, parent voice clips |
 | `shape-builder.html` | Shape Builder — geometry/shapes game |

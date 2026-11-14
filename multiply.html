@@ -213,6 +213,23 @@
     @keyframes poke { from { transform: translateX(0); } to { transform: translateX(12px); } }
     @keyframes dropIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
+    /* Full grid mode: the 12 × 12 grid sits where the dots go */
+    .grid-wrap { grid-area: dots; min-height: 0; display: none; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); border-radius: 28px; overflow: hidden; container-type: size; }
+    .stage.grid-mode .grid-wrap { display: flex; }
+    .stage.grid-mode .dots-wrap.on ~ .grid-wrap { display: none; }
+    .fg { border-collapse: separate; border-spacing: 2px; --g: 4.2vmin; }
+    @supports (width: 1cqw) { .grid-wrap .fg { --g: min(calc((100cqw - 40px) / 13), calc((100cqh - 40px) / 13)); } }
+    .fg th { width: var(--g); height: var(--g); color: var(--purple); font-size: calc(var(--g) * 0.44); text-align: center; }
+    .fg th.hl { color: #ea580c; transform: scale(1.3); }
+    .fg td { width: var(--g); height: var(--g); border-radius: 22%; background: #e8edf5; color: transparent; font-size: calc(var(--g) * 0.4); text-align: center; vertical-align: middle; }
+    .fg td.done { background: #86efac; color: #14532d; }
+    .fg td.pop { animation: starIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .fg td.cur { background: #fde047; box-shadow: 0 0 0 3px #f59e0b; animation: wobble 0.8s ease-in-out infinite alternate; }
+    @keyframes wobble { from { transform: scale(1); } to { transform: scale(1.2); } }
+    .res-frame.grid { width: auto; min-width: 0; padding: 12px; }
+    .res-frame.grid .fg { --g: min(calc((100vw - 90px) / 13.5), calc((100vh - 340px) / 13.5), 46px); }
+    #gridBtn small { color: #16a34a; }
+
     .pad { grid-area: pad; display: grid; grid-template-columns: repeat(3, var(--key)); gap: 10px; align-content: center; justify-content: center; position: relative; }
     .key {
       height: var(--key); border-radius: 22px; background: white; color: var(--purple); font-size: 2.6rem;
@@ -318,6 +335,7 @@
       .res-frame { width: min(86vw, calc((100dvh - 400px) * 4 / 3), 640px); }
       .chart { --c: min(calc((100vw - 100px) / 13), calc((100dvh - 236px) / 13), 58px); }
       .sheet { max-height: 94dvh; }
+      .res-frame.grid .fg { --g: min(calc((100vw - 90px) / 13.5), calc((100dvh - 340px) / 13.5), 46px); }
       .sheet .frame { width: min(100%, calc((94dvh - 290px) * 4 / 3)); }
     }
 
@@ -346,6 +364,7 @@
   <button class="big-btn pulse" id="playBtn" aria-label="Play"></button>
   <div class="tiles" id="tiles"></div>
   <div class="home-foot">
+    <button class="mid-btn" id="gridBtn" aria-label="Full grid"><svg width="36" height="36" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="9" height="9" rx="2.5" fill="#22c55e"/><rect x="12" y="1" width="9" height="9" rx="2.5" fill="#22c55e"/><rect x="24" y="1" width="9" height="9" rx="2.5" fill="#c4b5fd"/><rect x="1" y="12" width="9" height="9" rx="2.5" fill="#22c55e"/><rect x="12" y="12" width="9" height="9" rx="2.5" fill="#22c55e"/><rect x="24" y="12" width="9" height="9" rx="2.5" fill="#fbbf24"/><rect x="1" y="24" width="9" height="9" rx="2.5" fill="#c4b5fd"/><rect x="12" y="24" width="9" height="9" rx="2.5" fill="#c4b5fd"/><rect x="24" y="24" width="9" height="9" rx="2.5" fill="#c4b5fd"/></svg><small id="gridCount"></small></button>
     <button class="mid-btn" id="chartBtn" aria-label="My chart">🔢</button>
     <button class="mid-btn" id="mixBtn" aria-label="Mix">🎲</button>
     <button class="mid-btn" id="tellBtn" aria-label="Tell Dad">💌</button>
@@ -369,6 +388,7 @@
       <div class="msg" id="msg"></div>
     </div>
     <div class="dots-wrap" id="dots"></div>
+    <div class="grid-wrap" id="gridWrap"></div>
     <div class="pad" id="pad">
       <div class="think" id="think">🐢<small>Think…</small></div>
     </div>
@@ -475,7 +495,8 @@
   // ── Saved progress ─────────────────────────────────────────────────────────
   // facts[key]: b = box 0–5, r = right from memory, w = missed, t = last seen,
   //             ms = typical answer time, rv = picture piece earned, d = day of last step up
-  let S = { facts: {}, stars: 0, best: 0, done: {}, crowns: {}, days: {}, log: [], muted: false, turns: 0 };
+  // grid["a×b" as "axb"]: squares answered in full grid mode (all 144, order matters)
+  let S = { facts: {}, stars: 0, best: 0, done: {}, crowns: {}, days: {}, log: [], muted: false, turns: 0, grid: {}, gridWins: 0 };
 
   function load() {
     try {
@@ -660,6 +681,7 @@
         frameHtml(T) + '<span class="tag">×' + T + '</span>' + (S.crowns[T] ? '<span class="crown">👑</span>' : '') +
       '</button>').join('');
     $('mixBtn').style.display = mixReady() ? '' : 'none';
+    $('gridCount').textContent = gridCount() || '';
     $('tellBtn').style.display = S.log.length ? '' : 'none';
     $('muteBtn').textContent = S.muted ? '🔇' : '🔊';
     paintDads();
@@ -732,7 +754,47 @@
     return out;
   }
 
+  // ── Full grid mode: all 144 squares, asked in a mixed-up order ─────────────
+  const gridCount = () => Object.keys(S.grid).length;
+  function gridOpen() {
+    const cells = [];
+    for (let a = 1; a <= 12; a++) for (let b = 1; b <= 12; b++) if (!S.grid[a + 'x' + b]) cells.push([a, b]);
+    return cells;
+  }
+  // Asked exactly as the square reads (row × column); dots only if he asks or misses
+  const gridItem = (a, b) => ({ a: a, b: b, k: fkey(a, b), intro: false, cell: a + 'x' + b });
+  // Any unanswered square can come up; of every three drawn, the one he knows
+  // best goes first, so the early going leans towards facts he has met
+  function gridQueue(n) {
+    const open = shuffle(gridOpen());
+    const out = [];
+    while (out.length < n && open.length) {
+      const group = open.splice(0, Math.min(3, open.length));
+      group.sort((x, y) => getF(fkey(y[0], y[1])).b - getF(fkey(x[0], x[1])).b);
+      out.push(gridItem(group[0][0], group[0][1]));
+      for (let i = 1; i < group.length; i++) open.splice(Math.floor(Math.random() * (open.length + 1)), 0, group[i]);
+    }
+    return out;
+  }
+  function gridHtml(cur, hide) {
+    const p = cur ? cur.split('x').map(Number) : [0, 0];
+    let h = '<table class="fg"><tr><th>×</th>';
+    for (let j = 1; j <= 12; j++) h += '<th' + (j === p[1] ? ' class="hl"' : '') + '>' + j + '</th>';
+    h += '</tr>';
+    for (let i = 1; i <= 12; i++) {
+      h += '<tr><th' + (i === p[0] ? ' class="hl"' : '') + '>' + i + '</th>';
+      for (let j = 1; j <= 12; j++) {
+        const c = i + 'x' + j;
+        const done = S.grid[c] && !(hide && hide.indexOf(c) !== -1);
+        h += '<td class="' + (c === cur ? 'cur' : done ? 'done' : '') + '" data-c="' + c + '">' + (i * j) + '</td>';
+      }
+      h += '</tr>';
+    }
+    return h + '</table>';
+  }
+
   function buildQueue(mode, T) {
+    if (mode === 'grid') return gridQueue(ROUND_STARS);
     if (mode === 'boss') {
       return shuffle(MULT_ORDER.slice()).map(m => makeItem(T, m, false));
     }
@@ -790,15 +852,18 @@
   function startRound(mode, T) {
     closeOverlays();
     clearTimers();
+    if (mode === 'grid' && !gridOpen().length) { S.grid = {}; save(); }   // finished: start a fresh grid
+    const queue = buildQueue(mode, T);
     R = {
-      mode: mode, T: T, target: mode === 'boss' ? 12 : ROUND_STARS,
-      queue: buildQueue(mode, T), stars: 0, asked: 0, first: 0, misses: [], reveals: [], peeks: [],
+      mode: mode, T: T, target: mode === 'boss' ? 12 : mode === 'grid' ? Math.min(ROUND_STARS, queue.length) : ROUND_STARS,
+      queue: queue, stars: 0, asked: 0, first: 0, misses: [], reveals: [], peeks: [], cells: [],
       promoted: {}, requeued: {}, t0: Date.now(), startBox: {},
     };
     if (!R.queue.length) { goHome(); return; }
     $('strip').innerHTML = Array.from({ length: R.target }, () => '<div class="slot"><span>⭐</span></div>').join('');
     updateStreak();
     paintDads();
+    document.querySelector('.stage').classList.toggle('grid-mode', mode === 'grid');
     show('play');
     VoiceBank.stop();
     if (mode === 'boss') say(['boss', 'roundstart'], 300);
@@ -809,7 +874,12 @@
 
   function nextQ() {
     if (R.stars >= R.target || R.asked >= (R.mode === 'boss' ? 12 : MAX_QUESTIONS)) { finishRound(); return; }
-    if (!R.queue.length) {
+    if (!R.queue.length && R.mode === 'grid') {
+      const open = gridOpen();
+      if (!open.length) { finishRound(); return; }
+      const c = pick(open);
+      R.queue.push(gridItem(c[0], c[1]));
+    } else if (!R.queue.length) {
       // Ran out before ten stars (lots of show-me's): bring a missed fact back
       const k = R.misses.length ? pick(R.misses) : null;
       if (!k) { finishRound(); return; }
@@ -828,6 +898,7 @@
     $('hintBtn').hidden = false;
     setMsg('', '');
     renderQuestion();
+    if (it.cell) $('gridWrap').innerHTML = gridHtml(it.cell);
     if (Q.isNew) {
       showDots();
       Q.helped = true;
@@ -956,7 +1027,9 @@
     if (R.mode === 'boss' || R.requeued[k]) return;
     R.requeued[k] = true;
     const it = Q.it;
-    R.queue.splice(Math.min(2, R.queue.length), 0, { a: it.b, b: it.a, k: k, intro: false });
+    R.queue.splice(Math.min(2, R.queue.length), 0, it.cell
+      ? { a: it.a, b: it.b, k: k, intro: false, cell: it.cell }
+      : { a: it.b, b: it.a, k: k, intro: false });
   }
 
   function onCorrect(elapsed) {
@@ -986,7 +1059,8 @@
     if (boxBefore === 0 && !f.rv) R.peeks.push(k);
     let newPiece = false;
     if (f.b >= 2 && !f.rv) { f.rv = 1; R.reveals.push(k); newPiece = true; }
-    if (!first) requeue();
+    if (Q.it.cell && !S.grid[Q.it.cell]) { S.grid[Q.it.cell] = 1; R.cells.push(Q.it.cell); }
+    else if (!first) requeue();
     const fast = clean && elapsed < 3500 && R.startBox[k] >= 2;
 
     R.stars++;
@@ -995,6 +1069,10 @@
 
     // Feedback: the whole fact in green, a star, and sometimes Dad
     renderQuestion(true);
+    if (Q.it.cell) {
+      const td = document.querySelector('#gridWrap [data-c="' + Q.it.cell + '"]');
+      if (td) td.className = 'done pop';
+    }
     const slot = $('strip').children[R.stars - 1];
     if (slot) slot.classList.add('on');
     updateStreak();
@@ -1106,6 +1184,7 @@
     S.stars += bonus;
     const d = day();
     d.r++;
+    if (R.mode === 'grid') { finishGrid(perfect, bonus, d); return; }
 
     // Which picture to show: the table just played, or wherever pieces were won
     let T = R.T;
@@ -1128,10 +1207,9 @@
     let crown = false;
     if (R.mode === 'boss' && R.misses.length <= 1 && !S.crowns[T]) { S.crowns[T] = 1; crown = true; }
 
-    S.log.push({ t: Date.now(), m: R.mode, T: R.T || 0, q: R.asked, c: R.first, miss: R.misses.slice(0, 8), s: Math.round((Date.now() - R.t0) / 1000) });
-    if (S.log.length > 60) S.log = S.log.slice(-60);
-    save();
+    logRound();
 
+    $('resFrame').className = 'res-frame';
     $('resTitle').innerHTML = (crown ? '👑' : perfect ? '💯' : '🎉') + ' +' + (R.stars + bonus) + ' ⭐' +
       (fresh.length ? '<small>+' + fresh.length + ' 🧩</small>' : '');
     const peeked = [];
@@ -1174,7 +1252,44 @@
     R.photoDone = photoDone;
   }
 
+  function logRound() {
+    S.log.push({ t: Date.now(), m: R.mode, T: R.T || 0, q: R.asked, c: R.first, miss: R.misses.slice(0, 8), s: Math.round((Date.now() - R.t0) / 1000) });
+    if (S.log.length > 60) S.log = S.log.slice(-60);
+    save();
+  }
+
+  // Full grid round: show the whole grid and pop in the squares just won
+  function finishGrid(perfect, bonus, d) {
+    const total = gridCount();
+    const complete = total === 144;
+    if (complete) S.gridWins = (S.gridWins || 0) + 1;
+    logRound();
+
+    $('resTitle').innerHTML = (complete ? '🏆' : perfect ? '💯' : '🎉') + ' +' + (R.stars + bonus) + ' ⭐<small>' + total + ' / 144</small>';
+    const rf = $('resFrame');
+    rf.className = 'res-frame grid';
+    rf.innerHTML = gridHtml(null, R.cells);
+    $('resTell').style.display = '';
+    paintDads();
+    show('result');
+
+    if (perfect || complete) { sfx.fanfare(); confetti(3); } else { sfx.great(); confetti(1); }
+    VoiceBank.stop();
+    say(perfect ? ['perfect', 'win'] : 'win', 500);
+    R.cells.forEach((c, i) => later(() => {
+      const td = rf.querySelector('[data-c="' + c + '"]');
+      if (td) td.className = 'done pop';
+      sfx.pop(i);
+    }, 900 + i * 220));
+    later(() => {
+      if (complete) { sfx.fanfare(); confetti(5); say(['tablemaster', 'newphoto'], 300, { queue: true }); }
+      else if (d.r === 3) say('break', 0, { queue: true });
+    }, 900 + R.cells.length * 220 + 300);
+    R.resultTable = 0;
+  }
+
   function playAgain() {
+    if (R && R.mode === 'grid') { startRound('grid', 0); return; }
     // Stay on the table he picked until its picture is finished
     if (R && R.mode !== 'mix' && R.T && revealedCount(R.T) < 12) startRound('table', R.T);
     else playNext();
@@ -1258,6 +1373,7 @@
     lines.push('Knows ' + knownCount() + ' of 78 facts · ⭐ ' + S.stars + ' · best streak ' + S.best);
     const done = ORDER.filter(T => S.done[T]);
     if (done.length) lines.push('Pictures unlocked: ' + done.map(T => '×' + T + (S.crowns[T] ? '👑' : '')).join(', '));
+    if (gridCount() || S.gridWins) lines.push('Full grid: ' + gridCount() + '/144' + (S.gridWins ? ' (finished ' + S.gridWins + '×)' : ''));
     const next = nextTable();
     if (next) lines.push('Working on: ×' + next + ' (' + revealedCount(next) + '/12)');
     const tricky = trickyFacts(5);
@@ -1302,7 +1418,7 @@
 
     const rows = S.log.slice(-10).reverse().map(l => {
       const when = new Date(l.t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-      const what = l.m === 'mix' ? 'Mix' : (l.m === 'boss' ? 'Boss ' : '') + '×' + l.T;
+      const what = l.m === 'mix' ? 'Mix' : l.m === 'grid' ? 'Full grid' : (l.m === 'boss' ? 'Boss ' : '') + '×' + l.T;
       return '<tr><td>' + when + '</td><td>' + what + '</td><td>' + l.c + ' / ' + l.q + '</td><td>' + (l.miss.length ? l.miss.map(pretty).join(', ') : '—') + '</td></tr>';
     }).join('');
 
@@ -1320,6 +1436,7 @@
       '</div>' +
       '<h3>Last two weeks — questions per day</h3><div class="days">' + bars + '</div>' +
       '<h3>Tables — picture pieces earned</h3><p>' + tablesHtml + '</p>' +
+      '<h3>Full grid</h3><p>' + gridCount() + ' of 144 squares answered' + (S.gridWins ? ' · finished ' + S.gridWins + '×' : '') + '</p>' +
       '<h3>Tricky facts right now</h3><div class="tricky">' + trickyHtml + '</div>' +
       '<h3>Recent rounds</h3>' + (rows ? '<table><tr><th>When</th><th>Round</th><th>From memory</th><th>Missed</th></tr>' + rows + '</table>' : '<p class="sub">No rounds yet.</p>') +
       '<div class="g-btns">' +
@@ -1377,6 +1494,7 @@
     if (t) { sfx.tap(); openTableCard(Number(t.dataset.table)); }
   };
   $('chartBtn').onclick = () => { renderChart(); show('chart'); };
+  $('gridBtn').onclick = () => startRound('grid', 0);
   $('mixBtn').onclick = () => startRound('mix', 0);
   $('tellBtn').onclick = tellDad;
   $('resTell').onclick = tellDad;
@@ -1440,7 +1558,7 @@
     else if (g === 'reset') {
       if (confirm('Erase all of Leon’s Times Tables progress on this device?')) {
         const muted = S.muted;
-        S = { facts: {}, stars: 0, best: 0, done: {}, crowns: {}, days: {}, log: [], muted: muted, turns: 0 };
+        S = { facts: {}, stars: 0, best: 0, done: {}, crowns: {}, days: {}, log: [], muted: muted, turns: 0, grid: {}, gridWins: 0 };
         save();
         renderGrown();
       }

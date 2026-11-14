@@ -82,6 +82,7 @@
     .card:nth-child(5) { animation-delay: 1.6s; }
     .card:nth-child(6) { animation-delay: 2.0s; }
     .card:nth-child(7) { animation-delay: 2.4s; }
+    .card:nth-child(8) { animation-delay: 2.8s; }
 
     .card:active {
       transform: scale(0.97);
@@ -121,6 +122,10 @@
     /* Math Tricks */
     .card--tricks { border-top-color: #8b5cf6; }
     .card--tricks .card__icon { background: linear-gradient(135deg, #8b5cf6, #6366f1); }
+
+    /* Handwriting */
+    .card--write { border-top-color: #ec4899; }
+    .card--write .card__icon { background: linear-gradient(135deg, #ec4899, #fb923c); }
 
     /* Word Builder */
     .card--words2 { border-top-color: #F59E0B; }
@@ -216,6 +221,12 @@
       <div class="card__icon"><span>Aa</span></div>
       <div class="card__name">Red Words</div>
       <div class="card__desc">Learn sight words!</div>
+    </a>
+
+    <a href="handwriting.html" class="card card--write">
+      <div class="card__icon">&#9999;&#65039;</div>
+      <div class="card__name">Write It!</div>
+      <div class="card__desc">Write with your pencil!</div>
     </a>
 
     <a href="place-value.html" class="card card--blocks">
