@@ -2,693 +2,1466 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Times Tables!">
   <link rel="manifest" href="manifest.json">
   <title>Times Tables!</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --purple: #7c3aed;
+      --purple-dark: #5b21b6;
+      --green: #22c55e;
+      --green-dark: #15803d;
+      --orange: #f97316;
+      --yellow: #fbbf24;
+      --ink: #1e1b4b;
+      --key: clamp(58px, 10.4vmin, 92px);
+    }
+
+    html { font-size: clamp(14px, 2.1vmin, 22px); }
 
     body {
-      font-family: 'Nunito', sans-serif;
-      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    h1 {
-      font-family: 'Fredoka One', cursive;
-      text-align: center;
-      color: white;
-      font-size: 3.2rem;
-      text-shadow: 3px 4px 0 rgba(0,0,0,0.18);
-      margin-bottom: 24px;
-      letter-spacing: 2px;
-    }
-
-    .layout {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    /* ── Quiz Panel ── */
-    .quiz-panel {
-      background: white;
-      border-radius: 28px;
-      padding: 32px 28px 24px;
-      text-align: center;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-      min-width: 280px;
-      flex: 0 0 300px;
-    }
-
-    .stars-row {
-      font-size: 1.6rem;
-      min-height: 36px;
-      margin-bottom: 8px;
-    }
-
-    .question {
-      font-family: 'Fredoka One', cursive;
-      font-size: 4rem;
-      color: #7c3aed;
-      margin: 12px 0 6px;
-      line-height: 1.1;
-    }
-
-    .feedback {
-      font-family: 'Fredoka One', cursive;
-      font-size: 1.8rem;
-      min-height: 46px;
-      margin: 6px 0;
-      transition: opacity 0.3s;
-    }
-    .feedback.correct { color: #16a34a; }
-    .feedback.wrong   { color: #dc2626; }
-
-    .answer-input {
-      font-size: 2.8rem;
-      width: 140px;
-      text-align: center;
-      border: 4px solid #c4b5fd;
-      border-radius: 18px;
-      padding: 8px 12px;
-      font-family: 'Fredoka One', cursive;
-      color: #7c3aed;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .answer-input:focus { border-color: #7c3aed; }
-
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 18px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      border: none;
-      border-radius: 16px;
-      padding: 14px 28px;
-      font-size: 1.3rem;
-      font-family: 'Fredoka One', cursive;
-      cursor: pointer;
-      transition: transform 0.1s, box-shadow 0.1s;
-    }
-    .btn:active { transform: translateY(3px); box-shadow: none !important; }
-
-    .btn-check {
-      background: #22c55e;
-      color: white;
-      box-shadow: 0 4px 0 #15803d;
-    }
-    .btn-show {
-      background: #f97316;
-      color: white;
-      box-shadow: 0 4px 0 #c2410c;
-    }
-    .btn-skip {
-      background: #94a3b8;
-      color: white;
-      box-shadow: 0 4px 0 #64748b;
-      font-size: 1rem;
-      padding: 10px 18px;
-    }
-
-    .progress-bar-wrap {
-      margin-top: 18px;
-      background: #f1f5f9;
-      border-radius: 20px;
-      height: 16px;
+      font-family: ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', 'Nunito', system-ui, -apple-system, sans-serif;
+      font-weight: 800;
+      color: var(--ink);
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%) fixed;
+      height: 100vh;
+      height: 100dvh;
       overflow: hidden;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #22c55e, #86efac);
-      border-radius: 20px;
-      transition: width 0.4s ease;
-    }
-    .progress-text {
-      font-size: 0.9rem;
-      color: #6b7280;
-      margin-top: 6px;
-    }
-
-    /* ── Grid Panel ── */
-    .grid-panel {
-      background: white;
-      border-radius: 28px;
-      padding: 18px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-      overflow-x: auto;
-    }
-
-    .grid-top-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .grid-hint {
-      font-size: 0.82rem;
-      color: #9ca3af;
-      font-style: italic;
-    }
-
-    .btn-reveal {
-      background: #e0e7ff;
-      color: #4338ca;
-      box-shadow: 0 3px 0 #a5b4fc;
-      font-size: 0.85rem;
-      padding: 8px 14px;
-      white-space: nowrap;
-    }
-    .btn-reveal.active {
-      background: #4338ca;
-      color: white;
-      box-shadow: 0 3px 0 #3730a3;
-    }
-
-    .grid-table {
-      border-collapse: separate;
-      border-spacing: 3px;
-    }
-
-    .grid-table th {
-      font-family: 'Fredoka One', cursive;
-      color: #7c3aed;
-      font-size: 0.85rem;
-      width: 40px;
-      height: 40px;
-      text-align: center;
-      vertical-align: middle;
-    }
-
-    .grid-cell {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      background: #f8fafc;
-      border: 2px solid #e2e8f0;
-      cursor: pointer;
-      font-family: 'Fredoka One', cursive;
-      font-size: 0.7rem;
-      color: #cbd5e1;
-      text-align: center;
-      vertical-align: middle;
-      transition: transform 0.15s, background 0.2s, border-color 0.2s;
+      -webkit-user-select: none;
       user-select: none;
-    }
-    .grid-cell:hover {
-      background: #ede9fe;
-      border-color: #a78bfa;
-      transform: scale(1.12);
-      color: #7c3aed;
-      z-index: 1;
-      position: relative;
-    }
-    .grid-cell.correct {
-      background: #dcfce7;
-      border-color: #86efac;
-      color: #16a34a;
-    }
-    .grid-cell.current {
-      background: #fef9c3;
-      border-color: #fbbf24;
-      color: #92400e;
-      animation: wobble 0.8s infinite alternate;
-    }
-    @keyframes wobble {
-      from { transform: scale(1);   }
-      to   { transform: scale(1.12); }
+      touch-action: manipulation;
     }
 
-    /* ── Modal ── */
-    .modal-overlay {
+    button { font: inherit; color: inherit; border: none; cursor: pointer; touch-action: manipulation; }
+
+    .view {
       display: none;
-      position: fixed;
+      position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.55);
-      z-index: 200;
+      padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .modal-overlay.active { display: flex; }
-
-    .modal {
-      background: white;
-      border-radius: 28px;
-      padding: 30px;
-      max-width: 640px;
-      width: 100%;
-      max-height: 85vh;
+      gap: 14px;
       overflow-y: auto;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-      animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
     }
-    @keyframes popIn {
-      from { transform: scale(0.7); opacity: 0; }
-      to   { transform: scale(1);   opacity: 1; }
+    .view.active { display: flex; }
+
+    /* ── Shared bits ─────────────────────────────── */
+    .bar { width: 100%; max-width: 1000px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .bar h1 { flex: 1; color: white; font-size: 2.2rem; text-shadow: 2px 3px 0 rgba(0,0,0,0.18); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .round-btn {
+      width: 64px; height: 64px; border-radius: 20px; flex-shrink: 0;
+      background: rgba(255,255,255,0.92); box-shadow: 0 4px 0 rgba(0,0,0,0.18);
+      font-size: 1.9rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
+    }
+    .round-btn:active { transform: translateY(3px); box-shadow: none; }
+
+    .chip {
+      min-height: 52px; padding: 0 18px; border-radius: 26px; background: rgba(255,255,255,0.92);
+      box-shadow: 0 4px 0 rgba(0,0,0,0.18); display: flex; align-items: center; gap: 6px;
+      font-size: 1.6rem; color: var(--purple); flex-shrink: 0;
+    }
+    .chip.bump { animation: bump 0.4s; }
+    @keyframes bump { 40% { transform: scale(1.25); } }
+
+    /* Dad in the corner */
+    .dad {
+      width: 68px; height: 68px; border-radius: 50%; flex-shrink: 0; position: relative;
+      background: #fde68a; border: 4px solid white; box-shadow: 0 4px 0 rgba(0,0,0,0.18);
+      font-size: 2.2rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+      padding: 0; overflow: visible;
+    }
+    .dad img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+    .dad::after {
+      content: ''; position: absolute; inset: -8px; border-radius: 50%;
+      border: 4px solid #fde047; opacity: 0; pointer-events: none;
+    }
+    .dad-talking .dad { animation: dadTalk 0.5s ease-in-out infinite alternate; }
+    .dad-talking .dad::after { animation: dadRing 0.9s ease-out infinite; }
+    .dad.boing { animation: boing 0.5s; }
+    @keyframes dadTalk { from { transform: rotate(-5deg) scale(1.04); } to { transform: rotate(5deg) scale(1.1); } }
+    @keyframes dadRing { from { opacity: 0.9; transform: scale(0.9); } to { opacity: 0; transform: scale(1.35); } }
+    @keyframes boing { 30% { transform: scale(0.8); } 60% { transform: scale(1.2) rotate(8deg); } }
+
+    .big-btn {
+      border-radius: 28px; background: var(--green); color: white; box-shadow: 0 7px 0 var(--green-dark);
+      font-size: 2.6rem; min-height: 96px; padding: 0 44px; display: flex; align-items: center; justify-content: center; gap: 16px;
+      text-shadow: 1px 2px 0 rgba(0,0,0,0.15); flex-shrink: 0;
+    }
+    .big-btn:active { transform: translateY(5px); box-shadow: 0 2px 0 var(--green-dark); }
+    .big-btn.pulse { animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 50% { transform: scale(1.05); } }
+    .big-btn.gold { background: var(--yellow); box-shadow: 0 7px 0 #b45309; color: #78350f; text-shadow: none; }
+    .big-btn.gold:active { box-shadow: 0 2px 0 #b45309; }
+    .mid-btn {
+      min-height: 68px; min-width: 68px; padding: 0 22px; border-radius: 22px; background: white;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.18); font-size: 1.9rem; display: flex; align-items: center; justify-content: center; gap: 10px;
+      color: var(--purple); flex-shrink: 0;
+    }
+    .mid-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.18); }
+    .mid-btn small { font-size: 1.1rem; }
+
+    /* ── Mystery picture frame ───────────────────── */
+    .frame {
+      position: relative; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden;
+      background: #312e81; container-type: size; width: 100%;
+    }
+    .frame .pic-bg { position: absolute; inset: -12px; background-size: cover; background-position: center; filter: blur(10px) brightness(0.8); }
+    .frame .pic { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    .frame .scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+    .frame .scene span { font-size: 3rem; font-size: 62cqh; line-height: 1; filter: drop-shadow(0 4px 0 rgba(0,0,0,0.15)); }
+    .covers { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); }
+    .cover {
+      background: var(--cv, #7c3aed); display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.85); font-size: 1rem; font-size: 9cqh;
+      transition: transform 0.6s cubic-bezier(0.5, -0.4, 0.7, 1), opacity 0.6s;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14);
+    }
+    .cover:nth-child(8n+1), .cover:nth-child(8n+3), .cover:nth-child(8n+6), .cover:nth-child(8n+8) { background: var(--cv2, #6d28d9); }
+    .cover.peek { opacity: 0.8; }
+    .cover.open { opacity: 0; transform: scale(0.2) rotate(40deg); }
+    .frame.done { box-shadow: 0 0 0 5px #fde047, 0 0 34px 6px rgba(253,224,71,0.8); }
+
+    /* ── Splash ──────────────────────────────────── */
+    #v-splash { justify-content: center; gap: 28px; }
+    #v-splash h1 { color: white; font-size: 4.2rem; text-shadow: 3px 4px 0 rgba(0,0,0,0.18); text-align: center; }
+    #v-splash .dad { width: 150px; height: 150px; font-size: 5rem; border-width: 7px; }
+    #v-splash .big-btn { font-size: 3.6rem; min-height: 120px; padding: 0 70px; }
+
+    /* ── Home ────────────────────────────────────── */
+    #v-home { justify-content: flex-start; }
+    .tiles {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+      width: min(100%, calc((100vh - 360px) * 16 / 9 + 36px)); min-width: min(100%, 520px); flex-shrink: 0;
+    }
+    .tile {
+      position: relative; border-radius: 22px; padding: 6px; background: white;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.18); display: block; text-align: left;
+    }
+    .tile:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.18); }
+    .tile .frame { border-radius: 16px; }
+    .tile .tag {
+      position: absolute; left: 0; bottom: 0; background: white; color: var(--purple);
+      font-size: 1.7rem; padding: 2px 14px 4px 12px; border-radius: 0 16px 0 20px; line-height: 1.2;
+    }
+    .tile .crown { position: absolute; right: -4px; top: -12px; font-size: 2.1rem; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.2)); }
+    .tile.next { box-shadow: 0 5px 0 rgba(0,0,0,0.18), 0 0 0 5px #fde047; animation: pulse 1.6s ease-in-out infinite; }
+    .home-foot { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 1000px; flex-shrink: 0; }
+    .hold-btn { position: relative; overflow: hidden; background: rgba(255,255,255,0.35); color: white; box-shadow: none; font-size: 1.5rem; }
+    .hold-btn i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(255,255,255,0.6); pointer-events: none; }
+    .hold-btn.holding i { width: 100%; transition: width 1.2s linear; }
+
+    @media (orientation: portrait) {
+      .tiles { grid-template-columns: repeat(3, 1fr); width: min(100%, calc(100vh - 370px)); }
     }
 
-    .modal-title {
-      font-family: 'Fredoka One', cursive;
-      font-size: 2.8rem;
-      color: #7c3aed;
-      margin-bottom: 6px;
-    }
-    .modal-subtitle {
-      font-size: 1rem;
-      color: #6b7280;
-      margin-bottom: 20px;
+    /* ── Play ────────────────────────────────────── */
+    #v-play { overflow: hidden; }
+    .stars-strip { flex: 1; display: flex; gap: 4px; justify-content: center; align-items: center; min-width: 0; }
+    .slot { flex: 0 1 46px; aspect-ratio: 1; min-width: 0; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; line-height: 1; border-radius: 50%; background: rgba(255,255,255,0.28); }
+    .slot span { filter: grayscale(1) opacity(0.3); }
+    .slot.on { background: rgba(255,255,255,0.9); }
+    .slot.on span { filter: none; }
+    .slot.on { animation: starIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes starIn { from { transform: scale(2.6) rotate(-90deg); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    .stage { flex: 1; width: 100%; max-width: 1000px; min-height: 0; display: grid; gap: 14px;
+      grid-template-columns: 1fr auto; grid-template-rows: auto 1fr; grid-template-areas: "q pad" "dots pad"; }
+    @media (orientation: portrait) {
+      .stage { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; grid-template-areas: "q" "dots" "pad"; }
     }
 
-    /* ── Group-by controls ── */
-    .groupby-section {
-      margin: 10px 0 16px;
+    .qcard {
+      grid-area: q; background: white; border-radius: 28px; box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+      padding: 16px 84px 12px; text-align: center; position: relative;
     }
-    .groupby-label {
-      font-family: 'Fredoka One', cursive;
-      font-size: 1rem;
-      color: #6b7280;
-      margin-bottom: 8px;
+    .question { font-size: 4.6rem; color: var(--purple); line-height: 1.15; display: flex; align-items: center; justify-content: center; gap: 0.25em; flex-wrap: wrap; }
+    .question.right { color: #16a34a; }
+    .ansbox {
+      display: inline-flex; align-items: center; justify-content: center; min-width: 2.3em; height: 1.35em; padding: 0 0.2em;
+      border: 5px solid #c4b5fd; border-radius: 22px; background: #faf5ff; color: var(--purple);
     }
-    .groupby-btns {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      justify-content: center;
+    .ansbox.ghost { color: #c4b5fd; }
+    .ansbox i { font-style: normal; color: #c4b5fd; animation: ghostPulse 0.7s ease-in-out infinite alternate; }
+    @keyframes ghostPulse { to { color: #8b5cf6; } }
+    .ansbox.shake { animation: shake 0.4s; border-color: #fb923c; }
+    .question.right .ansbox { border-color: #86efac; background: #dcfce7; color: #16a34a; }
+    @keyframes shake { 20% { transform: translateX(-10px); } 40% { transform: translateX(10px); } 60% { transform: translateX(-7px); } 80% { transform: translateX(7px); } }
+    .msg { min-height: 2.4rem; font-size: 1.8rem; color: #6b7280; margin-top: 4px; }
+    .msg.good { color: #16a34a; }
+    .msg.new { color: #db2777; }
+    .hint-btn { position: absolute; right: 12px; top: 12px; width: 64px; height: 64px; border-radius: 20px; background: #fef3c7; font-size: 2rem; box-shadow: 0 4px 0 #fcd34d; }
+    .hint-btn:active { transform: translateY(3px); box-shadow: none; }
+    .hint-btn[hidden] { display: none; }
+
+    .dots-wrap { grid-area: dots; min-height: 0; background: rgba(255,255,255,0.9); border-radius: 28px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 10px; opacity: 0; transition: opacity 0.3s; }
+    .dots-wrap.on { opacity: 1; }
+    .drow { display: flex; align-items: center; }
+    .ddot { border-radius: 50%; flex-shrink: 0; animation: dropIn 0.3s both; }
+    .dlabel { font-size: 1.2rem; color: var(--purple); text-align: left; padding-left: 10px; flex-shrink: 0; position: relative; display: flex; align-items: center; }
+    .dlabel b { visibility: hidden; }
+    .dlabel.on b { visibility: visible; animation: bump 0.35s; }
+    .dlabel.last { color: #16a34a; }
+    .dlabel.cue::after { content: '👈'; position: absolute; left: 8px; top: 50%; font-size: 1.9rem; line-height: 1; margin-top: -0.95rem; animation: poke 0.7s ease-in-out infinite alternate; }
+    @keyframes poke { from { transform: translateX(0); } to { transform: translateX(12px); } }
+    @keyframes dropIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .pad { grid-area: pad; display: grid; grid-template-columns: repeat(3, var(--key)); gap: 10px; align-content: center; justify-content: center; position: relative; }
+    .key {
+      height: var(--key); border-radius: 22px; background: white; color: var(--purple); font-size: 2.6rem;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center;
     }
-    .btn-gb {
-      font-family: 'Fredoka One', cursive;
-      font-size: 1rem;
-      padding: 6px 14px;
-      border: 2px solid #e2e8f0;
-      border-radius: 20px;
-      background: #f8fafc;
-      color: #64748b;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .btn-gb:hover { background: #ede9fe; border-color: #a78bfa; color: #7c3aed; }
-    .btn-gb.active {
-      background: #7c3aed;
-      border-color: #7c3aed;
-      color: white;
-      box-shadow: 0 3px 0 #5b21b6;
+    .key:active, .key.down { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); background: #ede9fe; }
+    .key.go { background: var(--green); color: white; box-shadow: 0 6px 0 var(--green-dark); }
+    .key.go:active, .key.go.down { background: #16a34a; box-shadow: 0 2px 0 var(--green-dark); }
+    .key.del { background: #e2e8f0; color: #475569; }
+    .think { position: absolute; inset: -6px; border-radius: 26px; background: rgba(30,27,75,0.82); color: white; font-size: 5rem; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 8px; z-index: 5; }
+    .think.on { display: flex; }
+    .think small { font-size: 1.6rem; }
+    @media (orientation: portrait) {
+      .pad { grid-template-columns: repeat(6, var(--key)); }
     }
 
-    /* ── Dot boxes ── */
-    .boxes-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin: 6px 0 20px;
+    /* ── Result ──────────────────────────────────── */
+    #v-result { justify-content: center; gap: 18px; }
+    .res-title { color: white; font-size: 3.6rem; text-shadow: 3px 4px 0 rgba(0,0,0,0.18); text-align: center; }
+    .res-title small { display: block; font-size: 1.8rem; }
+    .res-frame { width: min(86vw, calc((100vh - 400px) * 4 / 3), 640px); min-width: 240px; background: white; padding: 8px; border-radius: 26px; box-shadow: 0 8px 28px rgba(0,0,0,0.22); position: relative; flex-shrink: 0; }
+    .res-frame .tag { position: absolute; left: 0; bottom: 0; background: white; color: var(--purple); font-size: 2rem; padding: 2px 18px 6px 16px; border-radius: 0 20px 0 26px; }
+    .res-btns { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; }
+
+    /* ── Chart ───────────────────────────────────── */
+    .chart-card { background: white; border-radius: 24px; padding: 10px; box-shadow: 0 8px 28px rgba(0,0,0,0.18); flex-shrink: 0; }
+    .chart { border-collapse: separate; border-spacing: 3px; --c: min(calc((100vw - 100px) / 13), calc((100vh - 236px) / 13), 58px); }
+    .chart th { width: var(--c); height: var(--c); color: var(--purple); font-size: calc(var(--c) * 0.42); text-align: center; }
+    .chart td {
+      width: var(--c); height: var(--c); border-radius: 22%; background: #f1f5f9; color: transparent;
+      font-size: calc(var(--c) * 0.38); text-align: center; vertical-align: middle; cursor: pointer;
     }
-    .dot-box {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      padding: 8px;
-      border-radius: 14px;
-      border: 3px solid;
-      background: white;
+    .chart td.learn { background: #fef08a; color: #854d0e; }
+    .chart td.know { background: #86efac; color: #14532d; }
+    .chart td.gold { background: #fbbf24; color: #78350f; box-shadow: inset 0 0 0 2px #f59e0b; }
+    .legend { display: flex; gap: 18px; color: white; font-size: 1.3rem; align-items: center; flex-wrap: wrap; justify-content: center; }
+    .legend i { display: inline-block; width: 1.3em; height: 1.3em; border-radius: 6px; vertical-align: -0.25em; margin-right: 6px; }
+
+    /* ── Overlays ────────────────────────────────── */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(15,10,60,0.6); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+    .overlay.active { display: flex; }
+    .sheet {
+      background: white; border-radius: 30px; padding: 22px; width: 100%; max-width: 640px; max-height: 94vh; overflow-y: auto;
+      text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.35); animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative;
     }
-    .dot-box.partial {
-      border-style: dashed;
-      opacity: 0.85;
-    }
-    .dot {
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: transform 0.15s;
-      animation: dropIn 0.25s both;
-    }
-    .dot:hover { transform: scale(1.3); }
-    .dot.ghost {
-      background: transparent !important;
-      box-shadow: none !important;
-      border: 2px dashed #cbd5e1;
-    }
-    @keyframes dropIn {
-      from { transform: scale(0) rotate(-20deg); opacity: 0; }
-      to   { transform: scale(1) rotate(0);      opacity: 1; }
+    @keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .sheet-title { font-size: 3rem; color: var(--purple); margin-bottom: 10px; }
+    .sheet .close { position: absolute; right: 14px; top: 14px; background: #f1f5f9; box-shadow: none; z-index: 2; }
+    .sheet .frame { margin: 0 auto 16px; width: min(100%, calc((94vh - 290px) * 4 / 3)); }
+    .sheet-btns { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; }
+    .sheet-btns .mid-btn { background: #ede9fe; box-shadow: 0 5px 0 #c4b5fd; }
+
+    #viewer { background: rgba(0,0,0,0.92); padding: 0; }
+    #viewer img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    #viewer .emoji { font-size: 40vmin; }
+
+    /* dots explorer (chart) */
+    .viz-sub { font-size: 1.3rem; color: #6b7280; margin-bottom: 12px; }
+    .gb-btns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 14px; }
+    .gb { min-width: 56px; min-height: 52px; padding: 0 14px; border-radius: 26px; background: #f1f5f9; color: #64748b; font-size: 1.3rem; border: 2px solid #e2e8f0; }
+    .gb.active { background: var(--purple); border-color: var(--purple); color: white; }
+    .boxes { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 16px; }
+    .dot-box { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; border-radius: 14px; border: 3px solid; background: white; }
+    .dot-box.partial { border-style: dashed; opacity: 0.85; }
+    .dot { border-radius: 50%; flex-shrink: 0; animation: dropIn 0.25s both; }
+    .dot.ghost { background: transparent !important; border: 2px dashed #cbd5e1; }
+
+    /* ── Grown-ups ───────────────────────────────── */
+    #v-grown { align-items: center; }
+    .grown { background: white; border-radius: 24px; padding: 22px; width: 100%; max-width: 760px; font-weight: 600; font-size: 16px; color: #1f2937; -webkit-user-select: text; user-select: text; flex-shrink: 0; }
+    .grown h2 { font-size: 22px; font-weight: 800; color: var(--purple); margin-bottom: 4px; }
+    .grown h3 { font-size: 15px; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; margin: 22px 0 8px; }
+    .grown p.sub { color: #6b7280; font-size: 14px; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 14px; }
+    .kpi { background: #f5f3ff; border-radius: 14px; padding: 12px; }
+    .kpi b { display: block; font-size: 26px; font-weight: 800; color: var(--purple); }
+    .kpi span { font-size: 13px; color: #6b7280; }
+    .days { display: flex; align-items: flex-end; gap: 6px; height: 110px; }
+    .day { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%; font-size: 11px; color: #6b7280; }
+    .day i { width: 100%; max-width: 34px; border-radius: 6px 6px 2px 2px; background: #a78bfa; min-height: 2px; }
+    .day.none i { background: #e5e7eb; }
+    .tricky { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tricky span { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 6px 10px; font-size: 15px; }
+    .tricky span small { color: #9a3412; }
+    .grown table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .grown td, .grown th { text-align: left; padding: 7px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+    .grown th { color: #6b7280; font-size: 12px; text-transform: uppercase; }
+    .g-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .g-btn { min-height: 48px; padding: 0 18px; border-radius: 12px; background: var(--purple); color: white; font-weight: 800; font-size: 15px; }
+    .g-btn.alt { background: #ede9fe; color: var(--purple); }
+    .g-btn.danger { background: #fee2e2; color: #b91c1c; }
+
+    .toast { position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%); background: var(--ink); color: white; padding: 12px 22px; border-radius: 16px; font-size: 1.2rem; z-index: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+    .toast.on { opacity: 1; }
+
+    .confetti { position: fixed; width: 12px; height: 12px; border-radius: 3px; pointer-events: none; z-index: 9000; animation: confettiFall linear forwards; }
+    @keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(105vh) rotate(900deg); opacity: 0; } }
+
+    /* Newer iPads: size against the visible area, not the area behind browser bars */
+    @supports (height: 100dvh) {
+      .tiles { width: min(100%, calc((100dvh - 360px) * 16 / 9 + 36px)); }
+      @media (orientation: portrait) { .tiles { width: min(100%, calc(100dvh - 370px)); } }
+      .res-frame { width: min(86vw, calc((100dvh - 400px) * 4 / 3), 640px); }
+      .chart { --c: min(calc((100vw - 100px) / 13), calc((100dvh - 236px) / 13), 58px); }
+      .sheet { max-height: 94dvh; }
+      .sheet .frame { width: min(100%, calc((94dvh - 290px) * 4 / 3)); }
     }
 
-    .btn-close {
-      background: #f43f5e;
-      color: white;
-      box-shadow: 0 4px 0 #be123c;
-      font-size: 1.2rem;
-      padding: 12px 32px;
-    }
-
-    /* ── Confetti ── */
-    .confetti {
-      position: fixed;
-      width: 11px;
-      height: 11px;
-      border-radius: 3px;
-      pointer-events: none;
-      z-index: 9999;
-      animation: confettiFall linear forwards;
-    }
-    @keyframes confettiFall {
-      0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
-      100% { transform: translateY(105vh) rotate(900deg); opacity: 0; }
+    @media (prefers-reduced-motion: reduce) {
+      .big-btn.pulse, .tile.next { animation: none; }
     }
   </style>
 </head>
 <body>
 
-<h1>⭐ Times Tables! ⭐</h1>
+<!-- Splash: one tap to start (also unlocks audio on iPad) -->
+<section class="view active" id="v-splash">
+  <h1>Times Tables!</h1>
+  <button class="dad" data-dad aria-label="Dad"></button>
+  <button class="big-btn pulse" id="startBtn" aria-label="Start">▶</button>
+</section>
 
-<div class="layout">
-
-  <!-- Quiz Panel -->
-  <div class="quiz-panel">
-    <div class="stars-row" id="stars"></div>
-    <div class="question" id="question">? × ? = ?</div>
-    <div class="feedback" id="feedback"></div>
-    <input class="answer-input" id="answer" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="?">
-    <div class="btn-row">
-      <button class="btn btn-check" onclick="checkAnswer()">Check ✓</button>
-      <button class="btn btn-show"  onclick="showCurrent()">Show me! 👀</button>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-skip" onclick="nextQuestion()">Skip →</button>
-    </div>
-    <div class="progress-bar-wrap">
-      <div class="progress-bar-fill" id="pbar" style="width:0%"></div>
-    </div>
-    <div class="progress-text" id="ptext">0 / 144 done</div>
+<!-- Home: twelve mystery pictures, one per table -->
+<section class="view" id="v-home">
+  <div class="bar">
+    <a class="round-btn" href="index.html" aria-label="All games">⬅</a>
+    <h1>Times Tables!</h1>
+    <div class="chip" id="starChip" aria-label="Stars">⭐ <span id="starTotal">0</span></div>
+    <button class="dad" data-dad aria-label="Dad"></button>
   </div>
-
-  <!-- Grid Panel -->
-  <div class="grid-panel">
-    <div class="grid-top-row">
-      <div class="grid-hint">Click any square to see its picture!</div>
-      <button class="btn btn-reveal" id="reveal-btn" onclick="toggleAnswers()">Show Answers 👁</button>
-    </div>
-    <table class="grid-table" id="grid"></table>
+  <button class="big-btn pulse" id="playBtn" aria-label="Play"></button>
+  <div class="tiles" id="tiles"></div>
+  <div class="home-foot">
+    <button class="mid-btn" id="chartBtn" aria-label="My chart">🔢</button>
+    <button class="mid-btn" id="mixBtn" aria-label="Mix">🎲</button>
+    <button class="mid-btn" id="tellBtn" aria-label="Tell Dad">💌</button>
+    <button class="mid-btn" id="muteBtn" aria-label="Sound">🔊</button>
+    <button class="mid-btn hold-btn" id="grownBtn" aria-label="Grown-ups: press and hold">⚙️<i></i></button>
   </div>
+</section>
 
+<!-- Play: one question, one number pad -->
+<section class="view" id="v-play">
+  <div class="bar">
+    <button class="round-btn" id="quitBtn" aria-label="Home">🏠</button>
+    <div class="stars-strip" id="strip"></div>
+    <div class="chip" id="streakChip" style="visibility:hidden">🔥 <span id="streakNum">0</span></div>
+    <button class="dad" data-dad aria-label="Dad"></button>
+  </div>
+  <div class="stage">
+    <div class="qcard">
+      <button class="hint-btn" id="hintBtn" aria-label="Show dots">💡</button>
+      <div class="question" id="question"></div>
+      <div class="msg" id="msg"></div>
+    </div>
+    <div class="dots-wrap" id="dots"></div>
+    <div class="pad" id="pad">
+      <div class="think" id="think">🐢<small>Think…</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- Result: stars + new picture pieces -->
+<section class="view" id="v-result">
+  <div class="res-title" id="resTitle"></div>
+  <div class="res-frame" id="resFrame"></div>
+  <div class="res-btns">
+    <button class="mid-btn" id="resHome" aria-label="Home">🏠</button>
+    <button class="big-btn pulse" id="resNext" aria-label="Play again">▶</button>
+    <button class="mid-btn" id="resTell" aria-label="Tell Dad">💌</button>
+  </div>
+</section>
+
+<!-- My chart: the 12 × 12 grid, coloured by what he knows -->
+<section class="view" id="v-chart">
+  <div class="bar">
+    <button class="round-btn" data-home aria-label="Home">🏠</button>
+    <h1>My Chart</h1>
+    <div class="chip" aria-label="Facts I know">🧠 <span id="knowCount">0</span></div>
+  </div>
+  <div class="chart-card"><table class="chart" id="chart"></table></div>
+  <div class="legend">
+    <span><i style="background:#fef08a"></i>learning</span>
+    <span><i style="background:#86efac"></i>got it</span>
+    <span><i style="background:#fbbf24"></i>super ⭐</span>
+  </div>
+</section>
+
+<!-- Grown-ups: stats, sharing, studio -->
+<section class="view" id="v-grown">
+  <div class="grown" id="grown"></div>
+</section>
+
+<!-- Table card -->
+<div class="overlay" id="tableCard">
+  <div class="sheet">
+    <button class="round-btn close" data-close aria-label="Close">✕</button>
+    <div class="sheet-title" id="cardTitle"></div>
+    <div id="cardFrame"></div>
+    <div class="sheet-btns" id="cardBtns"></div>
+  </div>
 </div>
 
-<!-- Visualization Modal -->
-<div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
-  <div class="modal">
-    <div class="modal-title" id="modal-title"></div>
-    <div class="modal-subtitle" id="modal-sub"></div>
-    <div class="groupby-section">
-      <div class="groupby-label">Group by:</div>
-      <div class="groupby-btns" id="groupby-btns"></div>
-    </div>
-    <div class="boxes-container" id="dots"></div>
-    <button class="btn btn-close" onclick="closeModal()">Close ✕</button>
+<!-- Dots explorer -->
+<div class="overlay" id="viz">
+  <div class="sheet">
+    <button class="round-btn close" data-close aria-label="Close">✕</button>
+    <div class="sheet-title" id="vizTitle"></div>
+    <div class="viz-sub" id="vizSub"></div>
+    <div class="gb-btns" id="gbBtns"></div>
+    <div class="boxes" id="vizDots"></div>
   </div>
 </div>
+
+<!-- Full-screen photo -->
+<div class="overlay" id="viewer"></div>
+
+<div class="toast" id="toast"></div>
 
 <script src="voice-clips.js"></script>
+<script src="photo-pack.js"></script>
 <script src="voice-bank.js"></script>
 <script>
-  // ── State ──────────────────────────────────────────────────────────────────
-  const correct = new Set();   // "AxB" keys that were answered correctly
-  let curA = 1, curB = 1;
-  let answersVisible = false;
+(function () {
+  'use strict';
 
-  // Row colours (one per row in visualization)
-  const ROW_COLORS = [
-    '#ef4444','#f97316','#eab308','#22c55e',
-    '#06b6d4','#3b82f6','#8b5cf6','#ec4899',
-    '#14b8a6','#f59e0b','#84cc16','#6366f1',
-  ];
-  const ROW_EMOJI = ['🍎','🍊','🌟','🌿','💧','💙','🦄','🌸','🌊','🌻','🍀','💜'];
+  // ── Constants ──────────────────────────────────────────────────────────────
+  const SAVE_KEY = 'timesTables.v2';
+  const ORDER = [1, 2, 10, 5, 3, 4, 9, 6, 7, 8, 11, 12];        // easiest tables first; 11 and 12 are the bonus round
+  const MULT_ORDER = [1, 2, 10, 5, 3, 4, 6, 9, 7, 8, 11, 12];   // easiest facts first within a table
+  const ROUND_STARS = 10;
+  const MAX_QUESTIONS = 18;
+  const ROW_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6',
+                      '#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b', '#84cc16', '#6366f1'];
+  // Stand-in pictures until Dad adds photos — Leon likes building and machines
+  const SCENES = {
+    1: ['🚜', '#fde68a', '#f59e0b'], 2: ['🚀', '#bfdbfe', '#6366f1'], 3: ['🚂', '#bbf7d0', '#16a34a'],
+    4: ['🏗️', '#fed7aa', '#ea580c'], 5: ['🚁', '#a5f3fc', '#0891b2'], 6: ['🤖', '#ddd6fe', '#7c3aed'],
+    7: ['🚒', '#fecaca', '#dc2626'], 8: ['🛰️', '#c7d2fe', '#312e81'], 9: ['🏎️', '#fef08a', '#ca8a04'],
+    10: ['🌉', '#fbcfe8', '#db2777'], 11: ['🚧', '#fde68a', '#d97706'], 12: ['🏰', '#bae6fd', '#0369a1'],
+  };
+  // Each mystery picture hides behind its own colour of tiles
+  const COVER_HUE = { 1: 265, 2: 212, 10: 160, 5: 22, 3: 190, 4: 330, 11: 0, 9: 238, 6: 42, 7: 292, 8: 100, 12: 174 };
+  const PRAISE = ['Yes! 🎉', 'Nice! ⭐', 'Wow! 💫', 'Super! 🌈', 'Boom! 💥', 'Great! 🙌'];
 
-  // ── Build Grid ─────────────────────────────────────────────────────────────
-  function buildGrid() {
-    const tbl = document.getElementById('grid');
-    let html = '<tr><th></th>';
-    for (let j = 1; j <= 12; j++) html += `<th>${j}</th>`;
-    html += '</tr>';
-    for (let i = 1; i <= 12; i++) {
-      html += `<tr><th>${i}</th>`;
-      for (let j = 1; j <= 12; j++) {
-        const key = `${i}x${j}`;
-        html += `<td class="grid-cell" id="c-${key}" onclick="showViz(${i},${j})" title="${i} × ${j}">?</td>`;
+  const $ = (id) => document.getElementById(id);
+  const todayKey = () => {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  };
+  const shuffle = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+  // ── Saved progress ─────────────────────────────────────────────────────────
+  // facts[key]: b = box 0–5, r = right from memory, w = missed, t = last seen,
+  //             ms = typical answer time, rv = picture piece earned, d = day of last step up
+  let S = { facts: {}, stars: 0, best: 0, done: {}, crowns: {}, days: {}, log: [], muted: false, turns: 0 };
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) S = Object.assign(S, JSON.parse(raw));
+    } catch (e) {}
+  }
+  function save() {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {}
+  }
+
+  const fkey = (a, b) => Math.min(a, b) + 'x' + Math.max(a, b);
+  const BLANK = { b: 0, r: 0, w: 0, t: 0, ms: 0, rv: 0, d: '' };
+  const getF = (k) => S.facts[k] || BLANK;
+  function touchF(k) {
+    if (!S.facts[k]) S.facts[k] = Object.assign({}, BLANK);
+    return S.facts[k];
+  }
+  function day() {
+    const k = todayKey();
+    if (!S.days[k]) S.days[k] = { q: 0, c: 0, ms: 0, r: 0 };
+    return S.days[k];
+  }
+  const isRevealed = (T, m) => !!getF(fkey(T, m)).rv;
+  const revealedCount = (T) => { let n = 0; for (let m = 1; m <= 12; m++) if (isRevealed(T, m)) n++; return n; };
+  const nextTable = () => ORDER.find(T => revealedCount(T) < 12) || 0;
+  function allKeys() {
+    const keys = [];
+    for (let a = 1; a <= 12; a++) for (let b = a; b <= 12; b++) keys.push(a + 'x' + b);
+    return keys;
+  }
+  const knownCount = () => allKeys().filter(k => getF(k).rv).length;
+  const mixReady = () => allKeys().filter(k => getF(k).b >= 1).length >= 8;
+
+  // ── Sound ──────────────────────────────────────────────────────────────────
+  let actx = null;
+  function audio() {
+    if (!actx) {
+      try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; }
+    }
+    if (actx.state === 'suspended') actx.resume();
+    return actx;
+  }
+  function tone(freq, at, dur, type, vol) {
+    if (S.muted) return;
+    const c = audio();
+    if (!c) return;
+    try {
+      const o = c.createOscillator(), g = c.createGain();
+      const t0 = c.currentTime + (at || 0);
+      o.type = type || 'sine';
+      o.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(vol || 0.16, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(c.destination);
+      o.start(t0); o.stop(t0 + dur + 0.05);
+    } catch (e) {}
+  }
+  const sfx = {
+    tap: () => tone(520, 0, 0.07, 'triangle', 0.08),
+    good: () => { tone(659, 0, 0.14); tone(880, 0.1, 0.22); },
+    great: () => { tone(659, 0, 0.12); tone(784, 0.09, 0.12); tone(1047, 0.18, 0.3); },
+    oops: () => { tone(300, 0, 0.16, 'triangle', 0.12); tone(240, 0.12, 0.22, 'triangle', 0.12); },
+    tick: (i) => tone(440 + i * 40, 0, 0.12, 'triangle', 0.12),
+    pop: (i) => tone(600 + i * 70, 0, 0.16, 'sine', 0.14),
+    boing: () => { tone(220, 0, 0.1, 'square', 0.06); tone(440, 0.08, 0.18, 'square', 0.06); },
+    fanfare: () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, i * 0.13, 0.3, 'triangle', 0.16)),
+  };
+
+  // Dad's voice and photos are optional extras: if the voice bank is missing or
+  // an older copy is cached, everything below quietly does nothing
+  const VB = window.VoiceBank || {};
+  const VoiceBank = {
+    play: (slot, delay, opts) => VB.play ? VB.play(slot, delay, opts) : false,
+    has: (slot) => VB.has ? VB.has(slot) : false,
+    stop: () => { if (VB.stop) VB.stop(); },
+    photo: (id) => VB.photo ? VB.photo(id) : null,
+    ready: () => VB.ready ? VB.ready() : Promise.resolve(),
+    openStudio: () => { if (VB.openStudio) VB.openStudio(); else if (VB.openGate) VB.openGate(); },
+  };
+  if (VB.configure) VB.configure({ getContext: () => audio(), isMuted: () => S.muted });
+  if (VB.onSpeak) VB.onSpeak(on => document.body.classList.toggle('dad-talking', on));
+  // First recorded option wins; false when Dad has nothing to say
+  function say(slots, delay, opts) {
+    for (const s of [].concat(slots)) if (s && VoiceBank.play(s, delay, opts)) return true;
+    return false;
+  }
+
+  // ── Photos ─────────────────────────────────────────────────────────────────
+  let photoUrls = {};
+  function photoUrl(id) {
+    id = String(id);
+    if (id in photoUrls) return photoUrls[id];
+    let url = null;
+    const data = VoiceBank.photo(id);
+    if (data) {
+      try {
+        const parts = data.split(',');
+        const mime = (parts[0].match(/data:([^;]+)/) || [])[1] || 'image/jpeg';
+        const bin = atob(parts[1]);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+      } catch (e) { url = null; }
+    }
+    photoUrls[id] = url;
+    return url;
+  }
+  function resetPhotos() {
+    Object.keys(photoUrls).forEach(k => { if (photoUrls[k]) URL.revokeObjectURL(photoUrls[k]); });
+    photoUrls = {};
+  }
+
+  function frameHtml(T, opts) {
+    opts = opts || {};
+    const url = photoUrl(T);
+    const sc = SCENES[T];
+    const done = revealedCount(T) === 12 && !(opts.hide && opts.hide.length);
+    const hue = COVER_HUE[T];
+    let h = '<div class="frame' + (done ? ' done' : '') + '" data-t="' + T + '" style="--cv:hsl(' + hue + ' 68% 47%);--cv2:hsl(' + hue + ' 68% 40%)">';
+    h += url
+      ? '<div class="pic-bg" style="background-image:url(' + url + ')"></div><img class="pic" src="' + url + '" alt="">'
+      : '<div class="scene" style="background:linear-gradient(135deg,' + sc[1] + ',' + sc[2] + ')"><span>' + sc[0] + '</span></div>';
+    h += '<div class="covers">';
+    for (let m = 1; m <= 12; m++) {
+      const open = isRevealed(T, m) && !(opts.hide && opts.hide.indexOf(m) !== -1);
+      const peek = !open && getF(fkey(T, m)).b >= 1 && !(opts.solid && opts.solid.indexOf(m) !== -1);
+      h += '<div class="cover' + (open ? ' open' : peek ? ' peek' : '') + '" data-m="' + m + '">' + (opts.labels ? T + '×' + m : '') + '</div>';
+    }
+    return h + '</div></div>';
+  }
+
+  function paintDads() {
+    const url = photoUrl('avatar');
+    document.querySelectorAll('[data-dad]').forEach(el => {
+      el.innerHTML = url ? '<img src="' + url + '" alt="Dad">' : '👨';
+    });
+  }
+
+  // ── Views ──────────────────────────────────────────────────────────────────
+  let view = 'splash';
+  function show(name) {
+    view = name;
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'v-' + name));
+  }
+  function closeOverlays() {
+    document.querySelectorAll('.overlay').forEach(o => o.classList.remove('active'));
+  }
+
+  function toast(text) {
+    const t = $('toast');
+    t.textContent = text;
+    t.classList.add('on');
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => t.classList.remove('on'), 2200);
+  }
+
+  function confetti(bursts) {
+    const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'];
+    for (let n = 0; n < (bursts || 1); n++) {
+      setTimeout(() => {
+        for (let i = 0; i < 24; i++) {
+          const el = document.createElement('div');
+          el.className = 'confetti';
+          el.style.cssText = 'left:' + (Math.random() * 100) + 'vw;top:-15px;background:' + pick(colors) +
+            ';animation-duration:' + (1 + Math.random() * 1.2) + 's;animation-delay:' + (Math.random() * 0.4) + 's';
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 2400);
+        }
+      }, n * 320);
+    }
+  }
+
+  // ── Home ───────────────────────────────────────────────────────────────────
+  function renderHome() {
+    const next = nextTable();
+    $('starTotal').textContent = S.stars;
+    $('playBtn').innerHTML = '▶ <span>' + (next ? '×' + next : '🎲') + '</span>';
+    $('tiles').innerHTML = ORDER.map(T =>
+      '<button class="tile' + (T === next ? ' next' : '') + '" data-table="' + T + '" aria-label="' + T + ' times table, ' + revealedCount(T) + ' of 12">' +
+        frameHtml(T) + '<span class="tag">×' + T + '</span>' + (S.crowns[T] ? '<span class="crown">👑</span>' : '') +
+      '</button>').join('');
+    $('mixBtn').style.display = mixReady() ? '' : 'none';
+    $('tellBtn').style.display = S.log.length ? '' : 'none';
+    $('muteBtn').textContent = S.muted ? '🔇' : '🔊';
+    paintDads();
+  }
+  function goHome() {
+    closeOverlays();
+    renderHome();
+    show('home');
+  }
+
+  function openTableCard(T) {
+    const done = revealedCount(T) === 12;
+    $('cardTitle').textContent = '×' + T + (S.crowns[T] ? ' 👑' : '');
+    $('cardFrame').innerHTML = frameHtml(T, { labels: true });
+    let btns = '<button class="big-btn" data-act="play" aria-label="Play">▶</button>';
+    if (T >= 2 && VoiceBank.has('count' + T)) btns += '<button class="mid-btn" data-act="chant" aria-label="Count with Dad">🎵</button>';
+    if (done && VoiceBank.has('photo' + T)) btns += '<button class="mid-btn" data-act="story" aria-label="Dad’s story">🔊</button>';
+    if (done) btns += '<button class="big-btn gold" data-act="boss" aria-label="Boss round">👑</button>';
+    const box = $('cardBtns');
+    box.innerHTML = btns;
+    box.onclick = (e) => {
+      const b = e.target.closest('[data-act]');
+      if (!b) return;
+      const act = b.dataset.act;
+      if (act === 'play') startRound('table', T);
+      else if (act === 'boss') startRound('boss', T);
+      else if (act === 'chant') VoiceBank.play('count' + T, 0, { interrupt: true });
+      else if (act === 'story') VoiceBank.play('photo' + T, 0, { interrupt: true });
+    };
+    $('cardFrame').onclick = () => { if (done) openViewer(T); };
+    $('tableCard').classList.add('active');
+  }
+
+  function openViewer(T) {
+    const url = photoUrl(T);
+    const v = $('viewer');
+    v.innerHTML = url ? '<img src="' + url + '" alt="">' : '<div class="emoji">' + SCENES[T][0] + '</div>';
+    v.classList.add('active');
+    VoiceBank.play('photo' + T, 200, { interrupt: true });
+  }
+
+  // ── Building a round ───────────────────────────────────────────────────────
+  // item: "a × b" as shown, always drawn as a rows of b dots (a groups of b);
+  //       k = fact key, intro = brand-new fact (dots shown up front)
+  function makeItem(T, m, intro) {
+    // A new fact reads "m × T" — m groups of T — so the dots skip-count by the table number
+    const flip = intro || Math.random() < 0.5;
+    return { a: flip ? m : T, b: flip ? T : m, k: fkey(T, m), intro: !!intro };
+  }
+
+  function arrange(intros, seconds, others) {
+    const out = [], placedAt = {};
+    intros = intros.slice(); seconds = seconds.slice(); others = shuffle(others.slice());
+    let introRun = 0;
+    while (intros.length || seconds.length || others.length) {
+      const prev = out.length ? out[out.length - 1].k : null;
+      const readySec = seconds.filter(s => placedAt[s.k] != null && out.length - placedAt[s.k] >= 2 && s.k !== prev);
+      const readyOth = others.filter(o => o.k !== prev);
+      let item;
+      if (intros.length && (introRun < 2 || (!readySec.length && !readyOth.length))) {
+        item = intros.shift(); placedAt[item.k] = out.length; introRun++;
+      } else {
+        introRun = 0;
+        if (readySec.length && (!readyOth.length || Math.random() < 0.6)) { item = readySec[0]; seconds.splice(seconds.indexOf(item), 1); }
+        else if (readyOth.length) { item = readyOth[0]; others.splice(others.indexOf(item), 1); }
+        else item = seconds.length ? seconds.shift() : others.shift();
       }
-      html += '</tr>';
+      out.push(item);
     }
-    tbl.innerHTML = html;
+    return out;
   }
 
-  // ── Quiz ───────────────────────────────────────────────────────────────────
-  function allPairs() {
-    const pairs = [];
-    for (let i = 1; i <= 12; i++)
-      for (let j = 1; j <= 12; j++)
-        pairs.push([i, j]);
-    return pairs;
+  function buildQueue(mode, T) {
+    if (mode === 'boss') {
+      return shuffle(MULT_ORDER.slice()).map(m => makeItem(T, m, false));
+    }
+    if (mode === 'mix') {
+      const pool = allKeys().filter(k => getF(k).b >= 1);
+      pool.sort((x, y) => (getF(x).b - getF(y).b) || (getF(x).t - getF(y).t));
+      return shuffle(pool.slice(0, 16)).slice(0, ROUND_STARS).map(k => {
+        const p = k.split('x').map(Number);
+        return makeItem(p[0], p[1], false);
+      });
+    }
+    const facts = MULT_ORDER.map(m => ({ m: m, f: getF(fkey(T, m)) }));
+    const learning = facts.filter(x => x.f.b === 1);
+    // Facts met last round get their second look before more new ones pile on
+    const newCount = Math.max(0, Math.min(T === 1 ? 4 : 3, Math.floor((ROUND_STARS - learning.length) / 2)));
+    const news = facts.filter(x => x.f.b === 0).slice(0, newCount);
+    const solid = facts.filter(x => x.f.b >= 2).sort((x, y) => (x.f.b - y.f.b) || (x.f.t - y.f.t));
+    const reviews = allKeys()
+      .filter(k => getF(k).b >= 2 && k.split('x').map(Number).indexOf(T) === -1)
+      .sort((x, y) => getF(x).t - getF(y).t).slice(0, 6);
+    shuffle(reviews);
+
+    const intros = news.map(x => makeItem(T, x.m, true));
+    const seconds = news.map(x => makeItem(T, x.m, false));
+    const others = [];
+    const room = () => ROUND_STARS - intros.length - seconds.length - others.length;
+    learning.forEach(x => { if (room() > 0) others.push(makeItem(T, x.m, false)); });
+    let reviewsUsed = 0;
+    while (room() > 0 && (solid.length || reviews.length)) {
+      if (reviews.length && (reviewsUsed < 2 || !solid.length) && (others.length % 2 === 1 || !solid.length)) {
+        const p = reviews.shift().split('x').map(Number);
+        others.push(makeItem(p[0], p[1], false));
+        reviewsUsed++;
+      } else if (solid.length) {
+        others.push(makeItem(T, solid.shift().m, false));
+      } else break;
+    }
+    // Very first rounds: nothing to review yet, so the new facts come round again
+    const again = shuffle(news.concat(learning));
+    for (let i = 0; room() > 0 && again.length; i++) others.push(makeItem(T, again[i % again.length].m, false));
+    return arrange(intros, seconds, others);
   }
 
-  function nextQuestion() {
-    clearCurrentHighlight();
-    const pool = allPairs().filter(([a,b]) => !correct.has(`${a}x${b}`));
-    if (!pool.length) { celebrate(); return; }
-    const [a, b] = pool[Math.floor(Math.random() * pool.length)];
-    curA = a; curB = b;
-    document.getElementById('question').textContent = `${a} × ${b} = ?`;
-    setFeedback('', '');
-    document.getElementById('answer').value = '';
-    document.getElementById('answer').focus();
-    const cell = document.getElementById(`c-${a}x${b}`);
-    if (cell) cell.classList.add('current');
+  // ── Playing ────────────────────────────────────────────────────────────────
+  let R = null;      // the round
+  let Q = null;      // the question on screen
+  let entry = '';
+  let locked = false;
+  let streak = 0;
+  let fastWrongs = [];
+  let timers = [];
+  const later = (fn, ms) => { const id = setTimeout(fn, ms); timers.push(id); return id; };
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+
+  function startRound(mode, T) {
+    closeOverlays();
+    clearTimers();
+    R = {
+      mode: mode, T: T, target: mode === 'boss' ? 12 : ROUND_STARS,
+      queue: buildQueue(mode, T), stars: 0, asked: 0, first: 0, misses: [], reveals: [], peeks: [],
+      promoted: {}, requeued: {}, t0: Date.now(), startBox: {},
+    };
+    if (!R.queue.length) { goHome(); return; }
+    $('strip').innerHTML = Array.from({ length: R.target }, () => '<div class="slot"><span>⭐</span></div>').join('');
+    updateStreak();
+    paintDads();
+    show('play');
+    VoiceBank.stop();
+    if (mode === 'boss') say(['boss', 'roundstart'], 300);
+    else if (mode === 'table') say(['table' + T, 'roundstart'], 300);
+    else say('roundstart', 300);
+    nextQ();
   }
 
-  function checkAnswer() {
-    const val = parseInt(document.getElementById('answer').value, 10);
-    if (isNaN(val)) return;
+  function nextQ() {
+    if (R.stars >= R.target || R.asked >= (R.mode === 'boss' ? 12 : MAX_QUESTIONS)) { finishRound(); return; }
+    if (!R.queue.length) {
+      // Ran out before ten stars (lots of show-me's): bring a missed fact back
+      const k = R.misses.length ? pick(R.misses) : null;
+      if (!k) { finishRound(); return; }
+      const p = k.split('x').map(Number);
+      R.queue.push(makeItem(p[0], p[1], false));
+    }
+    const it = R.queue.shift();
+    const f = getF(it.k);
+    Q = { it: it, ans: it.a * it.b, tries: 0, stage: 'ask', dots: false, helped: false, isNew: it.intro && f.b === 0, shownAt: Date.now() };
+    R.asked++;
+    if (!(it.k in R.startBox)) R.startBox[it.k] = f.b;
+    entry = '';
+    locked = false;
+    $('dots').classList.remove('on');
+    $('dots').innerHTML = '';
+    $('hintBtn').hidden = false;
+    setMsg('', '');
+    renderQuestion();
+    if (Q.isNew) {
+      showDots();
+      Q.helped = true;
+      setMsg('New! ✨', 'new');
+    }
+    if (!R.saidLast && R.stars === R.target - 1) { R.saidLast = true; say('lastone', 200); }
+  }
 
-    if (val === curA * curB) {
-      const key = `${curA}x${curB}`;
-      correct.add(key);
-      clearCurrentHighlight();
-      const cell = document.getElementById(`c-${key}`);
-      if (cell) { cell.classList.remove('current'); cell.classList.add('correct'); cell.textContent = curA * curB; }
-      setFeedback(randomPraise(), 'correct');
-      updateProgress();
-      updateStars();
-      spawnConfetti();
-      VoiceBank.play('correct', 300);
-      setTimeout(nextQuestion, 1100);
+  function renderQuestion(right) {
+    const q = $('question');
+    q.classList.toggle('right', !!right);
+    let shown, ghost = false;
+    if (right) shown = Q.ans;
+    else if (Q.stage === 'copy') {
+      // The answer stays in view; his digits fill in over it
+      const ans = String(Q.ans);
+      shown = ans.indexOf(entry) === 0 ? entry + '<i>' + ans.slice(entry.length) + '</i>' : entry;
+    } else { shown = entry || '?'; ghost = !entry; }
+    q.innerHTML = '<span>' + Q.it.a + ' × ' + Q.it.b + ' =</span><span class="ansbox' + (ghost ? ' ghost' : '') + '" id="ansbox">' + shown + '</span>';
+  }
+  function setMsg(text, cls) {
+    const m = $('msg');
+    m.textContent = text;
+    m.className = 'msg ' + (cls || '');
+  }
+  function updateStreak() {
+    $('streakChip').style.visibility = streak >= 3 ? 'visible' : 'hidden';
+    $('streakNum').textContent = streak;
+  }
+
+  // Dots: one row per group, a little gap after every five so they are easy to
+  // count. Tapping lights up the running total one row at a time — he does the
+  // skip-count himself, and the last row (the answer) stays his to work out.
+  function showDots() {
+    if (Q.dots) return;
+    Q.dots = true;
+    Q.lit = 0;
+    $('hintBtn').hidden = true;
+    const wrap = $('dots');
+    const rows = Q.it.a, cols = Q.it.b;
+    const W = wrap.clientWidth - 20, H = wrap.clientHeight - 20;
+    const gapX = Math.floor((cols - 1) / 5) * 8, gapY = Math.floor((rows - 1) / 5) * 8;
+    const labelW = 76;
+    let size = Math.floor(Math.min((W - labelW - gapX) / cols - 4, (H - gapY) / rows - 4, 60));
+    size = Math.max(7, size);
+    const font = Math.max(15, Math.min(30, size * 0.9));
+    let h = '<div>';
+    for (let r = 0; r < rows; r++) {
+      h += '<div class="drow" style="margin-bottom:' + ((r + 1) % 5 === 0 && r < rows - 1 ? 8 : 0) + 'px">';
+      for (let c = 0; c < cols; c++) {
+        h += '<div class="ddot" style="width:' + size + 'px;height:' + size + 'px;margin:2px ' + ((c + 1) % 5 === 0 && c < cols - 1 ? 10 : 2) + 'px 2px 2px;background:' +
+          ROW_COLORS[r % 12] + ';animation-delay:' + (r * 0.03 + c * 0.012).toFixed(3) + 's"></div>';
+      }
+      h += '<div class="dlabel' + (r === rows - 1 ? ' last' : '') + '" style="font-size:' + font + 'px;width:' + labelW + 'px;height:' + (size + 4) + 'px"><b>' + (r + 1) * cols + '</b></div></div>';
+    }
+    wrap.innerHTML = h + '</div>';
+    wrap.classList.add('on');
+    moveCue();
+  }
+
+  // A bouncing finger shows which row to tap next (no reading needed)
+  function moveCue() {
+    const labels = document.querySelectorAll('#dots .dlabel');
+    labels.forEach(l => l.classList.remove('cue'));
+    if (Q && Q.stage === 'ask' && Q.lit < labels.length - 1) labels[Q.lit].classList.add('cue');
+  }
+
+  function tapDots() {
+    if (!Q || !Q.dots || Q.stage !== 'ask' || locked) return;
+    const labels = document.querySelectorAll('#dots .dlabel');
+    if (Q.lit >= labels.length - 1) return;
+    labels[Q.lit].classList.add('on');
+    sfx.tick(Q.lit);
+    Q.lit++;
+    Q.helped = true;
+    moveCue();
+  }
+
+  // Count along: light up the running total for each row, ending on the answer
+  function countAlong(then) {
+    showDots();
+    moveCue();
+    const labels = Array.prototype.slice.call(document.querySelectorAll('#dots .dlabel'));
+    const step = labels.length > 6 ? 420 : 620;
+    labels.forEach((el, i) => later(() => { el.classList.add('on'); sfx.tick(i); }, 500 + i * step));
+    later(then, 500 + labels.length * step + 200);
+  }
+
+  function press(d) {
+    if (locked || !Q) return;
+    if (entry.length >= 3) return;
+    if (entry === '0') entry = '';
+    entry += d;
+    sfx.tap();
+    renderQuestion();
+  }
+  function backspace() {
+    if (locked || !Q) return;
+    entry = entry.slice(0, -1);
+    sfx.tap();
+    renderQuestion();
+  }
+
+  function submit() {
+    if (locked || !Q || Q.stage === 'show' || entry === '') return;
+    const val = parseInt(entry, 10);
+    const elapsed = Date.now() - Q.shownAt;
+    if (Q.stage === 'copy') {
+      if (val === Q.ans) { sfx.good(); advance(900, true); }
+      else { entry = ''; renderQuestion(); shakeBox(); }
+      return;
+    }
+    if (val === Q.ans) onCorrect(elapsed);
+    else onWrong(elapsed);
+  }
+
+  function shakeBox() {
+    const box = $('ansbox');
+    if (!box) return;
+    box.classList.add('shake');
+    setTimeout(() => box.classList.remove('shake'), 450);
+  }
+
+  function requeue() {
+    const k = Q.it.k;
+    if (R.mode === 'boss' || R.requeued[k]) return;
+    R.requeued[k] = true;
+    const it = Q.it;
+    R.queue.splice(Math.min(2, R.queue.length), 0, { a: it.b, b: it.a, k: k, intro: false });
+  }
+
+  function onCorrect(elapsed) {
+    locked = true;
+    const k = Q.it.k;
+    const f = touchF(k);
+    const first = Q.tries === 0;
+    const clean = first && !Q.helped;            // straight from memory
+    const d = day();
+    d.q++;
+    d.ms += Math.min(elapsed, 45000);
+    f.t = Date.now();
+
+    const boxBefore = f.b;
+    if (first) { streak++; S.best = Math.max(S.best, streak); }
+    if (clean) {
+      f.r++; d.c++; R.first++;
+      // A fact climbs one step per round at most, and past "got it" only on a
+      // new day — so a picture piece means he remembered it later, not 30 seconds on
+      const today = todayKey();
+      if (!R.promoted[k] && (f.b < 2 || f.d !== today)) { f.b = Math.min(5, f.b + 1); f.d = today; }
+      f.ms = f.ms ? Math.round(f.ms * 0.7 + elapsed * 0.3) : elapsed;
     } else {
-      setFeedback('Not quite — try again! 🤔', 'wrong');
-      VoiceBank.play('encourage', 500);
-      const inp = document.getElementById('answer');
-      inp.value = '';
-      inp.focus();
+      f.b = Math.max(1, f.b);
+    }
+    R.promoted[k] = true;
+    if (boxBefore === 0 && !f.rv) R.peeks.push(k);
+    let newPiece = false;
+    if (f.b >= 2 && !f.rv) { f.rv = 1; R.reveals.push(k); newPiece = true; }
+    if (!first) requeue();
+    const fast = clean && elapsed < 3500 && R.startBox[k] >= 2;
+
+    R.stars++;
+    S.stars++;
+    save();
+
+    // Feedback: the whole fact in green, a star, and sometimes Dad
+    renderQuestion(true);
+    const slot = $('strip').children[R.stars - 1];
+    if (slot) slot.classList.add('on');
+    updateStreak();
+    if (streak >= 3 && first) { $('streakChip').classList.remove('bump'); void $('streakChip').offsetWidth; $('streakChip').classList.add('bump'); }
+
+    const p = k.split('x');
+    let msg = pick(PRAISE), hold = 1100, spoke = false;
+    if (first && streak === 5) spoke = say(['streak5', 'streak'], 250);
+    else if (first && (streak === 3 || (streak > 5 && streak % 5 === 0))) spoke = say('streak', 250);
+    if (!spoke && !first) spoke = say(['comeback', 'correct'], 250);
+    if (!spoke && VoiceBank.has('fact' + k) && f.r <= 4) { spoke = say('fact' + k, 250); if (spoke) hold = 2600; }
+    if (!spoke && newPiece && p[0] !== p[1] && S.turns < 4) {
+      S.turns++;
+      msg = Q.it.b + ' × ' + Q.it.a + ' too! 🔄';
+      hold = 1900;
+      spoke = say('turnaround', 250);
+    }
+    if (!spoke && fast) { msg = 'So fast! ⚡'; spoke = say('fast', 250); }
+    if (!spoke && R.stars === Math.floor(R.target / 2)) spoke = say('halfway', 250);
+    if (!spoke) say('correct', 250);
+    if (newPiece && msg.indexOf('🔄') === -1) msg += ' 🧩';
+    setMsg(msg, 'good');
+    if (first && streak >= 3) sfx.great(); else sfx.good();
+    advance(hold);
+  }
+
+  function onWrong(elapsed) {
+    const k = Q.it.k;
+    const f = touchF(k);
+    if (Q.tries === 0) {
+      f.w++;
+      f.t = Date.now();
+      if (f.b > 1) f.b--;
+      R.misses.push(k);
+      streak = 0;
+      updateStreak();
+      save();
+    }
+    Q.tries++;
+    entry = '';
+    renderQuestion();
+    shakeBox();
+    sfx.oops();
+
+    // Rapid-fire wrong answers: slow things down, playfully
+    const now = Date.now();
+    if (elapsed < 1800) fastWrongs.push(now);
+    fastWrongs = fastWrongs.filter(t => now - t < 25000);
+    if (fastWrongs.length >= 3) {
+      fastWrongs = [];
+      locked = true;
+      $('think').classList.add('on');
+      say('guessing', 100);
+      later(() => {
+        $('think').classList.remove('on');
+        if (Q && Q.stage !== 'show') { locked = false; Q.shownAt = Date.now(); }
+      }, 3000);
+    }
+
+    if (Q.tries === 1) {
+      // Second chance, with the dots to count
+      const hadDots = Q.dots;
+      showDots();
+      Q.helped = true;
+      Q.shownAt = Date.now();
+      setMsg('Tap the dots 👆', '');
+      say(hadDots ? ['encourage'] : ['hint', 'encourage'], 300);
+    } else {
+      // Show how it works, then he types the answer himself
+      Q.stage = 'show';
+      locked = true;
+      setMsg('Watch 👀', '');
+      say(['count' + Q.it.b, 'showme'], 200);
+      countAlong(() => {
+        Q.stage = 'copy';
+        locked = false;
+        entry = '';
+        renderQuestion();
+        setMsg('Now you! ✏️', '');
+        const d = day();
+        d.q++;
+        d.ms += 20000;
+        requeue();
+        save();
+      });
     }
   }
 
-  function celebrate() {
-    document.getElementById('question').textContent = '🎉 All done! 🎉';
-    setFeedback('You are a superstar! 🌟', 'correct');
-    for (let i = 0; i < 5; i++) setTimeout(spawnConfetti, i * 300);
-    VoiceBank.play('win', 400);
+  function advance(ms, quiet) {
+    locked = true;
+    if (quiet) { renderQuestion(true); setMsg('', ''); }
+    later(nextQ, ms);
   }
 
-  function clearCurrentHighlight() {
-    document.querySelectorAll('.grid-cell.current').forEach(el => el.classList.remove('current'));
+  function useHint() {
+    if (locked || !Q || Q.dots) return;
+    showDots();
+    Q.helped = true;
+    setMsg('Tap the dots 👆', '');
+    say('hint', 100);
   }
 
-  // ── Feedback helpers ───────────────────────────────────────────────────────
-  function setFeedback(msg, cls) {
-    const el = document.getElementById('feedback');
-    el.textContent = msg;
-    el.className = 'feedback ' + cls;
-  }
+  // ── End of round ───────────────────────────────────────────────────────────
+  function finishRound() {
+    clearTimers();
+    Q = null;
+    const perfect = R.misses.length === 0 && R.stars >= R.target;
+    const bonus = perfect ? 5 : 0;
+    S.stars += bonus;
+    const d = day();
+    d.r++;
 
-  function randomPraise() {
-    const msgs = ['Amazing! 🌟','You got it! ⭐','Brilliant! 💫','Fantastic! 🎈',
-                  'Super! 🌈','Awesome! 🦋','Correct! 🎀','Wonderful! 💎','Yes! 🎉'];
-    return msgs[Math.floor(Math.random() * msgs.length)];
-  }
-
-  // ── Progress ───────────────────────────────────────────────────────────────
-  function updateProgress() {
-    const n = correct.size;
-    document.getElementById('pbar').style.width = (n / 144 * 100) + '%';
-    document.getElementById('ptext').textContent = `${n} / 144 done`;
-  }
-
-  function updateStars() {
-    const earned = Math.floor(correct.size / 12);   // 1 star per 12 correct
-    document.getElementById('stars').textContent = '⭐'.repeat(Math.min(earned, 12));
-  }
-
-  // ── Confetti ───────────────────────────────────────────────────────────────
-  function spawnConfetti() {
-    const colors = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899'];
-    for (let i = 0; i < 22; i++) {
-      const el = document.createElement('div');
-      el.className = 'confetti';
-      el.style.cssText = `
-        left: ${Math.random() * 100}vw;
-        top: -15px;
-        background: ${colors[Math.floor(Math.random() * colors.length)]};
-        animation-duration: ${1 + Math.random() * 1.2}s;
-        animation-delay: ${Math.random() * 0.4}s;
-      `;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 2200);
+    // Which picture to show: the table just played, or wherever pieces were won
+    let T = R.T;
+    if (R.mode === 'mix') {
+      const tally = {};
+      R.reveals.forEach(k => k.split('x').forEach(n => { tally[n] = (tally[n] || 0) + 1; }));
+      T = Number(Object.keys(tally).sort((x, y) => tally[y] - tally[x])[0]) || nextTable() || 12;
     }
+    // A turnaround fact can finish a different table's picture — show that one
+    const justDone = ORDER.filter(t => !S.done[t] && revealedCount(t) === 12);
+    if (justDone.length && justDone.indexOf(T) === -1) T = justDone[0];
+    const fresh = [];
+    R.reveals.forEach(k => {
+      const p = k.split('x').map(Number);
+      if (p[0] === T) fresh.push(p[1]);
+      else if (p[1] === T) fresh.push(p[0]);
+    });
+    justDone.forEach(t => { S.done[t] = 1; });
+    const photoDone = justDone.indexOf(T) !== -1;
+    let crown = false;
+    if (R.mode === 'boss' && R.misses.length <= 1 && !S.crowns[T]) { S.crowns[T] = 1; crown = true; }
+
+    S.log.push({ t: Date.now(), m: R.mode, T: R.T || 0, q: R.asked, c: R.first, miss: R.misses.slice(0, 8), s: Math.round((Date.now() - R.t0) / 1000) });
+    if (S.log.length > 60) S.log = S.log.slice(-60);
+    save();
+
+    $('resTitle').innerHTML = (crown ? '👑' : perfect ? '💯' : '🎉') + ' +' + (R.stars + bonus) + ' ⭐' +
+      (fresh.length ? '<small>+' + fresh.length + ' 🧩</small>' : '');
+    const peeked = [];
+    R.peeks.forEach(k => {
+      const p = k.split('x').map(Number);
+      const m = p[0] === T ? p[1] : p[1] === T ? p[0] : 0;
+      if (m && fresh.indexOf(m) === -1) peeked.push(m);
+    });
+    $('resFrame').innerHTML = frameHtml(T, { hide: fresh, solid: peeked, labels: true }) + '<span class="tag">×' + T + '</span>';
+    $('resTell').style.display = '';
+    paintDads();
+    show('result');
+
+    if (perfect || crown) { sfx.fanfare(); confetti(3); } else { sfx.great(); confetti(1); }
+    VoiceBank.stop();
+    say(perfect ? ['perfect', 'win'] : 'win', 500);
+
+    // Pieces fly off one at a time
+    const steps = peeked.map(m => [m, 'peek']).concat(fresh.map(m => [m, 'open']));
+    steps.forEach((st, i) => later(() => {
+      const c = document.querySelector('#resFrame .cover[data-m="' + st[0] + '"]');
+      if (c) c.classList.add(st[1]);
+      if (st[1] === 'open') sfx.pop(i); else sfx.tick(i);
+    }, 1100 + i * 380));
+    const after = 1100 + steps.length * 380 + 300;
+    later(() => {
+      if (photoDone) {
+        const fr = document.querySelector('#resFrame .frame');
+        if (fr) fr.classList.add('done');
+        sfx.fanfare();
+        confetti(4);
+        say(['photo' + T, 'newphoto'], 300, { queue: true });
+      } else if (crown) {
+        say('tablemaster', 0, { queue: true });
+      } else if (d.r === 3) {
+        say('break', 0, { queue: true });
+      }
+    }, after);
+    R.resultTable = T;
+    R.photoDone = photoDone;
   }
 
-  // ── Visualization ──────────────────────────────────────────────────────────
-  let vizA = 1, vizB = 1, vizGroupSize = 1;
+  function playAgain() {
+    // Stay on the table he picked until its picture is finished
+    if (R && R.mode !== 'mix' && R.T && revealedCount(R.T) < 12) startRound('table', R.T);
+    else playNext();
+  }
 
-  // How many columns of dots to use inside a box for a given group size
-  const BOX_COLS = {1:1,2:2,3:3,4:2,5:5,6:3,7:4,8:4,9:3,10:5,11:4,12:4};
+  function playNext() {
+    const next = nextTable();
+    if (next) startRound('table', next);
+    else startRound('mix', 0);
+  }
 
-  function showCurrent() { showViz(curA, curB); }
+  // ── My chart ───────────────────────────────────────────────────────────────
+  function renderChart() {
+    let h = '<tr><th>×</th>';
+    for (let j = 1; j <= 12; j++) h += '<th>' + j + '</th>';
+    h += '</tr>';
+    for (let i = 1; i <= 12; i++) {
+      h += '<tr><th>' + i + '</th>';
+      for (let j = 1; j <= 12; j++) {
+        const f = getF(fkey(i, j));
+        const cls = f.b >= 4 ? 'gold' : f.rv ? 'know' : f.b >= 1 ? 'learn' : '';
+        h += '<td class="' + cls + '" data-a="' + i + '" data-b="' + j + '">' + (i * j) + '</td>';
+      }
+      h += '</tr>';
+    }
+    $('chart').innerHTML = h;
+    $('knowCount').textContent = knownCount();
+  }
 
-  function showViz(a, b) {
+  // Dots explorer: regroup any fact to see how it is built
+  const BOX_COLS = { 1: 1, 2: 2, 3: 3, 4: 2, 5: 5, 6: 3, 7: 4, 8: 4, 9: 3, 10: 5, 11: 4, 12: 4 };
+  let vizA = 1, vizB = 1;
+  function openViz(a, b) {
     vizA = a; vizB = b;
     const total = a * b;
-    document.getElementById('modal-title').textContent = `${a} × ${b} = ?`;
-
-    // Build group-by buttons: offer sizes 2..min(total,12), always include b
-    const sizes = new Set([2,3,4,5,6,8,10,12,b].filter(s => s >= 1 && s <= total));
-    const sorted = [...sizes].sort((x,y) => x - y);
-    let btnHtml = '';
-    sorted.forEach(s => {
-      btnHtml += `<button class="btn-gb" data-size="${s}" onclick="setGroupBy(${s})">${s}</button>`;
-    });
-    document.getElementById('groupby-btns').innerHTML = btnHtml;
-
-    vizGroupSize = b;
+    const title = $('vizTitle');
+    title.textContent = a + ' × ' + b + ' = ?';
+    title.onclick = () => { title.textContent = a + ' × ' + b + ' = ' + total; sfx.good(); };
+    const sizes = Array.from(new Set([2, 3, 4, 5, 6, 8, 10, 12, b].filter(s => s >= 1 && s <= total))).sort((x, y) => x - y);
+    $('gbBtns').innerHTML = sizes.map(s => '<button class="gb" data-size="' + s + '">' + s + '</button>').join('');
     renderGrouped(b);
-    document.getElementById('modal').classList.add('active');
+    $('viz').classList.add('active');
   }
-
-  function setGroupBy(size) {
-    vizGroupSize = size;
-    renderGrouped(size);
-  }
-
-  function renderGrouped(groupSize) {
+  function renderGrouped(size) {
     const total = vizA * vizB;
-    const numFull = Math.floor(total / groupSize);
-    const remainder = total % groupSize;
+    const full = Math.floor(total / size), rest = total % size;
+    $('vizSub').textContent = full + ' group' + (full !== 1 ? 's' : '') + ' of ' + size + (rest ? ' + ' + rest + ' left over' : '');
+    document.querySelectorAll('.gb').forEach(b => b.classList.toggle('active', Number(b.dataset.size) === size));
+    const cols = BOX_COLS[size] || Math.ceil(Math.sqrt(size));
+    const dot = size <= 6 ? 28 : size <= 9 ? 24 : 20;
+    const width = cols * (dot + 4) - 4 + 16 + 6;
+    let h = '';
+    for (let g = 0; g < full + (rest ? 1 : 0); g++) {
+      const color = ROW_COLORS[g % 12];
+      const n = g < full ? size : rest;
+      h += '<div class="dot-box' + (g < full ? '' : ' partial') + '" style="border-color:' + color + ';width:' + width + 'px">';
+      for (let i = 0; i < size; i++) {
+        h += i < n
+          ? '<div class="dot" style="width:' + dot + 'px;height:' + dot + 'px;background:' + color + ';animation-delay:' + (g * 0.04 + i * 0.015).toFixed(3) + 's"></div>'
+          : '<div class="dot ghost" style="width:' + dot + 'px;height:' + dot + 'px"></div>';
+      }
+      h += '</div>';
+    }
+    $('vizDots').innerHTML = h;
+  }
 
-    // Subtitle
-    let sub = `${numFull} group${numFull !== 1 ? 's' : ''} of ${groupSize}`;
-    if (remainder > 0) sub += ` + ${remainder} left over`;
-    document.getElementById('modal-sub').textContent = sub;
+  // ── Report for Dad ─────────────────────────────────────────────────────────
+  function trickyFacts(n) {
+    return allKeys().map(k => ({ k: k, f: getF(k) }))
+      .filter(x => x.f.w > 0 && (x.f.b <= 2 || x.f.w > x.f.r))
+      .sort((x, y) => (y.f.w / (y.f.w + y.f.r + 1)) - (x.f.w / (x.f.w + x.f.r + 1)) || y.f.w - x.f.w)
+      .slice(0, n);
+  }
+  const pretty = (k) => k.replace('x', '×');
+  const minutes = (ms) => Math.max(1, Math.round(ms / 60000));
 
-    // Highlight active button
-    document.querySelectorAll('.btn-gb').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.size) === groupSize);
+  function buildReport() {
+    const d = S.days[todayKey()];
+    const lines = ['Leon’s Times Tables — ' + new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })];
+    if (d && d.q) lines.push('Today: ' + d.r + ' round' + (d.r === 1 ? '' : 's') + ' · ' + d.c + '/' + d.q + ' from memory · about ' + minutes(d.ms) + ' min');
+    lines.push('Knows ' + knownCount() + ' of 78 facts · ⭐ ' + S.stars + ' · best streak ' + S.best);
+    const done = ORDER.filter(T => S.done[T]);
+    if (done.length) lines.push('Pictures unlocked: ' + done.map(T => '×' + T + (S.crowns[T] ? '👑' : '')).join(', '));
+    const next = nextTable();
+    if (next) lines.push('Working on: ×' + next + ' (' + revealedCount(next) + '/12)');
+    const tricky = trickyFacts(5);
+    if (tricky.length) lines.push('Tricky right now: ' + tricky.map(x => pretty(x.k)).join(', '));
+    return lines.join('\n');
+  }
+
+  function tellDad() {
+    const text = buildReport();
+    if (navigator.share) {
+      navigator.share({ text: text }).catch(() => {});
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => toast('Copied! 📋'), () => toast('Couldn’t copy'));
+    } else {
+      toast('Sharing isn’t available here');
+    }
+  }
+
+  // ── Grown-ups ──────────────────────────────────────────────────────────────
+  function renderGrown() {
+    const dayKeys = Object.keys(S.days).sort();
+    const tot = dayKeys.reduce((acc, k) => { const d = S.days[k]; acc.q += d.q; acc.c += d.c; acc.ms += d.ms; acc.r += d.r; return acc; }, { q: 0, c: 0, ms: 0, r: 0 });
+    const acc = tot.q ? Math.round(tot.c / tot.q * 100) + '%' : '—';
+    const keys = allKeys();
+    const gold = keys.filter(k => getF(k).b >= 4).length;
+
+    // Last 14 days
+    let bars = '';
+    const max = Math.max(1, ...dayKeys.slice(-14).map(k => S.days[k].q));
+    for (let i = 13; i >= 0; i--) {
+      const dt = new Date(); dt.setDate(dt.getDate() - i);
+      const k = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+      const d = S.days[k];
+      bars += '<div class="day' + (d ? '' : ' none') + '" title="' + k + (d ? ': ' + d.q + ' questions' : '') + '">' + (d ? d.q : '') +
+        '<i style="height:' + (d ? Math.max(6, d.q / max * 70) : 2) + 'px"></i>' + dt.getDate() + '</div>';
+    }
+
+    const tricky = trickyFacts(10);
+    const trickyHtml = tricky.length
+      ? tricky.map(x => '<span>' + pretty(x.k) + ' <small>missed ' + x.f.w + '×</small></span>').join('')
+      : '<span>Nothing tricky yet</span>';
+
+    const rows = S.log.slice(-10).reverse().map(l => {
+      const when = new Date(l.t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      const what = l.m === 'mix' ? 'Mix' : (l.m === 'boss' ? 'Boss ' : '') + '×' + l.T;
+      return '<tr><td>' + when + '</td><td>' + what + '</td><td>' + l.c + ' / ' + l.q + '</td><td>' + (l.miss.length ? l.miss.map(pretty).join(', ') : '—') + '</td></tr>';
+    }).join('');
+
+    const tablesHtml = ORDER.map(T => '×' + T + ' ' + revealedCount(T) + '/12' + (S.crowns[T] ? ' 👑' : '')).join(' · ');
+
+    $('grown').innerHTML =
+      '<h2>For grown-ups</h2><p class="sub">Everything here is stored on this device only. “Tell Dad” (💌) sends this summary through the share sheet.</p>' +
+      '<div class="kpis">' +
+        '<div class="kpi"><b>' + knownCount() + ' / 78</b><span>facts remembered in a later round</span></div>' +
+        '<div class="kpi"><b>' + gold + '</b><span>rock solid (remembered on 3+ days)</span></div>' +
+        '<div class="kpi"><b>' + acc + '</b><span>answered from memory, no dots (' + tot.c + ' of ' + tot.q + ')</span></div>' +
+        '<div class="kpi"><b>' + (tot.q ? minutes(tot.ms) + ' min' : '—') + '</b><span>answering time, ' + tot.r + ' rounds</span></div>' +
+        '<div class="kpi"><b>' + dayKeys.length + '</b><span>days played</span></div>' +
+        '<div class="kpi"><b>' + S.best + '</b><span>best streak</span></div>' +
+      '</div>' +
+      '<h3>Last two weeks — questions per day</h3><div class="days">' + bars + '</div>' +
+      '<h3>Tables — picture pieces earned</h3><p>' + tablesHtml + '</p>' +
+      '<h3>Tricky facts right now</h3><div class="tricky">' + trickyHtml + '</div>' +
+      '<h3>Recent rounds</h3>' + (rows ? '<table><tr><th>When</th><th>Round</th><th>From memory</th><th>Missed</th></tr>' + rows + '</table>' : '<p class="sub">No rounds yet.</p>') +
+      '<div class="g-btns">' +
+        '<button class="g-btn" data-g="back">← Back to game</button>' +
+        '<button class="g-btn alt" data-g="share">Share summary</button>' +
+        '<button class="g-btn alt" data-g="studio">🎤 Voice &amp; photo studio</button>' +
+        '<button class="g-btn alt" data-g="chart">Fact chart</button>' +
+        '<button class="g-btn danger" data-g="reset">Reset progress</button>' +
+      '</div>';
+  }
+
+  // ── Wiring ─────────────────────────────────────────────────────────────────
+  // Number pad
+  (function buildPad() {
+    const pad = $('pad');
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'del', '0', 'go'];
+    keys.forEach(k => {
+      const b = document.createElement('button');
+      b.className = 'key' + (k === 'go' ? ' go' : k === 'del' ? ' del' : '');
+      b.dataset.key = k;
+      b.textContent = k === 'go' ? '✓' : k === 'del' ? '⌫' : k;
+      b.setAttribute('aria-label', k === 'go' ? 'Check' : k === 'del' ? 'Delete' : k);
+      pad.appendChild(b);
     });
+    // pointerdown so fast little fingers never lose a tap
+    pad.addEventListener('pointerdown', (e) => {
+      const b = e.target.closest('.key');
+      if (!b) return;
+      e.preventDefault();
+      audio();
+      const k = b.dataset.key;
+      if (k === 'go') submit();
+      else if (k === 'del') backspace();
+      else press(k);
+    });
+  })();
 
-    // Dot sizing: scale to fit within modal based on box width
-    const boxCols = BOX_COLS[groupSize] || Math.ceil(Math.sqrt(groupSize));
-    const dotSize = groupSize <= 6 ? 28 : groupSize <= 9 ? 24 : 20;
-    const fontSize = dotSize >= 26 ? '0.85rem' : dotSize >= 22 ? '0.7rem' : '0.6rem';
-    const boxWidth = boxCols * (dotSize + 4) - 4 + 16 + 6; // cols*(size+gap)-gap + 2*pad + 2*border
-
-    let html = '';
-
-    // Full boxes
-    for (let g = 0; g < numFull; g++) {
-      const color = ROW_COLORS[g % ROW_COLORS.length];
-      const emoji = ROW_EMOJI[g % ROW_EMOJI.length];
-      html += `<div class="dot-box full" style="border-color:${color};width:${boxWidth}px">`;
-      for (let d = 0; d < groupSize; d++) {
-        const delay = (g * 0.04 + d * 0.015).toFixed(3);
-        html += `<div class="dot" style="width:${dotSize}px;height:${dotSize}px;
-          background:${color};font-size:${fontSize};animation-delay:${delay}s;
-          box-shadow:0 2px 0 ${color}88">${emoji}</div>`;
-      }
-      html += '</div>';
-    }
-
-    // Partial box (remainder)
-    if (remainder > 0) {
-      const color = ROW_COLORS[numFull % ROW_COLORS.length];
-      const emoji = ROW_EMOJI[numFull % ROW_EMOJI.length];
-      html += `<div class="dot-box partial" style="border-color:${color};width:${boxWidth}px">`;
-      for (let d = 0; d < remainder; d++) {
-        const delay = (numFull * 0.04 + d * 0.015).toFixed(3);
-        html += `<div class="dot" style="width:${dotSize}px;height:${dotSize}px;
-          background:${color};font-size:${fontSize};animation-delay:${delay}s;
-          box-shadow:0 2px 0 ${color}88">${emoji}</div>`;
-      }
-      // Ghost slots to show the box isn't full
-      for (let d = remainder; d < groupSize; d++) {
-        html += `<div class="dot ghost" style="width:${dotSize}px;height:${dotSize}px"></div>`;
-      }
-      html += '</div>';
-    }
-
-    document.getElementById('dots').innerHTML = html;
-  }
-
-  // ── Show/Hide Answers ──────────────────────────────────────────────────────
-  function toggleAnswers() {
-    answersVisible = !answersVisible;
-    const btn = document.getElementById('reveal-btn');
-    btn.textContent = answersVisible ? 'Hide Answers 🙈' : 'Show Answers 👁';
-    btn.classList.toggle('active', answersVisible);
-    for (let i = 1; i <= 12; i++) {
-      for (let j = 1; j <= 12; j++) {
-        const key = `${i}x${j}`;
-        const cell = document.getElementById(`c-${key}`);
-        if (cell && !correct.has(key)) {
-          cell.textContent = answersVisible ? i * j : '?';
-        }
-      }
-    }
-  }
-
-  function closeModal() {
-    document.getElementById('modal').classList.remove('active');
-  }
-
-  function handleOverlayClick(e) {
-    if (e.target === document.getElementById('modal')) closeModal();
-  }
-
-  // ── Keyboard ───────────────────────────────────────────────────────────────
-  document.getElementById('answer').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkAnswer();
+  document.addEventListener('keydown', (e) => {
+    if (view !== 'play') return;
+    if (e.key >= '0' && e.key <= '9') press(e.key);
+    else if (e.key === 'Backspace') backspace();
+    else if (e.key === 'Enter') submit();
+    else return;
+    e.preventDefault();
   });
 
-  // ── Init ───────────────────────────────────────────────────────────────────
-  buildGrid();
-  nextQuestion();
+  $('startBtn').onclick = () => {
+    audio();
+    goHome();
+    say('hello', 300);
+  };
+  $('playBtn').onclick = playNext;
+  $('tiles').onclick = (e) => {
+    const t = e.target.closest('[data-table]');
+    if (t) { sfx.tap(); openTableCard(Number(t.dataset.table)); }
+  };
+  $('chartBtn').onclick = () => { renderChart(); show('chart'); };
+  $('mixBtn').onclick = () => startRound('mix', 0);
+  $('tellBtn').onclick = tellDad;
+  $('resTell').onclick = tellDad;
+  $('muteBtn').onclick = () => {
+    S.muted = !S.muted;
+    if (S.muted) VoiceBank.stop();
+    save();
+    $('muteBtn').textContent = S.muted ? '🔇' : '🔊';
+    if (!S.muted) sfx.good();
+  };
+  $('quitBtn').onclick = () => { clearTimers(); VoiceBank.stop(); Q = null; goHome(); };
+  $('hintBtn').onclick = useHint;
+  $('dots').addEventListener('pointerdown', (e) => { e.preventDefault(); audio(); tapDots(); });
+  $('resHome').onclick = () => { clearTimers(); goHome(); };
+  $('resNext').onclick = () => { clearTimers(); playAgain(); };
+  $('resFrame').onclick = () => { if (R && R.resultTable && revealedCount(R.resultTable) === 12) openViewer(R.resultTable); };
+  $('viewer').onclick = () => { $('viewer').classList.remove('active'); };
+  $('chart').onclick = (e) => {
+    const td = e.target.closest('td');
+    if (td) openViz(Number(td.dataset.a), Number(td.dataset.b));
+  };
+  $('gbBtns').onclick = (e) => {
+    const b = e.target.closest('.gb');
+    if (b) renderGrouped(Number(b.dataset.size));
+  };
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-home]')) goHome();
+    if (e.target.closest('[data-close]')) closeOverlays();
+    if (e.target.classList && e.target.classList.contains('overlay') && e.target.id !== 'viewer') closeOverlays();
+    const dad = e.target.closest('[data-dad]');
+    if (dad) {
+      audio();
+      dad.classList.remove('boing'); void dad.offsetWidth; dad.classList.add('boing');
+      const order = Math.random() < 0.3 ? ['love', 'silly'] : ['silly', 'love'];
+      if (!say(order, 0, { interrupt: true })) sfx.boing();
+    }
+  });
+
+  // Grown-ups: press and hold
+  (function () {
+    const btn = $('grownBtn');
+    let timer = null;
+    const cancel = () => { clearTimeout(timer); timer = null; btn.classList.remove('holding'); };
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      btn.classList.add('holding');
+      timer = setTimeout(() => { cancel(); renderGrown(); show('grown'); }, 1200);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => btn.addEventListener(ev, cancel));
+    btn.addEventListener('contextmenu', (e) => e.preventDefault());
+  })();
+
+  $('grown').onclick = (e) => {
+    const b = e.target.closest('[data-g]');
+    if (!b) return;
+    const g = b.dataset.g;
+    if (g === 'back') goHome();
+    else if (g === 'share') tellDad();
+    else if (g === 'studio') VoiceBank.openStudio();
+    else if (g === 'chart') { renderChart(); show('chart'); }
+    else if (g === 'reset') {
+      if (confirm('Erase all of Leon’s Times Tables progress on this device?')) {
+        const muted = S.muted;
+        S = { facts: {}, stars: 0, best: 0, done: {}, crowns: {}, days: {}, log: [], muted: muted, turns: 0 };
+        save();
+        renderGrown();
+      }
+    }
+  };
+
+  if (VB.onStudioClose) VB.onStudioClose(() => {
+    resetPhotos();
+    paintDads();
+    if (view === 'home') renderHome();
+  });
+
+  // ── Start ──────────────────────────────────────────────────────────────────
+  load();
+  paintDads();
+  VoiceBank.ready().then(() => { resetPhotos(); paintDads(); if (view === 'home') renderHome(); });
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
+    navigator.serviceWorker.register('sw.js').catch(() => {});
   }
+})();
 </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
 - [Pipeline game review](review_pipeline_game.md) -- critical scoring bug (always 100%), halving edge case
 - [Leon's interests](user_leon_interests.md) -- loves construction/engineering, strong with numbers
+- [Times Tables review](review_times_tables.md) -- same-round mastery, dot counting too heavy, helped answers scored as first-try
 - [Shape Builder review](review_shape_builder.md) -- decomposition mechanic not wired up, small tool labels, strong engagement patterns

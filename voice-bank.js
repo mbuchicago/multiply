@@ -12,16 +12,92 @@
 (function () {
   'use strict';
 
-  const SLOTS = [
-    { id: 'roundstart', name: 'Round Start', emoji: '\u{1F680}', hint: '"Let\'s go!"' },
-    { id: 'correct', name: 'Great Answer', emoji: '⭐', hint: '"Nice work!"' },
-    { id: 'streak', name: 'On a Streak', emoji: '\u{1F525}', hint: '"You\'re on fire!"' },
-    { id: 'boss', name: 'Big Challenge', emoji: '⚠️', hint: '"Uh oh... this is a big one!"' },
-    { id: 'win', name: 'Round Won', emoji: '\u{1F3C6}', hint: '"You did it!"' },
-    { id: 'encourage', name: 'Keep Trying', emoji: '\u{1F4AA}', hint: '"Almost! Look again."' },
-    { id: 'guessing', name: 'Just Guessing?!', emoji: '\u{1F575}️', hint: '"Hey, are you just guessing?!"' },
+  // The roster: every moment a game can ask for. Recording is optional —
+  // a game calls VoiceBank.play(slot) and simply gets silence (false) when
+  // nothing has been recorded for that slot yet.
+  const GROUPS = [
+    { id: 'core', name: 'Start here — every game', note: 'The big moments. All of Leon’s games use these, so extra takes here go furthest.' },
+    { id: 'moments', name: 'Times Tables — little moments', note: 'Small reactions that make it feel like you’re sitting next to him.' },
+    { id: 'tables', name: 'Times Tables — table tips', note: 'Plays when he starts a table. One friendly trick per table.' },
+    { id: 'counts', name: 'Skip-count chants', note: 'Count slowly and steadily — he counts along with the dots when he is stuck.' },
+    { id: 'rhymes', name: 'Tricky-fact rhymes', note: 'Plays right after he works out one of the hardest facts.' },
+    { id: 'stories', name: 'Photo stories', note: 'Plays when he unlocks that table’s photo. Tell him about the picture.' },
   ];
-  const COOLDOWN_MS = { correct: 20000, streak: 8000, guessing: 6000, encourage: 12000 };
+
+  const TABLE_TIPS = {
+    1: 'Ones are easy — the number stays the same!',
+    2: 'Twos are doubles. Two fours? Four plus four!',
+    3: 'Threes: double it, then add one more group.',
+    4: 'Fours are double-doubles. Double it, then double it again!',
+    5: 'Fives always end in 5 or 0 — like counting nickels.',
+    6: 'Sixes: do your fives, then add one more group.',
+    7: 'Sevens are the tough ones. Take your time — you can do hard things.',
+    8: 'Eights: double, double, double!',
+    9: 'Nines: do times ten, then take one group away.',
+    10: 'Tens: just pop a zero on the end!',
+    11: 'Elevens: say the number twice — 11 times 3 is 33!',
+    12: 'Twelves: do times ten, then add two more groups.',
+  };
+  const RHYMES = {
+    '6x6': 'Six times six is thirty-six — pick up sticks!',
+    '6x7': 'Six times seven is forty-two — good for you!',
+    '6x8': 'Six times eight is forty-eight — don’t be late!',
+    '7x7': 'Seven times seven is forty-nine — you’re doing fine!',
+    '7x8': 'Five, six, seven, eight — fifty-six is seven times eight!',
+    '8x8': 'Eight times eight fell on the floor, picked it up, it’s sixty-four!',
+  };
+
+  const SLOTS = [
+    { id: 'roundstart', group: 'core', name: 'Round Start', emoji: '\u{1F680}', hint: '"Let\'s go!"' },
+    { id: 'correct', group: 'core', name: 'Great Answer', emoji: '⭐', hint: '"Nice work!"' },
+    { id: 'streak', group: 'core', name: 'On a Streak', emoji: '\u{1F525}', hint: '"You\'re on fire!"' },
+    { id: 'boss', group: 'core', name: 'Big Challenge', emoji: '⚠️', hint: '"Uh oh... this is a big one!"' },
+    { id: 'win', group: 'core', name: 'Round Won', emoji: '\u{1F3C6}', hint: '"You did it!"' },
+    { id: 'encourage', group: 'core', name: 'Keep Trying', emoji: '\u{1F4AA}', hint: '"Almost! Look again."' },
+    { id: 'guessing', group: 'core', name: 'Just Guessing?!', emoji: '\u{1F575}️', hint: '"Hey, are you just guessing?!"' },
+
+    { id: 'hello', group: 'moments', name: 'Hello', emoji: '\u{1F44B}', hint: '"Hey Leon, it\'s Dad! Ready for some math?"' },
+    { id: 'comeback', group: 'moments', name: 'Fixed It', emoji: '\u{1F4A1}', hint: '"See? You figured it out!"' },
+    { id: 'fast', group: 'moments', name: 'Lightning Fast', emoji: '⚡', hint: '"Whoa, that was FAST!"' },
+    { id: 'streak5', group: 'moments', name: 'Five in a Row', emoji: '\u{1F525}', hint: '"FIVE in a row?! Are you kidding me?"' },
+    { id: 'hint', group: 'moments', name: 'Tap the Dots', emoji: '\u{1F535}', hint: '"Tap the dots and count them up. Take your time."' },
+    { id: 'showme', group: 'moments', name: 'Watch This One', emoji: '\u{1F440}', hint: '"That one\'s tricky. Watch — I\'ll show you."' },
+    { id: 'turnaround', group: 'moments', name: 'Turnaround Fact', emoji: '\u{1F504}', hint: '"Flip it around — same answer! Two for one!"' },
+    { id: 'halfway', group: 'moments', name: 'Halfway', emoji: '⛰️', hint: '"Halfway there — keep going, buddy!"' },
+    { id: 'lastone', group: 'moments', name: 'Last One', emoji: '\u{1F3C1}', hint: '"Last one! You\'ve got this."' },
+    { id: 'perfect', group: 'moments', name: 'Perfect Round', emoji: '\u{1F4AF}', hint: '"Every single one right! PERFECT!"' },
+    { id: 'newphoto', group: 'moments', name: 'Picture Unlocked', emoji: '\u{1F5BC}️', hint: '"You unlocked the whole picture! Take a look!"' },
+    { id: 'tablemaster', group: 'moments', name: 'Table Champion', emoji: '\u{1F451}', hint: '"You\'re the champion of that whole table!"' },
+    { id: 'break', group: 'moments', name: 'Time for a Break', emoji: '\u{1F319}', hint: '"Great work today. Go play — I love you!"' },
+    { id: 'silly', group: 'moments', name: 'He Tapped Your Face', emoji: '\u{1F92A}', hint: 'A joke, a silly noise, "Hey, that tickles!"' },
+    { id: 'love', group: 'moments', name: 'Just Because', emoji: '❤️', hint: '"I\'m so proud of you, Leon. I love you."' },
+  ];
+  for (let n = 1; n <= 12; n++) {
+    SLOTS.push({ id: 'table' + n, group: 'tables', name: '×' + n + ' table tip', emoji: '\u{1F9E0}', hint: '"' + TABLE_TIPS[n] + '"', max: 15 });
+  }
+  for (let n = 2; n <= 12; n++) {
+    SLOTS.push({ id: 'count' + n, group: 'counts', name: 'Count by ' + n + 's', emoji: '\u{1F3B5}', hint: '"' + n + ', ' + (2 * n) + ', ' + (3 * n) + ' …" all the way to ' + (12 * n), max: 25 });
+  }
+  Object.keys(RHYMES).forEach(k => {
+    SLOTS.push({ id: 'fact' + k, group: 'rhymes', name: k.replace('x', ' × ') + ' rhyme', emoji: '\u{1F3A4}', hint: '"' + RHYMES[k] + '"', max: 15 });
+  });
+  for (let n = 1; n <= 12; n++) {
+    SLOTS.push({ id: 'photo' + n, group: 'stories', name: 'Story for the ×' + n + ' photo', emoji: '\u{1F4F7}', hint: '"Remember this? This is when we…"', max: 25 });
+  }
+  const SLOT_BY_ID = {};
+  SLOTS.forEach(s => { SLOT_BY_ID[s.id] = s; });
+
+  const COOLDOWN_MS = {
+    correct: 20000, streak: 8000, guessing: 6000, encourage: 12000,
+    comeback: 20000, fast: 45000, hint: 30000, showme: 15000, turnaround: 60000,
+  };
+  // When two moments collide, the bigger one wins; equal or smaller ones
+  // stay quiet rather than talking over a clip that is already playing.
+  const PRIORITY = {
+    win: 3, perfect: 3, tablemaster: 3, newphoto: 3, break: 3, hello: 3,
+    boss: 2, streak: 2, streak5: 2, guessing: 2, showme: 2, silly: 2, love: 2,
+  };
+  const DEFAULT_MAX_SECONDS = 10;
   const MAX_TAKES = 5;
   const DB_NAME = 'voice_bank';
 
@@ -36,6 +112,13 @@
   let ownCtx = null;
   let domBuilt = false;
   let recorder = null, recSlot = null, recChunks = [], recTimer = null, recStream = null;
+  let current = null;        // clip that is talking (or about to): { prio, until, src }
+  let queued = null;         // one clip waiting for the current one to finish
+  let speakListeners = [];
+  let localPhotos = {};      // id -> dataURL, or null when a baked photo is hidden
+  let openGroups = { core: true };
+  let studioTab = 'voice';
+  let studioListeners = [];
 
   // ── Baked bank access ─────────────────────────────────
   function bank() {
@@ -45,6 +128,18 @@
 
   function bakedTakes(slot) {
     return bank().clips[slot] || [];
+  }
+
+  function photoPack() {
+    const p = window.PHOTO_PACK;
+    return (p && p.photos) ? p : { exported: 0, photos: {} };
+  }
+
+  // Photos: 'avatar' (Dad's face) and '1'..'12' (one reward picture per table)
+  function photo(id) {
+    id = String(id);
+    if (Object.prototype.hasOwnProperty.call(localPhotos, id)) return localPhotos[id];
+    return photoPack().photos[id] || null;
   }
 
   // ── base64 helpers ────────────────────────────────────
@@ -87,7 +182,7 @@
 
   function loadAll() {
     return new Promise((resolve) => {
-      let meta = { hidden: null, exported: null };
+      let meta = { hidden: null, exported: null, photos: null, photosExported: null };
       try {
         const store = db.transaction('clips', 'readonly').objectStore('clips');
         const req = store.openCursor();
@@ -96,6 +191,9 @@
           if (cur) {
             if (cur.key === '__hidden') meta.hidden = cur.value;
             else if (cur.key === '__exported') meta.exported = cur.value;
+            else if (cur.key === '__photos') meta.photos = cur.value;
+            else if (cur.key === '__photosExported') meta.photosExported = cur.value;
+            else if (String(cur.key).indexOf('__') === 0) { /* unknown meta key */ }
             else if (Array.isArray(cur.value)) localTakes[cur.key] = cur.value;
             else localTakes[cur.key] = [cur.value]; // old single-clip format
             cur.continue();
@@ -130,6 +228,15 @@
           }
         }
         idbDelete('__exported');
+      }
+      // Same idea for photos: once an exported pack is live, the local copies
+      // are redundant
+      const pStamp = photoPack().exported || 0;
+      if (meta.photos) localPhotos = meta.photos;
+      if (meta.photosExported && meta.photosExported === pStamp && pStamp) {
+        localPhotos = {};
+        idbDelete('__photos');
+        idbDelete('__photosExported');
       }
     } catch (e) { db = null; }
   }
@@ -174,10 +281,17 @@
     return cfg.isMuted ? !!cfg.isMuted() : false;
   }
 
-  function playTake(slot, take, ctx) {
-    if (!ctx) return;
+  function notifySpeak(on) {
+    speakListeners.forEach(fn => { try { fn(on); } catch (e) {} });
+  }
+
+  // entry (optional) tracks the clip so play() knows when the voice is busy
+  function playTake(slot, take, ctx, entry) {
+    const fail = () => { if (entry) entry.done(); };
+    if (!ctx) { fail(); return; }
     const key = takeKey(slot, take);
     const doPlay = (audioBuf) => {
+      if (entry && entry.cancelled) return;
       try {
         const src = ctx.createBufferSource();
         src.buffer = audioBuf;
@@ -185,18 +299,20 @@
         gain.gain.value = 0.9;
         src.connect(gain);
         gain.connect(ctx.destination);
+        src.onended = () => { if (entry) entry.done(); };
         src.start();
-      } catch (e) {}
+        if (entry) entry.started(src, audioBuf.duration);
+      } catch (e) { fail(); }
     };
     if (decodedCache[key]) { doPlay(decodedCache[key]); return; }
     let buf;
-    try { buf = take.buf ? take.buf.slice(0) : b64ToBuf(take.b64); } catch (e) { return; }
+    try { buf = take.buf ? take.buf.slice(0) : b64ToBuf(take.b64); } catch (e) { fail(); return; }
     try {
       ctx.decodeAudioData(buf, (audioBuf) => {
         decodedCache[key] = audioBuf;
         doPlay(audioBuf);
-      }, () => {});
-    } catch (e) {}
+      }, fail);
+    } catch (e) { fail(); }
   }
 
   function pickTake(slot, takes) {
@@ -208,21 +324,77 @@
     return take;
   }
 
-  // Returns true if a clip will play, so callers can skip fallback sounds
-  function play(slot, delayMs) {
+  function priorityOf(slot) {
+    if (PRIORITY[slot]) return PRIORITY[slot];
+    return slot.indexOf('photo') === 0 ? 3 : 1;
+  }
+
+  function stopCurrent() {
+    if (!current) return;
+    const c = current;
+    current = null;
+    c.cancelled = true;
+    if (c.timer) clearTimeout(c.timer);
+    try { if (c.src) { c.src.onended = null; c.src.stop(); } } catch (e) {}
+    notifySpeak(false);
+  }
+
+  function has(slot) {
+    return effectiveTakes(slot).length > 0;
+  }
+
+  function isBusy() {
+    return !!current && Date.now() < current.until;
+  }
+
+  // Returns true if a clip will play, so callers can skip fallback sounds.
+  // opts.queue: if the voice is busy, wait for it to finish instead of
+  // dropping this clip. opts.interrupt: cut off whatever is playing.
+  function play(slot, delayMs, opts) {
+    opts = opts || {};
     if (isMuted()) return false;
     const takes = effectiveTakes(slot);
     if (takes.length === 0) return false;
     const now = Date.now();
     const cd = COOLDOWN_MS[slot] || 0;
     if (lastPlayedAt[slot] && now - lastPlayedAt[slot] < cd) return false;
+    const prio = priorityOf(slot);
+    if (isBusy() && !opts.interrupt && prio <= current.prio) {
+      if (!opts.queue) return false;
+      queued = { slot: slot, at: now };
+      return true;
+    }
+    stopCurrent();
+    queued = null;
     lastPlayedAt[slot] = now;
     const take = pickTake(slot, takes);
     lastVariant[slot] = takeKey(slot, take);
-    const go = () => playTake(slot, take, getCtx());
-    if (delayMs) setTimeout(go, delayMs);
+    const entry = { slot: slot, prio: prio, until: now + (delayMs || 0) + 4000, src: null, cancelled: false, timer: null };
+    entry.started = (src, seconds) => {
+      entry.src = src;
+      entry.until = Date.now() + seconds * 1000 + 200;
+      notifySpeak(true);
+    };
+    entry.done = () => {
+      if (current !== entry) return;
+      current = null;
+      notifySpeak(false);
+      if (queued && Date.now() - queued.at < 15000) {
+        const q = queued;
+        queued = null;
+        play(q.slot, 250);
+      } else queued = null;
+    };
+    current = entry;
+    const go = () => { entry.timer = null; playTake(slot, take, getCtx(), entry); };
+    if (delayMs) entry.timer = setTimeout(go, delayMs);
     else go();
     return true;
+  }
+
+  function stop() {
+    queued = null;
+    stopCurrent();
   }
 
   function preview(slot, baked, idx) {
@@ -289,9 +461,10 @@
       buildRows();
     };
 
+    const maxSec = (SLOT_BY_ID[slot] && SLOT_BY_ID[slot].max) || DEFAULT_MAX_SECONDS;
     recorder.start();
-    setStatus('Recording… speak now! (10s max)');
-    recTimer = setTimeout(() => stopRecording(), 10000);
+    setStatus('Recording… speak now! (' + maxSec + 's max)');
+    recTimer = setTimeout(() => stopRecording(), maxSec * 1000);
     buildRows();
   }
 
@@ -371,18 +544,121 @@
       : 'Exported ' + total + ' takes! Replace voice-clips.js in the game folder and commit.');
   }
 
+  // ── Photos ────────────────────────────────────────────
+  const PHOTO_IDS = ['avatar', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+
+  function savePhotos() {
+    idbPut('__photos', localPhotos);
+  }
+
+  // Shrink to a sensible size so the exported pack stays small
+  function resizeImage(file, maxSide, square) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        try {
+          let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+          if (square) {
+            const side = Math.min(sw, sh);
+            sx = (sw - side) / 2; sy = (sh - side) / 2; sw = sh = side;
+          }
+          const scale = Math.min(1, maxSide / Math.max(sw, sh));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(sw * scale));
+          canvas.height = Math.max(1, Math.round(sh * scale));
+          canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.8));
+        } catch (e) { reject(e); }
+        URL.revokeObjectURL(url);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('unreadable image')); };
+      img.src = url;
+    });
+  }
+
+  function choosePhoto(id) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = () => {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      setStatus('Adding photo…');
+      resizeImage(file, id === 'avatar' ? 320 : 1000, id === 'avatar').then(url => {
+        localPhotos[id] = url;
+        savePhotos();
+        setStatus('Photo added! Export Photos when you’re done.');
+        buildRows();
+      }).catch(() => setStatus('Couldn’t read that photo — try a JPEG or PNG.'));
+    };
+    input.click();
+  }
+
+  function removePhoto(id) {
+    if (!confirm('Remove this photo?')) return;
+    if (photoPack().photos[id]) localPhotos[id] = null;   // hide the shipped one
+    else delete localPhotos[id];
+    savePhotos();
+    setStatus('Removed.');
+    buildRows();
+  }
+
+  function download(filename, content) {
+    const blob = new Blob([content], { type: 'text/javascript' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+
+  function exportPhotos() {
+    const photos = {};
+    let total = 0;
+    PHOTO_IDS.forEach(id => {
+      const url = photo(id);
+      if (url) { photos[id] = url; total++; }
+    });
+    if (total === 0 && !Object.keys(photoPack().photos).length) { setStatus('No photos yet — add one first.'); return; }
+    const stamp = Date.now();
+    const content = '// Baked-in photo pack for the games — generated by the studio\'s Export Photos button.\n' +
+      '// Replace the photo-pack.js next to the game files with this file and commit.\n' +
+      'window.PHOTO_PACK = ' + JSON.stringify({ exported: stamp, photos }, null, 1) + ';\n';
+    idbPut('__photosExported', stamp);
+    download('photo-pack.js', content);
+    setStatus('Exported ' + total + ' photo' + (total === 1 ? '' : 's') + '! Replace photo-pack.js in the game folder and commit.');
+  }
+
   // ── Studio UI ─────────────────────────────────────────
   const CSS = `
-.vb-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: flex-start; justify-content: center; padding: 24px; overflow-y: auto; }
+.vb-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: flex-start; justify-content: center; padding: 24px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .vb-overlay.active { display: flex; }
-.vb-card { background: #243044; border: 3px solid #4a90d9; border-radius: 24px; padding: 24px 20px; max-width: 500px; width: 100%; margin-top: 20px; text-align: center; color: #ecf0f1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+.vb-card { background: #243044; border: 3px solid #4a90d9; border-radius: 24px; padding: 24px 20px; max-width: 560px; width: 100%; margin-top: 20px; text-align: center; color: #ecf0f1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
 .vb-card h2 { font-size: 1.4rem; color: #6bb5ff; margin: 0 0 8px; }
-.vb-hint { font-size: 0.9rem; color: #7f8c8d; margin: 0 0 14px; line-height: 1.4; }
+.vb-hint { font-size: 0.9rem; color: #9fb0c0; margin: 0 0 14px; line-height: 1.4; }
+.vb-tabs { display: flex; gap: 8px; margin: 0 0 14px; }
+.vb-tab { flex: 1; min-height: 48px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.15); background: transparent; color: #ecf0f1; font-size: 1rem; font-weight: 800; cursor: pointer; touch-action: manipulation; }
+.vb-tab.on { background: #4a90d9; border-color: #4a90d9; }
+.vb-meter { height: 12px; border-radius: 8px; background: rgba(255,255,255,0.1); overflow: hidden; margin: 0 0 6px; }
+.vb-meter i { display: block; height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); border-radius: 8px; }
+.vb-meter-text { font-size: 0.85rem; color: #9fb0c0; margin: 0 0 12px; }
+.vb-group { border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; margin: 0 0 10px; overflow: hidden; text-align: left; }
+.vb-group-head { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 8px 14px; border: none; background: rgba(255,255,255,0.06); color: #ecf0f1; font-size: 1rem; font-weight: 800; text-align: left; cursor: pointer; touch-action: manipulation; }
+.vb-group-head span { flex: 1; }
+.vb-group-head em { font-style: normal; font-size: 0.85rem; color: #9fb0c0; font-weight: 700; }
+.vb-group-head em.full { color: #2ecc71; }
+.vb-group-body { padding: 4px 10px 8px; }
+.vb-group-note { font-size: 0.8rem; color: #9fb0c0; margin: 8px 4px 4px; line-height: 1.35; }
 .vb-slot { padding: 10px 4px; border-bottom: 1px solid rgba(255,255,255,0.07); text-align: left; }
+.vb-slot:last-child { border-bottom: none; }
 .vb-slot.recording { background: rgba(231,76,60,0.12); border-radius: 10px; }
 .vb-slot-head { display: flex; align-items: center; gap: 10px; }
 .vb-slot-name { flex: 1; font-size: 0.95rem; font-weight: 700; }
-.vb-slot-name small { display: block; font-weight: 400; color: #7f8c8d; font-size: 0.75rem; }
+.vb-slot-name small { display: block; font-weight: 400; color: #9fb0c0; font-size: 0.8rem; line-height: 1.3; margin-top: 2px; }
+.vb-slot.empty .vb-slot-name { color: #f1c40f; }
 .vb-btn { width: 48px; height: 48px; border-radius: 12px; border: none; font-size: 1.1rem; cursor: pointer; touch-action: manipulation; background: rgba(255,255,255,0.1); color: #ecf0f1; flex-shrink: 0; }
 .vb-btn:disabled { opacity: 0.25; }
 .vb-btn.rec { background: rgba(231,76,60,0.25); }
@@ -394,6 +670,14 @@
 .vb-take.local { background: rgba(46,204,113,0.25); }
 .vb-take button { border: none; background: transparent; color: #ecf0f1; font-size: 0.9rem; padding: 10px 12px; cursor: pointer; touch-action: manipulation; min-height: 44px; }
 .vb-take button.x { opacity: 0.7; padding-left: 4px; }
+.vb-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.vb-photo { position: relative; border-radius: 14px; overflow: hidden; background: rgba(255,255,255,0.06); border: 2px dashed rgba(255,255,255,0.2); aspect-ratio: 4 / 3; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #9fb0c0; font-size: 0.85rem; font-weight: 700; touch-action: manipulation; }
+.vb-photo.has { border-style: solid; border-color: #4a90d9; }
+.vb-photo.has.local { border-color: #2ecc71; }
+.vb-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.vb-photo b { position: absolute; left: 6px; bottom: 6px; background: rgba(0,0,0,0.65); color: white; border-radius: 8px; padding: 3px 8px; font-size: 0.8rem; }
+.vb-photo .plus { font-size: 1.8rem; line-height: 1; }
+.vb-photo button { position: absolute; right: 4px; top: 4px; width: 40px; height: 40px; border-radius: 10px; border: none; background: rgba(0,0,0,0.65); color: white; font-size: 1rem; cursor: pointer; }
 .vb-status { min-height: 20px; font-size: 0.85rem; color: #f1c40f; margin-top: 10px; }
 .vb-export { background: linear-gradient(135deg, #27ae60, #2ecc71); border: none; color: white; font-size: 1rem; font-weight: 800; padding: 14px 28px; border-radius: 14px; cursor: pointer; touch-action: manipulation; margin-top: 14px; min-height: 52px; }
 .vb-close { background: rgba(255,255,255,0.1); border: none; color: #ecf0f1; font-size: 1.5rem; width: 44px; height: 44px; border-radius: 12px; cursor: pointer; touch-action: manipulation; display: block; margin: 12px auto 0; }
@@ -426,17 +710,19 @@
     panel.className = 'vb-overlay';
     panel.id = 'vbPanel';
     panel.innerHTML = '<div class="vb-card">' +
-      '<h2>\u{1F3A4} Your Voice</h2>' +
-      '<p class="vb-hint">Record up to ' + MAX_TAKES + ' takes per moment — games pick one at random for variety. Short clips work best. Blue = ships with the games, green = recorded on this device.</p>' +
+      '<h2>\u{1F3A4} Your Voice &amp; Photos</h2>' +
+      '<div class="vb-tabs"><button class="vb-tab" id="vbTabVoice">\u{1F3A4} Voice</button><button class="vb-tab" id="vbTabPhotos">\u{1F4F7} Photos</button></div>' +
       '<div id="vbRows"></div>' +
-      '<button class="vb-export" id="vbExport">⬇ Export for Games</button>' +
+      '<button class="vb-export" id="vbExport"></button>' +
       '<div class="vb-status" id="vbStatus"></div>' +
       '<button class="vb-close" id="vbPanelClose">✕</button></div>';
     document.body.appendChild(panel);
 
     document.getElementById('vbGateClose').onclick = closeAll;
     document.getElementById('vbPanelClose').onclick = closeAll;
-    document.getElementById('vbExport').onclick = exportBank;
+    document.getElementById('vbExport').onclick = () => { if (studioTab === 'photos') exportPhotos(); else exportBank(); };
+    document.getElementById('vbTabVoice').onclick = () => { stopRecording(true); studioTab = 'voice'; setStatus(''); buildRows(); };
+    document.getElementById('vbTabPhotos').onclick = () => { stopRecording(true); studioTab = 'photos'; setStatus(''); buildRows(); };
 
     const btn = document.getElementById('vbHoldBtn');
     const fill = document.getElementById('vbHoldFill');
@@ -471,55 +757,117 @@
     if (el) el.textContent = msg || '';
   }
 
+  function el(tag, cls, text) {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  function buildSlotRow(s) {
+    const isRec = recorder && recSlot === s.id;
+    const takes = effectiveTakes(s.id);
+
+    const row = el('div', 'vb-slot' + (isRec ? ' recording' : '') + (takes.length ? '' : ' empty'));
+    const head = el('div', 'vb-slot-head');
+
+    const name = el('div', 'vb-slot-name', s.emoji + ' ' + s.name + ' ');
+    name.appendChild(el('small', '', s.hint));
+
+    const recBtn = el('button', 'vb-btn rec' + (isRec ? ' on' : ''), isRec ? '⏹' : '⏺');
+    recBtn.setAttribute('aria-label', (isRec ? 'Stop recording ' : 'Record ') + s.name);
+    recBtn.onclick = () => toggleRecord(s.id);
+
+    head.appendChild(name);
+    head.appendChild(recBtn);
+    row.appendChild(head);
+
+    if (takes.length > 0) {
+      const takesDiv = el('div', 'vb-takes');
+      takes.forEach((t, n) => {
+        const chip = el('div', 'vb-take ' + (t.baked ? 'baked' : 'local'));
+        const playBtn = el('button', '', '▶ ' + (n + 1));
+        playBtn.onclick = () => preview(s.id, t.baked, t.idx);
+        const delBtn = el('button', 'x', '✕');
+        delBtn.onclick = () => deleteTake(s.id, t.baked, t.idx);
+        chip.appendChild(playBtn);
+        chip.appendChild(delBtn);
+        takesDiv.appendChild(chip);
+      });
+      row.appendChild(takesDiv);
+    }
+    return row;
+  }
+
+  function buildVoiceTab(wrap) {
+    const recorded = SLOTS.filter(s => effectiveTakes(s.id).length > 0).length;
+    wrap.appendChild(el('p', 'vb-hint', 'Work down the list — anything you skip just stays silent in the games. Up to ' + MAX_TAKES +
+      ' takes per moment; games pick one at random. Blue = ships with the games, green = recorded on this device.'));
+    const meter = el('div', 'vb-meter');
+    const bar = el('i');
+    bar.style.width = (recorded / SLOTS.length * 100) + '%';
+    meter.appendChild(bar);
+    wrap.appendChild(meter);
+    wrap.appendChild(el('div', 'vb-meter-text', recorded + ' of ' + SLOTS.length + ' moments recorded'));
+
+    GROUPS.forEach(g => {
+      const slots = SLOTS.filter(s => s.group === g.id);
+      const done = slots.filter(s => effectiveTakes(s.id).length > 0).length;
+      const open = !!openGroups[g.id];
+      const box = el('div', 'vb-group');
+      const headBtn = el('button', 'vb-group-head');
+      headBtn.appendChild(el('span', '', (open ? '▾ ' : '▸ ') + g.name));
+      headBtn.appendChild(el('em', done === slots.length ? 'full' : '', done + ' / ' + slots.length));
+      headBtn.onclick = () => { openGroups[g.id] = !open; buildRows(); };
+      box.appendChild(headBtn);
+      if (open) {
+        const body = el('div', 'vb-group-body');
+        body.appendChild(el('div', 'vb-group-note', g.note));
+        slots.forEach(s => body.appendChild(buildSlotRow(s)));
+        box.appendChild(body);
+      }
+      wrap.appendChild(box);
+    });
+  }
+
+  function buildPhotosTab(wrap) {
+    wrap.appendChild(el('p', 'vb-hint', 'One photo per times table — Leon uncovers it piece by piece as he learns that table. ' +
+      '“Dad” is your face in the corner of the game. Exported photos are published with the games, so pick ones you’re happy to have online.'));
+    const grid = el('div', 'vb-photos');
+    PHOTO_IDS.forEach(id => {
+      const url = photo(id);
+      const isLocal = Object.prototype.hasOwnProperty.call(localPhotos, id) && !!localPhotos[id];
+      const tile = el('div', 'vb-photo' + (url ? ' has' : '') + (isLocal ? ' local' : ''));
+      const label = id === 'avatar' ? 'Dad' : '×' + id;
+      if (url) {
+        const img = el('img');
+        img.src = url;
+        img.alt = label + ' photo';
+        tile.appendChild(img);
+        tile.appendChild(el('b', '', label));
+        const x = el('button', '', '✕');
+        x.setAttribute('aria-label', 'Remove ' + label + ' photo');
+        x.onclick = (e) => { e.stopPropagation(); removePhoto(id); };
+        tile.appendChild(x);
+      } else {
+        tile.appendChild(el('div', 'plus', '+'));
+        tile.appendChild(el('div', '', label));
+      }
+      tile.onclick = () => choosePhoto(id);
+      grid.appendChild(tile);
+    });
+    wrap.appendChild(grid);
+  }
+
   function buildRows() {
     const wrap = document.getElementById('vbRows');
     if (!wrap) return;
     wrap.innerHTML = '';
-    SLOTS.forEach(s => {
-      const isRec = recorder && recSlot === s.id;
-      const takes = effectiveTakes(s.id);
-
-      const row = document.createElement('div');
-      row.className = 'vb-slot' + (isRec ? ' recording' : '');
-
-      const head = document.createElement('div');
-      head.className = 'vb-slot-head';
-
-      const name = document.createElement('div');
-      name.className = 'vb-slot-name';
-      name.innerHTML = s.emoji + ' ' + s.name + ' <small>' + s.hint + '</small>';
-
-      const recBtn = document.createElement('button');
-      recBtn.className = 'vb-btn rec' + (isRec ? ' on' : '');
-      recBtn.textContent = isRec ? '⏹' : '⏺';
-      recBtn.onclick = () => toggleRecord(s.id);
-
-      head.appendChild(name);
-      head.appendChild(recBtn);
-      row.appendChild(head);
-
-      if (takes.length > 0) {
-        const takesDiv = document.createElement('div');
-        takesDiv.className = 'vb-takes';
-        takes.forEach((t, n) => {
-          const chip = document.createElement('div');
-          chip.className = 'vb-take ' + (t.baked ? 'baked' : 'local');
-          const playBtn = document.createElement('button');
-          playBtn.textContent = '▶ ' + (n + 1);
-          playBtn.onclick = () => preview(s.id, t.baked, t.idx);
-          const delBtn = document.createElement('button');
-          delBtn.className = 'x';
-          delBtn.textContent = '✕';
-          delBtn.onclick = () => deleteTake(s.id, t.baked, t.idx);
-          chip.appendChild(playBtn);
-          chip.appendChild(delBtn);
-          takesDiv.appendChild(chip);
-        });
-        row.appendChild(takesDiv);
-      }
-
-      wrap.appendChild(row);
-    });
+    document.getElementById('vbTabVoice').classList.toggle('on', studioTab === 'voice');
+    document.getElementById('vbTabPhotos').classList.toggle('on', studioTab === 'photos');
+    document.getElementById('vbExport').textContent = studioTab === 'photos' ? '⬇ Export Photos' : '⬇ Export Voice for Games';
+    if (studioTab === 'photos') buildPhotosTab(wrap);
+    else buildVoiceTab(wrap);
   }
 
   function openGate() {
@@ -542,6 +890,7 @@
     const p = document.getElementById('vbPanel');
     if (g) g.classList.remove('active');
     if (p) p.classList.remove('active');
+    studioListeners.forEach(fn => { try { fn(); } catch (e) {} });
   }
 
   function configure(options) {
@@ -551,9 +900,18 @@
 
   window.VoiceBank = {
     play,
+    stop,
+    has,
+    isBusy,
+    photo,
     configure,
     openGate,
+    openStudio: openPanel,                       // skips the hold gate — call from behind your own
+    onSpeak: (fn) => { speakListeners.push(fn); },   // fn(true|false) as Dad starts/stops talking
+    onStudioClose: (fn) => { studioListeners.push(fn); },
+    ready: () => dbReady,
     SLOTS,
+    GROUPS,
     // exposed for testing
     _effectiveTakes: effectiveTakes,
     _ready: () => dbReady,
