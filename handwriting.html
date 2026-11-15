@@ -786,6 +786,7 @@
     else { cur.mdemo = { t0: t0 }; cur.demo = null; }
   }
 
+  const NEXT_MS = 2200;
   const MSG = {
     3: ['Perfect!', 'Wow!', 'Super!'], 2: ['Great!', 'Nice!'], 1: ['Good!', 'Got it!'],
     finish: '✏️ Finish it!', road: '🛣️ Stay on the road!',
@@ -828,6 +829,10 @@
     else if (cur.fails) say(['comeback', 'correct'], 300);
     else if (R.streak >= 3 && R.streak % 3 === 0) say(['streak', 'correct'], 300);
     else if (res.stars === 3) say('correct', 300);
+
+    // Three stars: nothing left to fix, so move on by itself after the cheer.
+    // Fewer stars wait for him — "Again" is worth a go.
+    if (res.stars === 3) autoTimer = setTimeout(() => { if (cur && cur.state === 'passed') next(); }, NEXT_MS);
   }
 
   function fail(res) {
@@ -842,6 +847,7 @@
   }
 
   function next() {
+    clearTimeout(autoTimer);
     const it = cur.it;
     if (it.si < it.steps.length - 1) { it.si++; startStep(); return; }
     R.i++;
@@ -1161,9 +1167,12 @@
   inkCv.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('gesturestart', e => e.preventDefault());
 
-  // After each stroke: move the pulsing dot on, and if the whole letter is
-  // there, check it by itself a moment later (no button needed)
+  // After each stroke: move the pulsing dot on, then check it by itself (no
+  // button needed) — a moment later if the whole letter is there, or once the
+  // pencil has been still for a while if it isn't
+  const DONE_MS = 1500, IDLE_MS = 5000;
   function afterStroke() {
+    clearTimeout(autoTimer);
     if (!cur || cur.state !== 'writing') return;
     const t = cur.t, res = judge(t, cur.ink, cur.mode);
     if (res.empty) return;
@@ -1172,7 +1181,7 @@
     let done = 0;
     while (done < need.length && have[done] / need[done] >= 0.7) done++;
     cur.done = done;
-    if (done === need.length && res.cov >= 0.9) autoTimer = setTimeout(check, 1500);
+    autoTimer = setTimeout(check, done === need.length && res.cov >= 0.9 ? DONE_MS : IDLE_MS);
   }
 
   // ── Round end ──────────────────────────────────────────────────────────────

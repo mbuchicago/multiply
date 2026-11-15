@@ -1,4 +1,4 @@
-const CACHE = 'learning-games-v13';
+const CACHE = 'learning-games-v14';
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll([
