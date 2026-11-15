@@ -98,6 +98,8 @@
     }
     .tile:active { transform: translateY(3px); box-shadow: none; }
     .tile .g { height: 66px; display: flex; justify-content: center; }
+    .tile .g { width: 100%; }
+    .tile .g .glyph { max-width: 100%; }   /* long words shrink to fit the tile */
     .tile .st { font-size: 1.05rem; letter-spacing: 1px; color: #d1d5db; line-height: 1; }
     .tile .st b { color: var(--yellow); font-weight: 800; }
     .tile.next { border-color: var(--green); }
@@ -329,8 +331,37 @@
     abc: 'abcdefghijklmnopqrstuvwxyz'.split(''),
     ABC: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
     123: '0123456789'.split(''),
-    // a few names, a few of his red words, a few that are just fun to write
-    words: ['Leon', 'Dad', 'Mom', 'the', 'and', 'is', 'to', 'my', 'of', 'you', 'was', 'she', 'cat', 'dog', 'sun', 'fun'],
+    // a few names and a few that are just fun to write, then every red word from
+    // red-words.html: his class list (1D) by spelling pattern, then the 2nd grade ones
+    words: [...new Set([
+      'Leon', 'Dad', 'Mom', 'the', 'and', 'is', 'to', 'my', 'of', 'you', 'was', 'she', 'cat', 'dog', 'sun', 'fun',
+      // 1D
+      'too', 'soon', 'saw', 'school',
+      'look', 'book', 'took', 'good',
+      'the', 'then', 'they', 'these', 'those', 'there', 'their',
+      'another', 'other', 'under', 'mother',
+      'down', 'now', 'how', 'know',
+      'around', 'our', 'out', 'about',
+      'would', 'could', 'should',
+      'why', 'very', 'by', 'any', 'many', 'every',
+      'been', 'from', 'away',
+      'said', 'does', 'goes', 'because', 'before',
+      'give', 'have', 'love', 'live',
+      'do', 'to', 'two', 'you', 'your',
+      'he', 'she', 'me', 'be', 'go', 'no', 'so',
+      'all', 'off', 'will',
+      'one', 'some', 'of',
+      'use', 'us', 'up',
+      'play', 'day', 'wait',
+      'my', 'like', 'little',
+      'went', 'were', 'where', 'what', 'when', 'which', 'with',
+      'am', 'an', 'and', 'at', 'are', 'can', 'for', 'or', 'his', 'is', 'see',
+      // 2nd grade
+      'done', 'both', 'pull', 'walk', 'talk', 'once', 'only', 'sure', 'move', 'right',
+      'again', 'always', 'friend', 'buy', 'eight', 'great', 'laugh', 'learn', 'pretty',
+      'people', 'answer', 'enough', 'thought', 'through', 'together', 'favorite',
+      'tomorrow', 'beautiful',
+    ])],
   };
   const ORDER = {
     abc: 'coadglituesrnmhbpvwkyjfxzq'.split(''),

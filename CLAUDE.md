@@ -125,8 +125,8 @@ Always check existing files for reusable logic before writing from scratch.
 |---|---|
 | `index.html` | Game launcher hub — links to all games |
 | `multiply.html` | Times Tables — 10-star rounds on a number pad; each table hides a picture (Dad's photo) uncovered as facts are remembered; dot-array hints, boss/mix rounds, full 12×12 grid mode (random unanswered squares), fact chart, grown-ups stats, Dad's voice throughout |
-| `red-words.html` | Red Words — sight word flashcards with spaced repetition |
-| `handwriting.html` | Write It! — Apple Pencil handwriting on sky/plane/grass/worm lines: letters, capitals, numbers and short words; each climbs trace → start dots → on his own; animated stroke demos; 0–3 stars from shape and stroke order, with ink turning green/orange as feedback |
+| `red-words.html` | Red Words — sight word flashcards with spaced repetition; two lists: **1D** (his class red words, 93, grouped by spelling pattern) and **2nd** (28 second grade stretch words not on the class list), plus words added via "+ Add Words"; 20-word rounds: words he missed, up to 10 new ones in list order, then review |
+| `handwriting.html` | Write It! — Apple Pencil handwriting on sky/plane/grass/worm lines: letters, capitals, numbers and words (a few names plus every red word from `red-words.html` — keep the two lists in sync); each climbs trace → start dots → on his own; animated stroke demos; 0–3 stars from shape and stroke order, with ink turning green/orange as feedback |
 | `place-value.html` | Place Value — interactive base-10 blocks visualization with bundling animation |
 | `pipeline.html` | Pipeline Engineer — number sequence game: 6 levels (starts at skip counting), pattern intros, boss pipes, guess-mash detector, parent voice clips |
 | `shape-builder.html` | Shape Builder — geometry/shapes game |

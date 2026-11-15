@@ -103,6 +103,7 @@
       font-size: 6rem;
       color: #cc0000;
       text-shadow: 3px 4px 0 rgba(200,0,0,0.15);
+      white-space: nowrap;
       transition: opacity 0.2s ease;
     }
 
@@ -202,19 +203,22 @@
       display: inline-block;
     }
 
-    /* List selector */
+    /* List picker */
     .list-selector {
       display: flex;
-      gap: 8px;
+      justify-content: center;
+      gap: 12px;
       margin-bottom: 18px;
     }
 
     .list-btn {
       font-family: 'Fredoka One', cursive;
-      font-size: 1rem;
+      font-size: 1.2rem;
+      min-width: 96px;
+      min-height: 52px;
       border: 3px solid transparent;
-      border-radius: 22px;
-      padding: 7px 18px;
+      border-radius: 26px;
+      padding: 8px 24px;
       cursor: pointer;
       transition: all 0.15s ease;
       background: rgba(255,255,255,0.5);
@@ -422,9 +426,8 @@
 <body>
   <h1>Red Words!</h1>
   <div class="list-selector">
-    <button class="list-btn" id="btn-kdp" onclick="setList('kdp')">KDP</button>
-    <button class="list-btn" id="btn-extra" onclick="setList('extra')">Extra</button>
-    <button class="list-btn" id="btn-both" onclick="setList('both')">Both</button>
+    <button class="list-btn" data-list="1d" onclick="setList('1d')">1D</button>
+    <button class="list-btn" data-list="2nd" onclick="setList('2nd')">2nd</button>
   </div>
   <div class="progress" id="progress"></div>
   <div class="status-badge status-new" id="statusBadge"></div>
@@ -474,69 +477,108 @@
   <script src="voice-bank.js"></script>
   <script>
     // ===== WORD LISTS — add more words here! =====
-    const KDP_WORDS = [
-      'a',
-      'the',
-      'my',
-      'to',
-      'is',
-      'of',
-      'and',
-      'like',
-      'you',
-      'was',
-      'are',
-      'she',
-      'he'
+
+    // 1D: his class red words (Nov 2026), grouped by spelling pattern the way
+    // his teacher's deck groups them. New words are introduced in this order.
+    const ONE_D_WORDS = [
+      'too', 'soon', 'saw', 'school',                     // oo, aw
+      'look', 'book', 'took', 'good',                     // short oo
+      'the', 'then', 'they', 'these', 'those', 'there', 'their', // th
+      'another', 'other', 'under', 'mother',              // er
+      'down', 'now', 'how', 'know',                       // ow
+      'around', 'our', 'out', 'about',                    // ou
+      'would', 'could', 'should',                         // oul
+      'why', 'very', 'by', 'any', 'many', 'every',        // ending with y
+      'been', 'from', 'away',                             // schwa
+      'said', 'does', 'goes', 'because', 'before',        // irregular
+      'give', 'have', 'love', 'live',                     // -ve
+      'do', 'to', 'two', 'you', 'your',                   // oo sound
+      'he', 'she', 'me', 'be', 'go', 'no', 'so',          // open syllables
+      'all', 'off', 'will',                               // FLOSS rule
+      'one', 'some', 'of',                                // sounds like short u
+      'use', 'us', 'up',
+      'play', 'day', 'wait',                              // long a
+      'my', 'like', 'little',
+      'went', 'were', 'where', 'what', 'when', 'which', 'with', // w, wh
+      'am', 'an', 'and', 'at', 'are', 'can', 'for', 'or', 'his', 'is', 'see',
     ];
 
-    const EXTRA_WORDS = [
-      'I',
-      'it',
-      'in',
-      'on',
-      'at',
-      'me',
-      'we',
-      'do',
-      'go',
-      'up',
-      'that',
-      'this',
-      'with',
-      'have',
-      'they',
-      'what',
-      'said',
-      'come',
-      'here',
-      'look',
-      'some',
-      'them',
-      'were',
-      'your',
+    // 2nd grade stretch words that are not on the 1D list:
+    // the common ones first, then the longer and trickier ones.
+    const SECOND_WORDS = [
+      'done',
+      'both',
+      'pull',
+      'walk',
+      'talk',
+      'once',
+      'only',
+      'sure',
+      'move',
+      'right',
+      'again',
+      'always',
+      'friend',
+      'buy',
+      'eight',
+      'great',
+      'laugh',
+      'learn',
+      'pretty',
+      'people',
+      'answer',
+      'enough',
+      'thought',
+      'through',
+      'together',
+      'favorite',
+      'tomorrow',
+      'beautiful',
     ];
 
-    // Frequency weights: oops words appear ~4x, almost ~2x, known ~1x, new ~2x
-    const WEIGHT = { oops: 4, almost: 2, known: 1, new: 2 };
+    const LISTS = { '1d': ONE_D_WORDS, '2nd': SECOND_WORDS };
+    let activeList = '1d'; // a key of LISTS
+
+    function builtinWords() {
+      return LISTS[activeList];
+    }
+
+    // Words a grown-up typed in with "+ Add Words" — practiced with either list
+    function loadCustomWords() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('redwords-custom'));
+        return Array.isArray(saved) ? saved.filter(w => typeof w === 'string' && w) : [];
+      } catch(e) { return []; }
+    }
+
+    function saveCustomWords(words) {
+      localStorage.setItem('redwords-custom', JSON.stringify(words));
+    }
+
+    let customWords = loadCustomWords();
+
+    function getWords() {
+      return [...new Set([...builtinWords(), ...customWords])];
+    }
+
+    // A round is short: the words he is still learning, a few new ones,
+    // and words he already knows as review.
+    const ROUND_SIZE = 20;
+    const MAX_NEW = 10;
 
     let ratings = {};  // word -> 'known' | 'almost' | 'oops'
     let deck = [];
     let currentIndex = 0;
-    let activeList = 'kdp'; // 'kdp' | 'extra' | 'both'
 
-    function activeWords() {
-      if (activeList === 'kdp') return KDP_WORDS;
-      if (activeList === 'extra') return EXTRA_WORDS;
-      // 'both': merge, dedupe
-      return [...new Set([...KDP_WORDS, ...EXTRA_WORDS])];
+    function markActiveList() {
+      document.querySelectorAll('.list-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.list === activeList));
     }
 
     function setList(list) {
       activeList = list;
-      localStorage.setItem('redwords-list', list);
-      document.querySelectorAll('.list-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('btn-' + list).classList.add('active');
+      try { localStorage.setItem('redwords-list', list); } catch(e) { /* ignore */ }
+      markActiveList();
       buildDeck();
       showWord();
     }
@@ -549,25 +591,40 @@
     function loadRatings() {
       try {
         const saved = localStorage.getItem('redwords-ratings');
-        if (saved) ratings = JSON.parse(saved);
+        if (saved) ratings = JSON.parse(saved) || {};
         const savedList = localStorage.getItem('redwords-list');
-        if (savedList) activeList = savedList;
+        if (LISTS[savedList]) activeList = savedList;
       } catch(e) { /* ignore */ }
     }
 
-    // --- Build a weighted deck ---
-    function buildDeck() {
-      deck = [];
-      activeWords().forEach(w => {
-        const status = ratings[w] || 'new';
-        const count = WEIGHT[status];
-        for (let i = 0; i < count; i++) deck.push(w);
-      });
-      // shuffle
-      for (let i = deck.length - 1; i > 0; i--) {
+    function shuffle(list) {
+      for (let i = list.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
+        [list[i], list[j]] = [list[j], list[i]];
       }
+      return list;
+    }
+
+    // --- Build one round ---
+    function buildDeck() {
+      const words = getWords();
+      const withStatus = status => words.filter(w => getStatus(w) === status);
+      const room = () => ROUND_SIZE - picks.length;
+
+      // 1. words he missed, then the almost-there ones
+      const picks = [...shuffle(withStatus('oops')), ...shuffle(withStatus('almost'))]
+        .slice(0, ROUND_SIZE);
+      // 2. a few new words: Dad's added words first, then the list in order
+      const fresh = [...new Set([...customWords, ...builtinWords()])]
+        .filter(w => getStatus(w) === 'new');
+      picks.push(...fresh.slice(0, Math.min(MAX_NEW, room())));
+      // 3. review of words he knows
+      picks.push(...shuffle(withStatus('known')).slice(0, room()));
+      // 4. not much to review yet? top up with more new words
+      picks.push(...fresh.filter(w => !picks.includes(w)).slice(0, room()));
+
+      // missed words come around twice
+      deck = shuffle(picks.flatMap(w => getStatus(w) === 'oops' ? [w, w] : [w]));
       // dedupe consecutive same words
       for (let i = 1; i < deck.length; i++) {
         if (deck[i] === deck[i - 1]) {
@@ -599,6 +656,7 @@
       card.classList.add('animating');
       setTimeout(() => {
         wordEl.textContent = word;
+        fitWord();
         progress.textContent = `${currentIndex + 1} / ${deck.length}`;
 
         badge.className = 'status-badge status-' + status;
@@ -609,6 +667,19 @@
       }, 150);
 
       updateScoreBar();
+    }
+
+    // Long words ("beautiful") shrink just enough to stay inside the card
+    function fitWord() {
+      const card = document.getElementById('card');
+      const wordEl = document.getElementById('word');
+      wordEl.style.fontSize = '';
+      const room = card.clientWidth - 64;
+      const width = wordEl.scrollWidth;
+      if (width > room) {
+        const base = parseFloat(getComputedStyle(wordEl).fontSize);
+        wordEl.style.fontSize = Math.floor(base * room / width) + 'px';
+      }
     }
 
     function rate(level) {
@@ -661,9 +732,8 @@
 
     function updateScoreBar() {
       const counts = { known: 0, almost: 0, oops: 0, new: 0 };
-      activeWords().forEach(w => {
-        const s = ratings[w] || 'new';
-        counts[s]++;
+      getWords().forEach(w => {
+        counts[getStatus(w)]++;
       });
       const bar = document.getElementById('scoreBar');
       bar.innerHTML =
@@ -719,6 +789,20 @@
       showWord();
     }
 
+    function wordTag(word, onRemove) {
+      const tag = document.createElement('span');
+      tag.className = 'modal-word-tag' + (onRemove ? '' : ' builtin');
+      tag.textContent = word;
+      if (onRemove) {
+        const x = document.createElement('span');
+        x.className = 'remove-word';
+        x.textContent = '\u00d7';
+        x.addEventListener('click', onRemove);
+        tag.appendChild(x);
+      }
+      return tag;
+    }
+
     function renderWordLists() {
       const customList = document.getElementById('customWordList');
       const builtinList = document.getElementById('builtinWordList');
@@ -726,28 +810,20 @@
       if (customWords.length === 0) {
         customList.innerHTML = '<span style="color:#aaa;font-size:0.9rem">No custom words yet</span>';
       } else {
-        customList.innerHTML = customWords.map(w =>
-          `<span class="modal-word-tag">${w}<span class="remove-word" onclick="removeCustomWord('${w}')">&times;</span></span>`
-        ).join('');
+        customList.replaceChildren(...customWords.map(w => wordTag(w, () => removeCustomWord(w))));
       }
 
-      builtinList.innerHTML = BUILTIN_WORDS.map(w =>
-        `<span class="modal-word-tag builtin">${w}</span>`
-      ).join('');
+      builtinList.replaceChildren(...builtinWords().map(w => wordTag(w)));
     }
 
     function addNewWord() {
       const input = document.getElementById('newWordInput');
       const word = input.value.trim().toLowerCase();
+      input.value = '';
       if (!word) return;
-      const allWords = getWords();
-      if (allWords.includes(word)) {
-        input.value = '';
-        return;
-      }
+      if (getWords().some(w => w.toLowerCase() === word)) return;
       customWords.push(word);
       saveCustomWords(customWords);
-      input.value = '';
       renderWordLists();
       input.focus();
     }
@@ -790,10 +866,12 @@
 
     // Init
     loadRatings();
-    document.getElementById('btn-' + activeList).classList.add('active');
+    markActiveList();
     buildDeck();
     placeStars();
     showWord();
+    window.addEventListener('resize', fitWord);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWord);
   </script>
 </body>
 </html>
